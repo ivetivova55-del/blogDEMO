@@ -1,0 +1,22 @@
+{
+  "name": "blog-demo",
+  "version": "1.0.0",
+  "description": "Multi-page Blog Application for IT and Marketing News",
+  "type": "module",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "keywords": ["blog", "vite", "supabase", "javascript"],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.0.0"
+  },
+  "dependencies": {
+    "@supabase/supabase-js": "^2.38.0",
+    "bootstrap": "^5.3.0"
+  }
+}
