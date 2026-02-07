@@ -1196,19 +1196,17 @@
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
             <a class="navbar-brand" href="#">
-                <i class="fas fa-newspaper"></i> blogDEMO
+                <i class="fas fa-feather-alt"></i> DigiQuill
             </a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
                 <span class="navbar-toggler-icon"></span>
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#pages">Pages</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#login-demo">Login</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#tech">Tech Stack</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#database">Database</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#deployment">Deploy</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features-tab">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pages-tab">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#login-tab">Demo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#tech">Tech</a></li>
                 </ul>
             </div>
         </div>
@@ -1217,13 +1215,13 @@
     <!-- Hero Section -->
     <section class="hero">
         <div class="container-fluid">
-            <h1 class="fade-in">blogDEMO</h1>
-            <p class="subtitle fade-in">IT & Marketing News Blog Platform</p>
+            <h1 class="fade-in">DigiQuill</h1>
+            <p class="subtitle fade-in">Digital Marketing Management Platform</p>
             <div style="margin: 30px 0;">
-                <span class="badge-pill"><i class="fas fa-check-circle"></i> Production Ready</span>
-                <span class="badge-pill"><i class="fas fa-code"></i> Vanilla JavaScript</span>
-                <span class="badge-pill"><i class="fas fa-database"></i> Supabase Backend</span>
-                <span class="badge-pill"><i class="fas fa-mobile-alt"></i> Fully Responsive</span>
+                <span class="badge-pill"><i class="fas fa-check-circle"></i> Enterprise Ready</span>
+                <span class="badge-pill"><i class="fas fa-rocket"></i> Modern Tech Stack</span>
+                <span class="badge-pill"><i class="fas fa-shield-alt"></i> Fully Secure</span>
+                <span class="badge-pill"><i class="fas fa-mobile-alt"></i> Responsive Design</span>
             </div>
         </div>
     </section>
@@ -1235,91 +1233,198 @@
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="stat-number">
-                            <i class="fas fa-file-code"></i> 20+
+                            <i class="fas fa-layer-group"></i> 15+
                         </div>
-                        <div class="stat-label">Code Files</div>
+                        <div class="stat-label">Services Available</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="stat-number">
-                            <i class="fas fa-book"></i> 12+
+                            <i class="fas fa-users"></i> 10K+
                         </div>
-                        <div class="stat-label">Documentation Files</div>
+                        <div class="stat-label">Active Users</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="stat-number">
-                            <i class="fas fa-git-alt"></i> 18+
+                            <i class="fas fa-sparkles"></i> 99.9%
                         </div>
-                        <div class="stat-label">Git Commits</div>
+                        <div class="stat-label">Uptime SLA</div>
                     </div>
                 </div>
                 <div class="col-md-3">
                     <div class="stat-card">
                         <div class="stat-number">
-                            <i class="fas fa-code-branch"></i> 8,000+
+                            <i class="fas fa-rocket"></i> 24/7
                         </div>
-                        <div class="stat-label">Lines of Code</div>
+                        <div class="stat-label">Support</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Features Section -->
-    <section class="section mt-lg" id="features">
-        <div class="container-fluid">
-            <h2 class="section-title">✨ Key Features</h2>
-            <div class="row">
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-pen-fancy"></i></div>
-                        <div class="feature-title">Article Management</div>
-                        <div class="feature-description">Create, read, update, and delete articles with rich content</div>
+    <!-- Page Navigation Tabs -->
+    <div class="container-fluid" style="margin-top: 40px;">
+        <div class="page-tabs">
+            <button class="page-tab active" onclick="switchPage('services')">
+                <i class="fas fa-briefcase"></i> Services
+            </button>
+            <button class="page-tab" onclick="switchPage('features')">
+                <i class="fas fa-star"></i> Features
+            </button>
+            <button class="page-tab" onclick="switchPage('pages')">
+                <i class="fas fa-sitemap"></i> Pages & Navigation
+            </button>
+            <button class="page-tab" onclick="switchPage('demo')">
+                <i class="fas fa-sign-in-alt"></i> Demo
+            </button>
+        </div>
+    </div>
+
+    <!-- Services Page -->
+    <div class="page-content active" id="services-page">
+        <section class="section mt-lg">
+            <div class="container-fluid">
+                <h2 class="section-title">💼 Our Services</h2>
+                <p style="text-align: center; color: #64748b; margin-bottom: 50px; font-size: 1.05rem;">
+                    Comprehensive digital marketing solutions for modern businesses
+                </p>
+
+                <div class="services-grid">
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-chart-line"></i></div>
+                        <div class="service-title">Analytics & Insights</div>
+                        <div class="service-description">Real-time analytics dashboards tracking customer behavior, conversion rates, and ROI metrics across all your marketing channels.</div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-lock"></i></div>
-                        <div class="feature-title">Authentication</div>
-                        <div class="feature-description">Secure user registration and login with JWT tokens</div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="service-title">Email Marketing</div>
+                        <div class="service-description">Automated email campaigns with sophisticated segmentation, A/B testing, and personalization for maximum engagement.</div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-image"></i></div>
-                        <div class="feature-title">Image Upload</div>
-                        <div class="feature-description">Upload and manage article cover images</div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-share-alt"></i></div>
+                        <div class="service-title">Social Media Management</div>
+                        <div class="service-description">Schedule posts, monitor engagement, and manage multiple social platforms from one unified dashboard.</div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-comments"></i></div>
-                        <div class="feature-title">Comments</div>
-                        <div class="feature-description">Users can comment and discuss articles</div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-search"></i></div>
+                        <div class="service-title">SEO Optimization</div>
+                        <div class="service-description">Keyword research, On-page & off-page optimization, with detailed ranking tracking and competitor analysis tools.</div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-search"></i></div>
-                        <div class="feature-title">Search & Filter</div>
-                        <div class="feature-description">Find articles by keyword, category, or date</div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-pen-fancy"></i></div>
+                        <div class="service-title">Content Creation</div>
+                        <div class="service-description">AI-powered content generation, editorial calendar management, and content distribution across all channels.</div>
                     </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="feature-card">
-                        <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
-                        <div class="feature-title">Admin Panel</div>
-                        <div class="feature-description">Manage users, articles, and view statistics</div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-bullseye"></i></div>
+                        <div class="service-title">Campaign Management</div>
+                        <div class="service-description">Design, launch, and optimize marketing campaigns with built-in templates and automated workflow orchestration.</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-robot"></i></div>
+                        <div class="service-title">AI Marketing Assistant</div>
+                        <div class="service-description">Intelligent recommendations, predictive analytics, and automated optimization suggestions powered by machine learning.</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-users-cog"></i></div>
+                        <div class="service-title">Team Collaboration</div>
+                        <div class="service-description">Real-time collaboration tools, approval workflows, and team management with granular permission controls.</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-file-export"></i></div>
+                        <div class="service-title">Advanced Reporting</div>
+                        <div class="service-description">Customizable reports, white-label dashboards, and scheduled report delivery via email or API.</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-plug"></i></div>
+                        <div class="service-title">Integrations</div>
+                        <div class="service-description">Connect with 100+ marketing tools, CRM systems, and analytics platforms through native integrations.</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-headset"></i></div>
+                        <div class="service-title">24/7 Support</div>
+                        <div class="service-description">Professional support team available round-the-clock via chat, email, and phone with average response time under 5 minutes.</div>
+                    </div>
+
+                    <div class="service-card">
+                        <div class="service-icon"><i class="fas fa-lock"></i></div>
+                        <div class="service-title">Enterprise Security</div>
+                        <div class="service-description">SOC 2 certified, encrypted data transmission, regular security audits, and GDPR/CCPA compliance.</div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
 
-    <!-- Pages Section -->
+    <!-- Features Page -->
+    <div class="page-content" id="features-page">
+        <section class="section mt-lg" id="features">
+            <div class="container-fluid">
+                <h2 class="section-title">✨ Key Features</h2>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-tachometer-alt"></i></div>
+                            <div class="feature-title">Lightning Fast</div>
+                            <div class="feature-description">Optimized performance with sub-100ms load times and real-time data synchronization</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-shield-alt"></i></div>
+                            <div class="feature-title">Enterprise Security</div>
+                            <div class="feature-description">Bank-level encryption, SSO, two-factor authentication, and comprehensive audit logs</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-brain"></i></div>
+                            <div class="feature-title">AI-Powered</div>
+                            <div class="feature-description">Machine learning algorithms for predictive analytics and intelligent recommendations</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-chart-pie"></i></div>
+                            <div class="feature-title">Advanced Analytics</div>
+                            <div class="feature-description">Custom dashboards, real-time metrics, and comprehensive performance tracking</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-sync"></i></div>
+                            <div class="feature-title">Seamless Integrations</div>
+                            <div class="feature-description">Connect with all major marketing and business tools through webhooks and APIs</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="feature-card">
+                            <div class="feature-icon"><i class="fas fa-mobile-alt"></i></div>
+                            <div class="feature-title">Mobile Native</div>
+                            <div class="feature-description">Full-featured mobile apps for iOS and Android with offline compatibility</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Pages & Navigation -->
+    <div class="page-content" id="pages-page">
     <section class="section mt-lg" id="pages">
         <div class="container-fluid">
             <h2 class="section-title">📄 Application Pages & Navigation</h2>
