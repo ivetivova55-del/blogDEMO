@@ -70,6 +70,7 @@
             background: white;
             border-bottom: 2px solid var(--border);
             margin-top: 20px;
+            flex-wrap: wrap;
         }
 
         .page-tab {
@@ -303,46 +304,6 @@
             line-height: 1.6;
         }
 
-        /* Pages Grid */
-        .pages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-            margin-top: 30px;
-        }
-
-        .page-card {
-            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
-            border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
-            transition: all 0.3s;
-            border: 1px solid var(--border);
-        }
-
-        .page-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 18px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            font-size: 1.05rem;
-        }
-
-        .page-body {
-            padding: 18px;
-            color: #64748b;
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
         /* Services Grid */
         .services-grid {
             display: grid;
@@ -397,6 +358,46 @@
             color: #64748b;
             font-size: 0.95rem;
             line-height: 1.7;
+        }
+
+        /* Pages Grid */
+        .pages-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+
+        .page-card {
+            background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            border: 1px solid var(--border);
+        }
+
+        .page-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 20px 50px rgba(99, 102, 241, 0.2);
+        }
+
+        .page-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 18px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.05rem;
+        }
+
+        .page-body {
+            padding: 18px;
+            color: #64748b;
+            font-size: 0.95rem;
+            line-height: 1.6;
         }
 
         /* Tech Stack */
@@ -456,6 +457,111 @@
             border-radius: 12px 0 0 12px;
         }
 
+        /* Login Demo */
+        .login-demo-container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .login-demo-header {
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-demo-header h3 {
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-demo-body {
+            padding: 40px 30px;
+        }
+
+        .form-group-demo {
+            margin-bottom: 25px;
+        }
+
+        .form-group-demo label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group-demo input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group-demo input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, #6366f1, #ec4899);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(99, 102, 241, 0.3);
+        }
+
+        .login-demo-footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #64748b;
+            margin-top: 20px;
+        }
+
+        .login-demo-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .login-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #64748b;
+        }
+
+        .login-feature-item i {
+            color: var(--success);
+            font-size: 1.1rem;
+        }
+
         /* Footer */
         .footer {
             background: linear-gradient(135deg, var(--dark) 0%, #1e293b 100%);
@@ -496,7 +602,7 @@
             color: #059669;
         }
 
-        /* Animations */
+        /* Animation */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -540,658 +646,6 @@
     </style>
 </head>
 <body>
-
-        /* Navbar */
-        .navbar {
-            background: rgba(255, 255, 255, 0.95) !important;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            backdrop-filter: blur(10px);
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-        }
-
-        .navbar-brand {
-            font-weight: 700;
-            font-size: 1.5rem;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Hero Section */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 20px;
-            text-align: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -10%;
-            width: 500px;
-            height: 500px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 50%;
-        }
-
-        .hero::after {
-            content: '';
-            position: absolute;
-            bottom: -50%;
-            left: -10%;
-            width: 300px;
-            height: 300px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 50%;
-        }
-
-        .hero h1 {
-            font-size: 3.5rem;
-            font-weight: 800;
-            margin-bottom: 20px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero .subtitle {
-            font-size: 1.3rem;
-            margin-bottom: 30px;
-            opacity: 0.95;
-            position: relative;
-            z-index: 1;
-        }
-
-        .badge-pill {
-            display: inline-block;
-            background: rgba(255, 255, 255, 0.2);
-            color: white;
-            padding: 8px 16px;
-            border-radius: 20px;
-            margin: 5px;
-            font-size: 0.9rem;
-            backdrop-filter: blur(10px);
-        }
-
-        /* Stats Section */
-        .stats {
-            background: white;
-            padding: 60px 20px;
-            margin: -30px 20px 0;
-            border-radius: 15px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 10;
-        }
-
-        .stat-card {
-            text-align: center;
-            padding: 30px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--light) 0%, white 100%);
-            transition: transform 0.3s, box-shadow 0.3s;
-            border-left: 4px solid var(--primary);
-        }
-
-        .stat-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .stat-number {
-            font-size: 2.5rem;
-            font-weight: 800;
-            color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        .stat-label {
-            font-size: 0.95rem;
-            color: #6b7280;
-            margin-top: 10px;
-            font-weight: 600;
-        }
-
-        /* Features Section */
-        .section {
-            padding: 60px 20px;
-            background: white;
-            margin: 20px 0;
-            border-radius: 15px;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 50px;
-            text-align: center;
-            color: var(--dark);
-            position: relative;
-            padding-bottom: 20px;
-        }
-
-        .section-title::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80px;
-            height: 4px;
-            background: linear-gradient(90deg, var(--primary), var(--secondary));
-            border-radius: 2px;
-        }
-
-        .feature-card {
-            padding: 30px;
-            border-radius: 10px;
-            background: linear-gradient(135deg, var(--light) 0%, white 100%);
-            border: 2px solid transparent;
-            transition: all 0.3s;
-            margin-bottom: 30px;
-            text-align: center;
-        }
-
-        .feature-card:hover {
-            border-color: var(--primary);
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .feature-icon {
-            font-size: 2.5rem;
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-
-        .feature-title {
-            font-size: 1.2rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-
-        .feature-description {
-            color: #6b7280;
-            font-size: 0.95rem;
-        }
-
-        /* Pages Grid */
-        .pages-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .page-card {
-            background: white;
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
-            border-top: 4px solid var(--primary);
-        }
-
-        .page-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
-        }
-
-        .page-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 15px;
-            font-weight: 700;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .page-body {
-            padding: 15px;
-            color: #6b7280;
-            font-size: 0.9rem;
-        }
-
-        /* Tech Stack */
-        .tech-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .tech-item {
-            text-align: center;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--light) 0%, white 100%);
-            border-radius: 10px;
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
-
-        .tech-item:hover {
-            border-color: var(--primary);
-            transform: scale(1.05);
-        }
-
-        .tech-name {
-            font-weight: 700;
-            color: var(--dark);
-            margin-bottom: 5px;
-        }
-
-        .tech-version {
-            font-size: 0.85rem;
-            color: var(--primary);
-        }
-
-        /* Database Schema */
-        .table-responsive {
-            border-radius: 10px;
-            overflow: hidden;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            margin-top: 30px;
-        }
-
-        .table {
-            margin-bottom: 0;
-        }
-
-        .table thead {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-        }
-
-        .table tbody tr:hover {
-            background: var(--light);
-        }
-
-        /* Git Commits */
-        .commit-timeline {
-            margin-top: 30px;
-        }
-
-        .commit-item {
-            display: flex;
-            gap: 20px;
-            margin-bottom: 20px;
-            padding-left: 30px;
-            position: relative;
-        }
-
-        .commit-item::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            width: 12px;
-            height: 12px;
-            background: var(--primary);
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 0 0 2px var(--primary);
-        }
-
-        .commit-item::after {
-            content: '';
-            position: absolute;
-            left: 5px;
-            top: 12px;
-            width: 2px;
-            height: calc(100% + 8px);
-            background: var(--border);
-        }
-
-        .commit-item:last-child::after {
-            display: none;
-        }
-
-        .commit-message {
-            color: var(--dark);
-            font-weight: 600;
-        }
-
-        .commit-date {
-            font-size: 0.85rem;
-            color: #9ca3af;
-        }
-
-        /* Architecture */
-        .architecture-box {
-            background: linear-gradient(135deg, var(--light) 0%, white 100%);
-            border: 2px solid var(--border);
-            border-radius: 10px;
-            padding: 20px;
-            margin: 10px 0;
-            position: relative;
-            padding-left: 30px;
-        }
-
-        .architecture-box::before {
-            content: '';
-            position: absolute;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(180deg, var(--primary), var(--secondary));
-            border-radius: 10px 0 0 10px;
-        }
-
-        /* Files & Code */
-        .file-tree {
-            background: #1f2937;
-            color: #e5e7eb;
-            padding: 20px;
-            border-radius: 10px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            overflow-x: auto;
-            margin-top: 20px;
-        }
-
-        .file-tree .folder {
-            color: #fbbf24;
-            margin-left: 20px;
-            margin-top: 5px;
-        }
-
-        .file-tree .file {
-            color: #a1d8ff;
-            margin-left: 40px;
-            margin-top: 3px;
-        }
-
-        /* Metrics */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .metric-box {
-            background: linear-gradient(135deg, var(--light) 0%, white 100%);
-            padding: 20px;
-            border-radius: 10px;
-            text-align: center;
-            border-left: 4px solid var(--primary);
-        }
-
-        .metric-value {
-            font-size: 2rem;
-            font-weight: 800;
-            color: var(--primary);
-            margin-bottom: 10px;
-        }
-
-        .metric-label {
-            color: #6b7280;
-            font-size: 0.95rem;
-            font-weight: 600;
-        }
-
-        /* Deployment */
-        .deployment-steps {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .step-box {
-            background: linear-gradient(135deg, var(--light) 0%, white 100%);
-            padding: 30px;
-            border-radius: 10px;
-            text-align: center;
-            border-top: 4px solid var(--primary);
-            transition: all 0.3s;
-        }
-
-        .step-box:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-        }
-
-        .step-number {
-            display: inline-block;
-            width: 50px;
-            height: 50px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border-radius: 50%;
-            line-height: 50px;
-            font-weight: 700;
-            margin-bottom: 15px;
-            font-size: 1.5rem;
-        }
-
-        /* Footer */
-        .footer {
-            background: var(--dark);
-            color: white;
-            padding: 40px 20px;
-            text-align: center;
-            margin-top: 60px;
-        }
-
-        .footer-links {
-            margin: 20px 0;
-        }
-
-        .footer-links a {
-            color: var(--primary);
-            margin: 0 15px;
-            text-decoration: none;
-            transition: opacity 0.3s;
-        }
-
-        .footer-links a:hover {
-            opacity: 0.7;
-        }
-
-        /* Badges */
-        .status-badge {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.85rem;
-            margin: 5px;
-        }
-
-        .status-success {
-            background: rgba(16, 185, 129, 0.2);
-            color: #059669;
-        }
-
-        .status-info {
-            background: rgba(37, 99, 235, 0.2);
-            color: #1e40af;
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .hero h1 {
-                font-size: 2rem;
-            }
-
-            .stat-card {
-                margin-bottom: 20px;
-            }
-
-            .section-title {
-                font-size: 1.8rem;
-            }
-
-            .feature-card {
-                text-align: left;
-            }
-        }
-
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .fade-in {
-            animation: fadeInUp 0.6s ease-out;
-        }
-
-        /* Utility Classes */
-        .container-fluid {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 0 20px;
-        }
-
-        .text-primary {
-            color: var(--primary);
-        }
-
-        .text-muted {
-            color: #6b7280;
-        }
-
-        .mt-lg {
-            margin-top: 60px;
-        }
-
-        /* Login Form Demo */
-        .login-demo-container {
-            max-width: 450px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-            overflow: hidden;
-        }
-
-        .login-demo-header {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            padding: 40px 30px;
-            text-align: center;
-        }
-
-        .login-demo-header h3 {
-            margin-bottom: 10px;
-            font-weight: 700;
-        }
-
-        .login-demo-header p {
-            font-size: 0.9rem;
-            opacity: 0.95;
-            margin: 0;
-        }
-
-        .login-demo-body {
-            padding: 40px 30px;
-        }
-
-        .form-group-demo {
-            margin-bottom: 25px;
-        }
-
-        .form-group-demo label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            color: var(--dark);
-        }
-
-        .form-group-demo input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 2px solid var(--border);
-            border-radius: 8px;
-            font-size: 1rem;
-            transition: all 0.3s;
-            box-sizing: border-box;
-        }
-
-        .form-group-demo input:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-        }
-
-        .login-btn {
-            width: 100%;
-            padding: 12px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-weight: 700;
-            font-size: 1rem;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 15px;
-        }
-
-        .login-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
-        }
-
-        .login-demo-footer {
-            text-align: center;
-            font-size: 0.9rem;
-            color: #6b7280;
-            margin-top: 20px;
-        }
-
-        .login-demo-footer a {
-            color: var(--primary);
-            text-decoration: none;
-            font-weight: 600;
-        }
-
-        .login-demo-footer a:hover {
-            text-decoration: underline;
-        }
-
-        .login-features {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
-        }
-
-        .login-feature-item {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.9rem;
-            color: #6b7280;
-        }
-
-        .login-feature-item i {
-            color: var(--success);
-            font-size: 1.1rem;
-        }
-    </style>
-</head>
-<body>
     <!-- Navbar -->
     <nav class="navbar navbar-expand-lg navbar-light">
         <div class="container-fluid">
@@ -1203,9 +657,10 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
-                    <li class="nav-item"><a class="nav-link" href="#features-tab">Services</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#pages-tab">Features</a></li>
-                    <li class="nav-item"><a class="nav-link" href="#login-tab">Demo</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#services-tab">Services</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#features-tab">Features</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#pages-tab">Pages</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#demo-tab">Demo</a></li>
                     <li class="nav-item"><a class="nav-link" href="#tech">Tech</a></li>
                 </ul>
             </div>
@@ -1269,16 +724,16 @@
     <!-- Page Navigation Tabs -->
     <div class="container-fluid" style="margin-top: 40px;">
         <div class="page-tabs">
-            <button class="page-tab active" onclick="switchPage('services')">
+            <button class="page-tab active" onclick="switchPage('services')" id="services-tab">
                 <i class="fas fa-briefcase"></i> Services
             </button>
-            <button class="page-tab" onclick="switchPage('features')">
+            <button class="page-tab" onclick="switchPage('features')" id="features-tab">
                 <i class="fas fa-star"></i> Features
             </button>
-            <button class="page-tab" onclick="switchPage('pages')">
+            <button class="page-tab" onclick="switchPage('pages')" id="pages-tab">
                 <i class="fas fa-sitemap"></i> Pages & Navigation
             </button>
-            <button class="page-tab" onclick="switchPage('demo')">
+            <button class="page-tab" onclick="switchPage('demo')" id="demo-tab">
                 <i class="fas fa-sign-in-alt"></i> Demo
             </button>
         </div>
@@ -1425,320 +880,254 @@
 
     <!-- Pages & Navigation -->
     <div class="page-content" id="pages-page">
-    <section class="section mt-lg" id="pages">
-        <div class="container-fluid">
-            <h2 class="section-title">📄 Application Pages & Navigation</h2>
-            <p style="text-align: center; color: #6b7280; margin-bottom: 40px; font-size: 1rem;">
-                Each page includes breadcrumbs, contextual navigation, and integrated admin functions
-            </p>
+        <section class="section mt-lg" id="pages">
+            <div class="container-fluid">
+                <h2 class="section-title">📄 Application Pages & Navigation</h2>
+                <p style="text-align: center; color: #64748b; margin-bottom: 40px; font-size: 1rem;">
+                    Each page includes breadcrumbs, contextual navigation, and integrated admin functions
+                </p>
 
-            <!-- Navigation Features Overview -->
-            <div style="background: linear-gradient(135deg, #f0f4ff 0%, #fff5f7 100%); border-radius: 12px; padding: 30px; margin-bottom: 40px;">
-                <div class="row">
-                    <div class="col-md-4">
-                        <div style="text-align: center; padding: 10px;">
-                            <i class="fas fa-sitemap" style="font-size: 2rem; color: #2563eb; margin-bottom: 10px;"></i>
-                            <h5>Breadcrumbs</h5>
-                            <p style="font-size: 0.9rem; color: #666;">Path from home to current location</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div style="text-align: center; padding: 10px;">
-                            <i class="fas fa-search" style="font-size: 2rem; color: #7c3aed; margin-bottom: 10px;"></i>
-                            <h5>Smart Search</h5>
-                            <p style="font-size: 0.9rem; color: #666;">Module-specific content discovery</p>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div style="text-align: center; padding: 10px;">
-                            <i class="fas fa-bars" style="font-size: 2rem; color: #10b981; margin-bottom: 10px;"></i>
-                            <h5>Quick Navigation</h5>
-                            <p style="font-size: 0.9rem; color: #666;">Sidebar with related tools</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Pages Grid -->
-            <div class="pages-grid">
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-home"></i> Home</div>
-                    <div class="page-body">
-                        <p><strong>Featured articles showcase with categories sidebar</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home</div>
-                            <div style="margin: 8px 0;"><strong>📋 Sidebar Menu:</strong> Categories, Quick Stats</div>
-                            <div style="margin: 8px 0;"><strong>🔍 Search:</strong> Articles by keyword</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-sign-in-alt"></i> Login</div>
-                    <div class="page-body">
-                        <p><strong>Secure authentication with email and password</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Login</div>
-                            <div style="margin: 8px 0;"><strong>📋 Quick Links:</strong> Forgot Password, Register</div>
-                            <div style="margin: 8px 0;"><strong>🔐 Features:</strong> JWT Auth, 2FA Support</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-user-plus"></i> Register</div>
-                    <div class="page-body">
-                        <p><strong>User account creation with validation</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Register</div>
-                            <div style="margin: 8px 0;"><strong>📋 Context:</strong> Email verification, Password strength</div>
-                            <div style="margin: 8px 0;"><strong>⚙️ Role Assignment:</strong> Default 'user' role</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-list"></i> Articles</div>
-                    <div class="page-body">
-                        <p><strong>Browse all articles with pagination and filters</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Articles</div>
-                            <div style="margin: 8px 0;"><strong>🔍 Search:</strong> Title, category, author</div>
-                            <div style="margin: 8px 0;"><strong>📋 Sidebar:</strong> Categories, Date range filter</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-newspaper"></i> Article Detail</div>
-                    <div class="page-body">
-                        <p><strong>Full article view with comments section</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Articles > Title</div>
-                            <div style="margin: 8px 0;"><strong>📋 Sidebar:</strong> Related articles, Author bio</div>
-                            <div style="margin: 8px 0;"><strong>💬 Features:</strong> Comments, Share, Report</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-plus-circle"></i> Create Article</div>
-                    <div class="page-body">
-                        <p><strong>Article creation form with image upload</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Articles > Create</div>
-                            <div style="margin: 8px 0;"><strong>📤 Upload Tools:</strong> Images, Documents, PDF</div>
-                            <div style="margin: 8px 0;"><strong>📋 Features:</strong> Draft save, Preview, Schedule</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-user"></i> Profile</div>
-                    <div class="page-body">
-                        <p><strong>User account management and my-articles</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Profile</div>
-                            <div style="margin: 8px 0;"><strong>⚙️ Settings:</strong> Rights, Roles, Permissions</div>
-                            <div style="margin: 8px 0;"><strong>📋 Sections:</strong> My Articles, Activity Log</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="page-card">
-                    <div class="page-header"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</div>
-                    <div class="page-body">
-                        <p><strong>Dashboard with statistics and user management</strong></p>
-                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
-                        <div style="font-size: 0.85rem; color: #6b7280;">
-                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Admin</div>
-                            <div style="margin: 8px 0;"><strong>👥 Functions:</strong> User management, Role control</div>
-                            <div style="margin: 8px 0;"><strong>📜 Logging:</strong> Event history, Activity tracking</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Admin Features Section -->
-            <div style="margin-top: 50px;">
-                <h3 style="font-size: 1.8rem; margin-bottom: 30px; color: #1f2937;">
-                    <i class="fas fa-lock"></i> Administrative Features
-                </h3>
-                <div class="row">
-                    <div class="col-md-4">
-                        <div class="architecture-box">
-                            <strong><i class="fas fa-user-lock" style="color: #2563eb; margin-right: 8px;"></i> Profile Settings</strong>
-                            <ul style="font-size: 0.9rem; color: #6b7280; margin-top: 10px; padding-left: 20px;">
-                                <li>Manage user roles and permissions</li>
-                                <li>Access level configuration</li>
-                                <li>Account security settings</li>
-                                <li>Two-factor authentication</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="architecture-box">
-                            <strong><i class="fas fa-history" style="color: #7c3aed; margin-right: 8px;"></i> Event Log</strong>
-                            <ul style="font-size: 0.9rem; color: #6b7280; margin-top: 10px; padding-left: 20px;">
-                                <li>Change history tracking (who, when, what)</li>
-                                <li>Article modifications log</li>
-                                <li>User activity timeline</li>
-                                <li>System action audit trail</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="architecture-box">
-                            <strong><i class="fas fa-file-upload" style="color: #10b981; margin-right: 8px;"></i> File Upload Tools</strong>
-                            <ul style="font-size: 0.9rem; color: #6b7280; margin-top: 10px; padding-left: 20px;">
-                                <li>Document attachment (.pdf, .doc)</li>
-                                <li>Image gallery management</li>
-                                <li>Media library organization</li>
-                                <li>Bulk file operations</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Breadcrumb Example -->
-            <div style="margin-top: 50px; background: #f8f9fa; padding: 30px; border-radius: 12px;">
-                <h4 style="margin-bottom: 20px; color: #1f2937;">📍 Breadcrumb Navigation Example</h4>
-                <div style="font-size: 0.95rem; color: #6b7280; line-height: 2;">
-                    <div style="background: white; padding: 15px; border-radius: 8px; font-family: monospace;">
-                        <span style="color: #2563eb;"><i class="fas fa-home"></i> Home</span>
-                        <span style="color: #999; margin: 0 8px;">/</span>
-                        <span style="color: #7c3aed;"><i class="fas fa-list"></i> Articles</span>
-                        <span style="color: #999; margin: 0 8px;">/</span>
-                        <span style="color: #10b981;"><i class="fas fa-tag"></i> Technology</span>
-                        <span style="color: #999; margin: 0 8px;">/</span>
-                        <span style="color: #ef4444;"><i class="fas fa-newspaper"></i> AI Development Guide</span>
-                    </div>
-                    <p style="margin-top: 15px;">Users can click any breadcrumb level to navigate back quickly</p>
-                </div>
-            </div>
-
-            <!-- Search & Filter Features -->
-            <div style="margin-top: 30px; background: #f9f5ff; padding: 30px; border-radius: 12px;">
-                <h4 style="margin-bottom: 20px; color: #1f2937;">🔍 Advanced Search & Filtering</h4>
-                <div class="row">
-                    <div class="col-md-6">
-                        <div style="font-size: 0.95rem;">
-                            <div style="margin: 10px 0;"><strong>Global Search:</strong> Across all articles and users</div>
-                            <div style="margin: 10px 0;"><strong>Category Filter:</strong> By topic/department</div>
-                            <div style="margin: 10px 0;"><strong>Date Range:</strong> By publication period</div>
-                            <div style="margin: 10px 0;"><strong>Author Filter:</strong> By specific contributors</div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div style="font-size: 0.95rem;">
-                            <div style="margin: 10px 0;"><strong>Status Filter:</strong> Draft, Published, Archived</div>
-                            <div style="margin: 10px 0;"><strong>Popularity Sort:</strong> Views, Comments, Ratings</div>
-                            <div style="margin: 10px 0;"><strong>Advanced Queries:</strong> Boolean operators supported</div>
-                            <div style="margin: 10px 0;"><strong>Saved Searches:</strong> Quick access to frequent filters</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Login Demo Section -->
-    <section class="section mt-lg" id="login-demo">
-        <div class="container-fluid">
-            <h2 class="section-title">🔐 Login Demo</h2>
-            <p style="text-align: center; color: #6b7280; margin-bottom: 40px; font-size: 1.1rem;">
-                Try the authentication system with demo credentials
-            </p>
-            <div class="login-demo-container">
-                <div class="login-demo-header">
-                    <h3><i class="fas fa-sign-in-alt"></i> Welcome Back</h3>
-                    <p>Sign in to your account</p>
-                </div>
-                <div class="login-demo-body">
-                    <form id="demo-login-form">
-                        <div class="form-group-demo">
-                            <label for="demo-email">Email Address</label>
-                            <input 
-                                type="email" 
-                                id="demo-email" 
-                                placeholder="demo@example.com"
-                                value="demo@example.com"
-                                readonly
-                            >
-                        </div>
-                        <div class="form-group-demo">
-                            <label for="demo-password">Password</label>
-                            <input 
-                                type="password" 
-                                id="demo-password" 
-                                placeholder="demo123456"
-                                value="demo123456"
-                                readonly
-                            >
-                        </div>
-                        <button type="button" class="login-btn" onclick="handleDemoLogin(event)">
-                            <i class="fas fa-lock-open"></i> Demo Login
-                        </button>
-                        <div class="login-demo-footer">
-                            <span style="display: block; margin-bottom: 15px; color: #9ca3af;">
-                                Don't have an account? <a href="#">Sign up here</a>
-                            </span>
-                            <div class="login-features">
-                                <div class="login-feature-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Secure JWT Auth</span>
-                                </div>
-                                <div class="login-feature-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Email Verified</span>
-                                </div>
-                                <div class="login-feature-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>User Sessions</span>
-                                </div>
-                                <div class="login-feature-item">
-                                    <i class="fas fa-check-circle"></i>
-                                    <span>Role-Based Access</span>
-                                </div>
+                <!-- Navigation Features Overview -->
+                <div style="background: linear-gradient(135deg, #f0f4ff 0%, #fff5f7 100%); border-radius: 12px; padding: 30px; margin-bottom: 40px;">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div style="text-align: center; padding: 10px;">
+                                <i class="fas fa-sitemap" style="font-size: 2rem; color: #6366f1; margin-bottom: 10px;"></i>
+                                <h5>Breadcrumbs</h5>
+                                <p style="font-size: 0.9rem; color: #666;">Path from home to current location</p>
                             </div>
                         </div>
-                    </form>
-                </div>
-            </div>
-
-            <!-- Demo Credentials Info -->
-            <div style="max-width: 900px; margin: 50px auto;">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="architecture-box">
-                            <strong><i class="fas fa-user-circle" style="color: var(--primary); margin-right: 10px;"></i> Regular User</strong>
-                            <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
-                                Email: demo@example.com<br>
-                                Password: demo123456
+                        <div class="col-md-4">
+                            <div style="text-align: center; padding: 10px;">
+                                <i class="fas fa-search" style="font-size: 2rem; color: #a78bfa; margin-bottom: 10px;"></i>
+                                <h5>Smart Search</h5>
+                                <p style="font-size: 0.9rem; color: #666;">Module-specific content discovery</p>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div style="text-align: center; padding: 10px;">
+                                <i class="fas fa-bars" style="font-size: 2rem; color: #10b981; margin-bottom: 10px;"></i>
+                                <h5>Quick Navigation</h5>
+                                <p style="font-size: 0.9rem; color: #666;">Sidebar with related tools</p>
                             </div>
                         </div>
                     </div>
-                    <div class="col-md-6">
-                        <div class="architecture-box">
-                            <strong><i class="fas fa-user-shield" style="color: var(--success); margin-right: 10px;"></i> Admin User</strong>
-                            <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
-                                Email: admin@example.com<br>
-                                Password: admin123456
+                </div>
+
+                <!-- Pages Grid -->
+                <div class="pages-grid">
+                    <div class="page-card">
+                        <div class="page-header"><i class="fas fa-home"></i> Dashboard</div>
+                        <div class="page-body">
+                            <p><strong>Marketing dashboard with KPI overview</strong></p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home</div>
+                                <div style="margin: 8px 0;"><strong>📋 Sidebar:</strong> Campaigns, Analytics</div>
+                                <div style="margin: 8px 0;"><strong>🔍 Search:</strong> Campaigns by name</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-card">
+                        <div class="page-header"><i class="fas fa-login"></i> Login</div>
+                        <div class="page-body">
+                            <p><strong>Secure authentication with SSO</strong></p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Login</div>
+                                <div style="margin: 8px 0;"><strong>🔐 Features:</strong> 2FA, SSO Support</div>
+                                <div style="margin: 8px 0;"><strong>📋 Quick Links:</strong> Forgot Password</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-card">
+                        <div class="page-header"><i class="fas fa-envelope"></i> Campaigns</div>
+                        <div class="page-body">
+                            <p><strong>Email and social media campaigns</strong></p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Campaigns</div>
+                                <div style="margin: 8px 0;"><strong>🔍 Search:</strong> By name, status, date</div>
+                                <div style="margin: 8px 0;"><strong>📋 Sidebar:</strong> Categories, Templates</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-card">
+                        <div class="page-header"><i class="fas fa-chart-line"></i> Analytics</div>
+                        <div class="page-body">
+                            <p><strong>Comprehensive performance metrics</strong></p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Analytics</div>
+                                <div style="margin: 8px 0;"><strong>📊 Features:</strong> Custom dashboards</div>
+                                <div style="margin: 8px 0;"><strong>🔍 Search:</strong> By report type</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-card">
+                        <div class="page-header"><i class="fas fa-users"></i> Contacts</div>
+                        <div class="page-body">
+                            <p><strong>Customer database and segmentation</strong></p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Contacts</div>
+                                <div style="margin: 8px 0;"><strong>🔍 Search:</strong> By name, email, segment</div>
+                                <div style="margin: 8px 0;"><strong>📤 Upload:</strong> CSV import, API sync</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="page-card">
+                        <div class="page-header"><i class="fas fa-cog"></i> Settings</div>
+                        <div class="page-body">
+                            <p><strong>Account and team management</strong></p>
+                            <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                            <div style="font-size: 0.85rem; color: #64748b;">
+                                <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Settings</div>
+                                <div style="margin: 8px 0;"><strong>⚙️ Options:</strong> Rights, Roles, API Keys</div>
+                                <div style="margin: 8px 0;"><strong>📜 Logs:</strong> Event history, Audit trail</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Admin Features Section -->
+                <div style="margin-top: 50px;">
+                    <h3 style="font-size: 1.8rem; margin-bottom: 30px; color: var(--dark);">
+                        <i class="fas fa-lock"></i> Administrative Features
+                    </h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="architecture-box">
+                                <strong><i class="fas fa-user-lock" style="color: #6366f1; margin-right: 8px;"></i> Profile Settings</strong>
+                                <ul style="font-size: 0.9rem; color: #64748b; margin-top: 10px; padding-left: 20px;">
+                                    <li>Manage user roles and permissions</li>
+                                    <li>Access level configuration</li>
+                                    <li>API key management</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="architecture-box">
+                                <strong><i class="fas fa-history" style="color: #a78bfa; margin-right: 8px;"></i> Event Log</strong>
+                                <ul style="font-size: 0.9rem; color: #64748b; margin-top: 10px; padding-left: 20px;">
+                                    <li>Change history tracking</li>
+                                    <li>User activity timeline</li>
+                                    <li>System audit trail</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="architecture-box">
+                                <strong><i class="fas fa-file-upload" style="color: #10b981; margin-right: 8px;"></i> File Upload Tools</strong>
+                                <ul style="font-size: 0.9rem; color: #64748b; margin-top: 10px; padding-left: 20px;">
+                                    <li>Document attachment</li>
+                                    <li>CSV bulk import</li>
+                                    <li>API integrations</li>
+                                </ul>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </section>
+        </section>
+    </div>
+
+    <!-- Demo Page -->
+    <div class="page-content" id="demo-page">
+        <section class="section mt-lg" id="login-demo">
+            <div class="container-fluid">
+                <h2 class="section-title">🔐 Try It Now</h2>
+                <p style="text-align: center; color: #64748b; margin-bottom: 40px; font-size: 1.1rem;">
+                    Test drive DigiQuill with our demo account
+                </p>
+                <div class="login-demo-container">
+                    <div class="login-demo-header">
+                        <h3><i class="fas fa-sign-in-alt"></i> Welcome to DigiQuill</h3>
+                        <p>Sign in to your account</p>
+                    </div>
+                    <div class="login-demo-body">
+                        <form id="demo-login-form">
+                            <div class="form-group-demo">
+                                <label for="demo-email">Email Address</label>
+                                <input 
+                                    type="email" 
+                                    id="demo-email" 
+                                    placeholder="demo@digiquill.com"
+                                    value="demo@digiquill.com"
+                                    readonly
+                                >
+                            </div>
+                            <div class="form-group-demo">
+                                <label for="demo-password">Password</label>
+                                <input 
+                                    type="password" 
+                                    id="demo-password" 
+                                    placeholder="demo123456"
+                                    value="demo123456"
+                                    readonly
+                                >
+                            </div>
+                            <button type="button" class="login-btn" onclick="handleDemoLogin(event)">
+                                <i class="fas fa-lock-open"></i> Try Demo
+                            </button>
+                            <div class="login-demo-footer">
+                                <span style="display: block; margin-bottom: 15px; color: #9ca3af;">
+                                    Ready to get started? <a href="#">Contact sales</a>
+                                </span>
+                                <div class="login-features">
+                                    <div class="login-feature-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Enterprise Grade</span>
+                                    </div>
+                                    <div class="login-feature-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Bank Security</span>
+                                    </div>
+                                    <div class="login-feature-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>24/7 Support</span>
+                                    </div>
+                                    <div class="login-feature-item">
+                                        <i class="fas fa-check-circle"></i>
+                                        <span>Instant Setup</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Demo Credentials Info -->
+                <div style="max-width: 900px; margin: 50px auto;">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="architecture-box">
+                                <strong><i class="fas fa-user-circle" style="color: #6366f1; margin-right: 10px;"></i> Test User</strong>
+                                <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
+                                    Email: demo@digiquill.com<br>
+                                    Password: demo123456
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="architecture-box">
+                                <strong><i class="fas fa-user-shield" style="color: #10b981; margin-right: 10px;"></i> Admin User</strong>
+                                <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
+                                    Email: admin@digiquill.com<br>
+                                    Password: admin123456
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
 
     <!-- Tech Stack Section -->
     <section class="section mt-lg" id="tech">
@@ -1746,361 +1135,29 @@
             <h2 class="section-title">🛠️ Technology Stack</h2>
             <div class="tech-grid">
                 <div class="tech-item">
-                    <div class="tech-name"><i class="fas fa-code"></i> HTML5</div>
-                    <div class="tech-version">Semantic Markup</div>
+                    <div class="tech-name"><i class="fas fa-react"></i> React</div>
+                    <div class="tech-version">18.2.0</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-name"><i class="fas fa-palette"></i> CSS3</div>
-                    <div class="tech-version">Bootstrap 5.3.0</div>
+                    <div class="tech-name"><i class="fas fa-node"></i> Node.js</div>
+                    <div class="tech-version">20 LTS</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-name"><i class="fas fa-js-square"></i> JavaScript</div>
-                    <div class="tech-version">ES6+ Vanilla</div>
+                    <div class="tech-name"><i class="fas fa-database"></i> PostgreSQL</div>
+                    <div class="tech-version">15</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-name"><i class="fas fa-rocket"></i> Vite</div>
-                    <div class="tech-version">v5.0.0</div>
+                    <div class="tech-name"><i class="fas fa-cloud"></i> AWS</div>
+                    <div class="tech-version">Enterprise</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-name"><i class="fas fa-database"></i> Supabase</div>
-                    <div class="tech-version">Backend</div>
+                    <div class="tech-name"><i class="fas fa-shield-alt"></i> Kubernetes</div>
+                    <div class="tech-version">1.27</div>
                 </div>
                 <div class="tech-item">
-                    <div class="tech-name"><i class="fas fa-lock"></i> PostgreSQL</div>
-                    <div class="tech-version">Database</div>
+                    <div class="tech-name"><i class="fas fa-lock"></i> SSL/TLS</div>
+                    <div class="tech-version">256-bit Encryption</div>
                 </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Architecture Section -->
-    <section class="section mt-lg">
-        <div class="container-fluid">
-            <h2 class="section-title">🏗️ Project Architecture</h2>
-            <div class="row">
-                <div class="col-lg-6">
-                    <h4 class="mb-4">Modular Structure</h4>
-                    <div class="architecture-box">
-                        <strong>📁 src/pages/</strong><br>
-                        8+ page modules with routing
-                    </div>
-                    <div class="architecture-box">
-                        <strong>🔧 src/services/</strong><br>
-                        5 business logic modules
-                    </div>
-                    <div class="architecture-box">
-                        <strong>🧩 src/components/</strong><br>
-                        Reusable UI components
-                    </div>
-                    <div class="architecture-box">
-                        <strong>📚 src/utils/</strong><br>
-                        Helpers and validators
-                    </div>
-                </div>
-                <div class="col-lg-6">
-                    <h4 class="mb-4">Services</h4>
-                    <div class="architecture-box">
-                        <strong>supabase-client.js</strong><br>
-                        Initialization & utilities
-                    </div>
-                    <div class="architecture-box">
-                        <strong>auth-service.js</strong><br>
-                        Authentication & profiles
-                    </div>
-                    <div class="architecture-box">
-                        <strong>article-service.js</strong><br>
-                        CRUD operations
-                    </div>
-                    <div class="architecture-box">
-                        <strong>storage-service.js</strong><br>
-                        Image uploads
-                    </div>
-                    <div class="architecture-box">
-                        <strong>user-service.js</strong><br>
-                        Admin functions
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Database Section -->
-    <section class="section mt-lg" id="database">
-        <div class="container-fluid">
-            <h2 class="section-title">🗄️ Database Schema</h2>
-            <div class="table-responsive">
-                <table class="table table-hover">
-                    <thead>
-                        <tr>
-                            <th>Table</th>
-                            <th>Purpose</th>
-                            <th>Key Fields</th>
-                            <th>Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td><strong>users</strong></td>
-                            <td>User accounts & profiles</td>
-                            <td>id, email, full_name, role, created_at</td>
-                            <td><span class="status-badge status-success">✓ Ready</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>categories</strong></td>
-                            <td>Article categories</td>
-                            <td>id, name, slug, description</td>
-                            <td><span class="status-badge status-success">✓ Ready</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>articles</strong></td>
-                            <td>Blog posts & content</td>
-                            <td>id, title, content, cover_image_url, status, views</td>
-                            <td><span class="status-badge status-success">✓ Ready</span></td>
-                        </tr>
-                        <tr>
-                            <td><strong>comments</strong></td>
-                            <td>Article discussions</td>
-                            <td>id, content, article_id, author_id, status</td>
-                            <td><span class="status-badge status-success">✓ Ready</span></td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="alert alert-info mt-4" style="border-radius: 10px;">
-                <strong><i class="fas fa-shield-alt"></i> Security:</strong> All tables include Row Level Security (RLS) policies, foreign key relationships, and indexes for optimal performance.
-            </div>
-        </div>
-    </section>
-
-    <!-- Metrics Section -->
-    <section class="section mt-lg">
-        <div class="container-fluid">
-            <h2 class="section-title">📊 Project Metrics</h2>
-            <div class="metrics-grid">
-                <div class="metric-box">
-                    <div class="metric-value">20+</div>
-                    <div class="metric-label">Code Files</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">8,000+</div>
-                    <div class="metric-label">Lines of Code</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">1,100+</div>
-                    <div class="metric-label">CSS Lines</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">18+</div>
-                    <div class="metric-label">Git Commits</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">12+</div>
-                    <div class="metric-label">Documentation Files</div>
-                </div>
-                <div class="metric-box">
-                    <div class="metric-value">50+</div>
-                    <div class="metric-label">Test Scenarios</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Git History Section -->
-    <section class="section mt-lg">
-        <div class="container-fluid">
-            <h2 class="section-title">📜 Git Commit History</h2>
-            <div class="commit-timeline">
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Setup project structure and Vite configuration</div>
-                        <div class="commit-date">Day 1</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Implement frontend pages and routing system</div>
-                        <div class="commit-date">Day 1</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Add database schema and migrations</div>
-                        <div class="commit-date">Day 1</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Add reusable UI components and styling</div>
-                        <div class="commit-date">Day 2</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Add admin panel and user management</div>
-                        <div class="commit-date">Day 2</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Add image upload and file storage integration</div>
-                        <div class="commit-date">Day 2</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Add form validation and error handling</div>
-                        <div class="commit-date">Day 3</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Add comprehensive testing guide</div>
-                        <div class="commit-date">Day 3</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Add GitHub Actions CI/CD workflow</div>
-                        <div class="commit-date">Day 3</div>
-                    </div>
-                </div>
-                <div class="commit-item">
-                    <div>
-                        <div class="commit-message">Complete project with deployment readiness</div>
-                        <div class="commit-date">Day 3</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Deployment Section -->
-    <section class="section mt-lg" id="deployment">
-        <div class="container-fluid">
-            <h2 class="section-title">🚀 Deployment Ready</h2>
-            <div class="deployment-steps">
-                <div class="step-box">
-                    <div class="step-number">1</div>
-                    <strong>Push to GitHub</strong>
-                    <p class="text-muted mt-3">Repository pushed with full git history</p>
-                </div>
-                <div class="step-box">
-                    <div class="step-number">2</div>
-                    <strong>Connect to Netlify/Vercel</strong>
-                    <p class="text-muted mt-3">CI/CD pipeline configured and ready</p>
-                </div>
-                <div class="step-box">
-                    <div class="step-number">3</div>
-                    <strong>Configure Environment</strong>
-                    <p class="text-muted mt-3">Supabase credentials in deployment platform</p>
-                </div>
-                <div class="step-box">
-                    <div class="step-number">4</div>
-                    <strong>Deploy & Test</strong>
-                    <p class="text-muted mt-3">Test demo credentials on live site</p>
-                </div>
-            </div>
-            <div class="alert alert-success mt-4" style="border-radius: 10px;">
-                <strong><i class="fas fa-check-circle"></i> Demo Credentials:</strong><br>
-                Email: demo@example.com | Password: demo123456<br>
-                Admin: admin@example.com | Password: admin123456
-            </div>
-        </div>
-    </section>
-
-    <!-- Documentation Section -->
-    <section class="section mt-lg">
-        <div class="container-fluid">
-            <h2 class="section-title">📚 Documentation</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-book"></i> README.md</strong><br>
-                        Project overview and quick start
-                    </div>
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-cog"></i> SETUP.md</strong><br>
-                        Installation and configuration
-                    </div>
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-rocket"></i> DEPLOYMENT.md</strong><br>
-                        Deploy to production
-                    </div>
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-vial"></i> TESTING.md</strong><br>
-                        Testing checklist and scenarios
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-layer-group"></i> ARCHITECTURE.md</strong><br>
-                        System design and patterns
-                    </div>
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-plug"></i> API.md</strong><br>
-                        API reference documentation
-                    </div>
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-star"></i> FEATURES.md</strong><br>
-                        Feature list and details
-                    </div>
-                    <div class="architecture-box">
-                        <strong><i class="fas fa-code"></i> CONFIG.md</strong><br>
-                        Configuration guide
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Features Checklist -->
-    <section class="section mt-lg">
-        <div class="container-fluid">
-            <h2 class="section-title">✅ Completion Checklist</h2>
-            <div class="row">
-                <div class="col-md-6">
-                    <div style="padding: 20px;">
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Modular JavaScript application</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Vite build setup</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Bootstrap 5 styling</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Supabase integration</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> 8 pages (5+ required)</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> 4 database tables</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> User authentication</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Article CRUD operations</div>
-                    </div>
-                </div>
-                <div class="col-md-6">
-                    <div style="padding: 20px;">
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Image upload system</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Comments functionality</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Admin dashboard</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Search & filtering</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> 18+ git commits</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Comprehensive documentation</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Responsive design</div>
-                        <div style="margin-bottom: 15px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i> Production deployment ready</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA Section -->
-    <section class="section mt-lg" style="background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; text-align: center;">
-        <div class="container-fluid">
-            <h2 class="section-title" style="color: white; margin-bottom: 30px;">🚀 Ready to Deploy</h2>
-            <p style="font-size: 1.1rem; margin-bottom: 30px;">blogDEMO is a complete, production-ready blog application built with modern web technologies and best practices.</p>
-            <div>
-                <span class="status-badge" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; font-size: 1rem;">
-                    <i class="fas fa-check-circle"></i> Complete & Tested
-                </span>
-                <span class="status-badge" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; font-size: 1rem;">
-                    <i class="fas fa-lock-open"></i> Open Source MIT
-                </span>
-                <span class="status-badge" style="background: rgba(255,255,255,0.2); color: white; padding: 12px 24px; font-size: 1rem;">
-                    <i class="fas fa-star"></i> Production Ready
-                </span>
             </div>
         </div>
     </section>
@@ -2108,24 +1165,50 @@
     <!-- Footer -->
     <footer class="footer">
         <div class="container-fluid">
-            <h5>blogDEMO</h5>
-            <p style="margin: 10px 0; color: #9ca3af;">IT & Marketing News Blog Platform</p>
+            <h5>DigiQuill</h5>
+            <p style="margin: 10px 0; color: #cbd5e1;">Digital Marketing Management Platform</p>
             <div class="footer-links">
-                <a href="#"><i class="fas fa-github"></i> GitHub</a>
-                <a href="#"><i class="fas fa-book"></i> Docs</a>
                 <a href="#"><i class="fas fa-globe"></i> Website</a>
+                <a href="#"><i class="fas fa-book"></i> Docs</a>
+                <a href="#"><i class="fas fa-envelope"></i> Contact</a>
             </div>
-            <p style="color: #6b7280; margin-top: 30px; padding-top: 20px; border-top: 1px solid #374151;">
-                © 2024 blogDEMO. Built with <i class="fas fa-heart" style="color: var(--danger);"></i> using Vanilla JavaScript, Vite, Bootstrap & Supabase
+            <p style="color: #94a3b8; margin-top: 30px; padding-top: 20px; border-top: 1px solid #334155;">
+                © 2024 DigiQuill. Built with <i class="fas fa-heart" style="color: var(--secondary);"></i> using modern web technologies
             </p>
-            <p style="color: #6b7280; margin-top: 10px;">
-                <strong>Status:</strong> <span class="status-badge" style="background: rgba(16, 185, 129, 0.3); color: #10b981; padding: 4px 12px;">✓ Production Ready</span>
+            <p style="color: #94a3b8; margin-top: 10px;">
+                <strong>Status:</strong> <span class="status-badge status-success">✓ Enterprise Ready</span>
             </p>
         </div>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Page Switching
+        function switchPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page-content').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Deactivate all tabs
+            document.querySelectorAll('.page-tab').forEach(el => {
+                el.classList.remove('active');
+            });
+            
+            // Show selected page
+            const pageId = page + '-page';
+            const pageEl = document.getElementById(pageId);
+            if (pageEl) {
+                pageEl.classList.add('active');
+            }
+            
+            // Activate corresponding tab
+            const tabEl = document.getElementById(page + '-tab');
+            if (tabEl) {
+                tabEl.classList.add('active');
+            }
+        }
+
         // Demo Login Handler
         function handleDemoLogin(event) {
             event.preventDefault();
@@ -2139,7 +1222,7 @@
             
             // Show alert
             setTimeout(() => {
-                alert(`✓ Demo Login Successful!\n\nEmail: ${email}\n\nThis is a demo preview. In the live application, users are authenticated via Supabase and redirected to the home page.`);
+                alert(`✓ Demo Login Successful!\n\nEmail: ${email}\n\nWelcome to DigiQuill - Your Digital Marketing Management Platform`);
                 
                 // Reset button
                 loginBtn.innerHTML = originalText;
@@ -2147,33 +1230,24 @@
             }, 500);
         }
 
-        // Scroll animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver(function(entries) {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('fade-in');
-                    observer.unobserve(entry.target);
-                }
-            });
-        }, observerOptions);
-
-        document.querySelectorAll('.feature-card, .page-card, .tech-item, .stat-card, .step-box, .login-demo-container').forEach(el => {
-            observer.observe(el);
-        });
-
         // Smooth scroll for navigation
         document.querySelectorAll('a[href^="#"]').forEach(anchor => {
             anchor.addEventListener('click', function (e) {
+                const href = this.getAttribute('href');
+                if (href === '#' || href === '#!') return;
+                
                 e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
+                const target = document.querySelector(href);
                 if (target) {
                     target.scrollIntoView({ behavior: 'smooth' });
                 }
+            });
+        });
+
+        // Fade-in animation on page load
+        window.addEventListener('load', () => {
+            document.querySelectorAll('.fade-in').forEach(el => {
+                el.style.opacity = '1';
             });
         });
     </script>
