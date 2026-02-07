@@ -721,7 +721,6 @@
         </div>
     </div>
 
-    <!-- Page Navigation Tabs -->
     <div class="container-fluid" style="margin-top: 40px;">
         <div class="page-tabs">
             <button class="page-tab active" onclick="switchPage('services')" id="services-tab">
@@ -732,9 +731,6 @@
             </button>
             <button class="page-tab" onclick="switchPage('pages')" id="pages-tab">
                 <i class="fas fa-sitemap"></i> Pages & Navigation
-            </button>
-            <button class="page-tab" onclick="switchPage('demo')" id="demo-tab">
-                <i class="fas fa-sign-in-alt"></i> Demo
             </button>
         </div>
     </div>
@@ -1038,96 +1034,7 @@
     </div>
 
     <!-- Demo Page -->
-    <div class="page-content" id="demo-page">
-        <section class="section mt-lg" id="login-demo">
-            <div class="container-fluid">
-                <h2 class="section-title">🔐 Try It Now</h2>
-                <p style="text-align: center; color: #64748b; margin-bottom: 40px; font-size: 1.1rem;">
-                    Test drive DigiQuill with our demo account
-                </p>
-                <div class="login-demo-container">
-                    <div class="login-demo-header">
-                        <h3><i class="fas fa-sign-in-alt"></i> Welcome to DigiQuill</h3>
-                        <p>Sign in to your account</p>
-                    </div>
-                    <div class="login-demo-body">
-                        <form id="demo-login-form">
-                            <div class="form-group-demo">
-                                <label for="demo-email">Email Address</label>
-                                <input 
-                                    type="email" 
-                                    id="demo-email" 
-                                    placeholder="demo@digiquill.com"
-                                    value="demo@digiquill.com"
-                                    readonly
-                                >
-                            </div>
-                            <div class="form-group-demo">
-                                <label for="demo-password">Password</label>
-                                <input 
-                                    type="password" 
-                                    id="demo-password" 
-                                    placeholder="demo123456"
-                                    value="demo123456"
-                                    readonly
-                                >
-                            </div>
-                            <button type="button" class="login-btn" onclick="handleDemoLogin(event)">
-                                <i class="fas fa-lock-open"></i> Try Demo
-                            </button>
-                            <div class="login-demo-footer">
-                                <span style="display: block; margin-bottom: 15px; color: #9ca3af;">
-                                    Ready to get started? <a href="#">Contact sales</a>
-                                </span>
-                                <div class="login-features">
-                                    <div class="login-feature-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Enterprise Grade</span>
-                                    </div>
-                                    <div class="login-feature-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Bank Security</span>
-                                    </div>
-                                    <div class="login-feature-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>24/7 Support</span>
-                                    </div>
-                                    <div class="login-feature-item">
-                                        <i class="fas fa-check-circle"></i>
-                                        <span>Instant Setup</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </form>
-                    </div>
-                </div>
 
-                <!-- Demo Credentials Info -->
-                <div style="max-width: 900px; margin: 50px auto;">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="architecture-box">
-                                <strong><i class="fas fa-user-circle" style="color: #6366f1; margin-right: 10px;"></i> Test User</strong>
-                                <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
-                                    Email: demo@digiquill.com<br>
-                                    Password: demo123456
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="architecture-box">
-                                <strong><i class="fas fa-user-shield" style="color: #10b981; margin-right: 10px;"></i> Admin User</strong>
-                                <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
-                                    Email: admin@digiquill.com<br>
-                                    Password: admin123456
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-    </div>
 
     <!-- Tech Stack Section -->
     <section class="section mt-lg" id="tech">
