@@ -254,10 +254,10 @@ View [GitHub Issues](https://github.com/yourusername/blogDEMO/issues) for curren
 
 ## � Connect With Us
 
-- 📚 **Help:** Check [SETUP.md](./SETUP.md) for setup issues
-- 💡 **Ideas:** Share feedback in [GitHub Discussions](https://github.com/yourusername/blogDEMO/discussions)
-- 🐛 **Bugs:** Report in [GitHub Issues](https://github.com/yourusername/blogDEMO/issues)
-- 🤝 **Contribute:** See [README_new.md](./README_new.md) for contribution guide
+- 📚 **Help:** example@example.com
+- 💡 **Ideas:** Share feedback in GitHub Chat Discussions
+- 🐛 **Bugs:** Report in GitHub Issues
+- 🤝 **Contribute:** See README_new.md for contribution guide
 
 ---
 
