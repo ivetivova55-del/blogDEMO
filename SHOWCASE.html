@@ -813,39 +813,224 @@
     <!-- Pages Section -->
     <section class="section mt-lg" id="pages">
         <div class="container-fluid">
-            <h2 class="section-title">📄 Application Pages</h2>
+            <h2 class="section-title">📄 Application Pages & Navigation</h2>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 40px; font-size: 1rem;">
+                Each page includes breadcrumbs, contextual navigation, and integrated admin functions
+            </p>
+
+            <!-- Navigation Features Overview -->
+            <div style="background: linear-gradient(135deg, #f0f4ff 0%, #fff5f7 100%); border-radius: 12px; padding: 30px; margin-bottom: 40px;">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div style="text-align: center; padding: 10px;">
+                            <i class="fas fa-sitemap" style="font-size: 2rem; color: #2563eb; margin-bottom: 10px;"></i>
+                            <h5>Breadcrumbs</h5>
+                            <p style="font-size: 0.9rem; color: #666;">Path from home to current location</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="text-align: center; padding: 10px;">
+                            <i class="fas fa-search" style="font-size: 2rem; color: #7c3aed; margin-bottom: 10px;"></i>
+                            <h5>Smart Search</h5>
+                            <p style="font-size: 0.9rem; color: #666;">Module-specific content discovery</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div style="text-align: center; padding: 10px;">
+                            <i class="fas fa-bars" style="font-size: 2rem; color: #10b981; margin-bottom: 10px;"></i>
+                            <h5>Quick Navigation</h5>
+                            <p style="font-size: 0.9rem; color: #666;">Sidebar with related tools</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pages Grid -->
             <div class="pages-grid">
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-home"></i> Home</div>
-                    <div class="page-body">Featured articles showcase with categories sidebar</div>
+                    <div class="page-body">
+                        <p><strong>Featured articles showcase with categories sidebar</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home</div>
+                            <div style="margin: 8px 0;"><strong>📋 Sidebar Menu:</strong> Categories, Quick Stats</div>
+                            <div style="margin: 8px 0;"><strong>🔍 Search:</strong> Articles by keyword</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-sign-in-alt"></i> Login</div>
-                    <div class="page-body">Secure authentication with email and password</div>
+                    <div class="page-body">
+                        <p><strong>Secure authentication with email and password</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Login</div>
+                            <div style="margin: 8px 0;"><strong>📋 Quick Links:</strong> Forgot Password, Register</div>
+                            <div style="margin: 8px 0;"><strong>🔐 Features:</strong> JWT Auth, 2FA Support</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-user-plus"></i> Register</div>
-                    <div class="page-body">User account creation with validation</div>
+                    <div class="page-body">
+                        <p><strong>User account creation with validation</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Register</div>
+                            <div style="margin: 8px 0;"><strong>📋 Context:</strong> Email verification, Password strength</div>
+                            <div style="margin: 8px 0;"><strong>⚙️ Role Assignment:</strong> Default 'user' role</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-list"></i> Articles</div>
-                    <div class="page-body">Browse all articles with pagination and filters</div>
+                    <div class="page-body">
+                        <p><strong>Browse all articles with pagination and filters</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Articles</div>
+                            <div style="margin: 8px 0;"><strong>🔍 Search:</strong> Title, category, author</div>
+                            <div style="margin: 8px 0;"><strong>📋 Sidebar:</strong> Categories, Date range filter</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-newspaper"></i> Article Detail</div>
-                    <div class="page-body">Full article view with comments section</div>
+                    <div class="page-body">
+                        <p><strong>Full article view with comments section</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Articles > Title</div>
+                            <div style="margin: 8px 0;"><strong>📋 Sidebar:</strong> Related articles, Author bio</div>
+                            <div style="margin: 8px 0;"><strong>💬 Features:</strong> Comments, Share, Report</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-plus-circle"></i> Create Article</div>
-                    <div class="page-body">Article creation form with image upload</div>
+                    <div class="page-body">
+                        <p><strong>Article creation form with image upload</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Articles > Create</div>
+                            <div style="margin: 8px 0;"><strong>📤 Upload Tools:</strong> Images, Documents, PDF</div>
+                            <div style="margin: 8px 0;"><strong>📋 Features:</strong> Draft save, Preview, Schedule</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-user"></i> Profile</div>
-                    <div class="page-body">User account management and my-articles</div>
+                    <div class="page-body">
+                        <p><strong>User account management and my-articles</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Profile</div>
+                            <div style="margin: 8px 0;"><strong>⚙️ Settings:</strong> Rights, Roles, Permissions</div>
+                            <div style="margin: 8px 0;"><strong>📋 Sections:</strong> My Articles, Activity Log</div>
+                        </div>
+                    </div>
                 </div>
+
                 <div class="page-card">
-                    <div class="page-header"><i class="fas fa-tachometer-alt"></i> Admin</div>
-                    <div class="page-body">Dashboard with statistics and user management</div>
+                    <div class="page-header"><i class="fas fa-tachometer-alt"></i> Admin Dashboard</div>
+                    <div class="page-body">
+                        <p><strong>Dashboard with statistics and user management</strong></p>
+                        <hr style="margin: 10px 0; border: none; border-top: 1px solid #e5e7eb;">
+                        <div style="font-size: 0.85rem; color: #6b7280;">
+                            <div style="margin: 8px 0;"><strong>🧭 Breadcrumb:</strong> Home > Admin</div>
+                            <div style="margin: 8px 0;"><strong>👥 Functions:</strong> User management, Role control</div>
+                            <div style="margin: 8px 0;"><strong>📜 Logging:</strong> Event history, Activity tracking</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Features Section -->
+            <div style="margin-top: 50px;">
+                <h3 style="font-size: 1.8rem; margin-bottom: 30px; color: #1f2937;">
+                    <i class="fas fa-lock"></i> Administrative Features
+                </h3>
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="architecture-box">
+                            <strong><i class="fas fa-user-lock" style="color: #2563eb; margin-right: 8px;"></i> Profile Settings</strong>
+                            <ul style="font-size: 0.9rem; color: #6b7280; margin-top: 10px; padding-left: 20px;">
+                                <li>Manage user roles and permissions</li>
+                                <li>Access level configuration</li>
+                                <li>Account security settings</li>
+                                <li>Two-factor authentication</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="architecture-box">
+                            <strong><i class="fas fa-history" style="color: #7c3aed; margin-right: 8px;"></i> Event Log</strong>
+                            <ul style="font-size: 0.9rem; color: #6b7280; margin-top: 10px; padding-left: 20px;">
+                                <li>Change history tracking (who, when, what)</li>
+                                <li>Article modifications log</li>
+                                <li>User activity timeline</li>
+                                <li>System action audit trail</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="architecture-box">
+                            <strong><i class="fas fa-file-upload" style="color: #10b981; margin-right: 8px;"></i> File Upload Tools</strong>
+                            <ul style="font-size: 0.9rem; color: #6b7280; margin-top: 10px; padding-left: 20px;">
+                                <li>Document attachment (.pdf, .doc)</li>
+                                <li>Image gallery management</li>
+                                <li>Media library organization</li>
+                                <li>Bulk file operations</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Breadcrumb Example -->
+            <div style="margin-top: 50px; background: #f8f9fa; padding: 30px; border-radius: 12px;">
+                <h4 style="margin-bottom: 20px; color: #1f2937;">📍 Breadcrumb Navigation Example</h4>
+                <div style="font-size: 0.95rem; color: #6b7280; line-height: 2;">
+                    <div style="background: white; padding: 15px; border-radius: 8px; font-family: monospace;">
+                        <span style="color: #2563eb;"><i class="fas fa-home"></i> Home</span>
+                        <span style="color: #999; margin: 0 8px;">/</span>
+                        <span style="color: #7c3aed;"><i class="fas fa-list"></i> Articles</span>
+                        <span style="color: #999; margin: 0 8px;">/</span>
+                        <span style="color: #10b981;"><i class="fas fa-tag"></i> Technology</span>
+                        <span style="color: #999; margin: 0 8px;">/</span>
+                        <span style="color: #ef4444;"><i class="fas fa-newspaper"></i> AI Development Guide</span>
+                    </div>
+                    <p style="margin-top: 15px;">Users can click any breadcrumb level to navigate back quickly</p>
+                </div>
+            </div>
+
+            <!-- Search & Filter Features -->
+            <div style="margin-top: 30px; background: #f9f5ff; padding: 30px; border-radius: 12px;">
+                <h4 style="margin-bottom: 20px; color: #1f2937;">🔍 Advanced Search & Filtering</h4>
+                <div class="row">
+                    <div class="col-md-6">
+                        <div style="font-size: 0.95rem;">
+                            <div style="margin: 10px 0;"><strong>Global Search:</strong> Across all articles and users</div>
+                            <div style="margin: 10px 0;"><strong>Category Filter:</strong> By topic/department</div>
+                            <div style="margin: 10px 0;"><strong>Date Range:</strong> By publication period</div>
+                            <div style="margin: 10px 0;"><strong>Author Filter:</strong> By specific contributors</div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div style="font-size: 0.95rem;">
+                            <div style="margin: 10px 0;"><strong>Status Filter:</strong> Draft, Published, Archived</div>
+                            <div style="margin: 10px 0;"><strong>Popularity Sort:</strong> Views, Comments, Ratings</div>
+                            <div style="margin: 10px 0;"><strong>Advanced Queries:</strong> Boolean operators supported</div>
+                            <div style="margin: 10px 0;"><strong>Saved Searches:</strong> Quick access to frequent filters</div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
