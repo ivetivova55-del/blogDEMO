@@ -565,6 +565,121 @@
         .mt-lg {
             margin-top: 60px;
         }
+
+        /* Login Form Demo */
+        .login-demo-container {
+            max-width: 450px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            overflow: hidden;
+        }
+
+        .login-demo-header {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            padding: 40px 30px;
+            text-align: center;
+        }
+
+        .login-demo-header h3 {
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .login-demo-header p {
+            font-size: 0.9rem;
+            opacity: 0.95;
+            margin: 0;
+        }
+
+        .login-demo-body {
+            padding: 40px 30px;
+        }
+
+        .form-group-demo {
+            margin-bottom: 25px;
+        }
+
+        .form-group-demo label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--dark);
+        }
+
+        .form-group-demo input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid var(--border);
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: all 0.3s;
+            box-sizing: border-box;
+        }
+
+        .form-group-demo input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 15px;
+        }
+
+        .login-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(37, 99, 235, 0.3);
+        }
+
+        .login-demo-footer {
+            text-align: center;
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-top: 20px;
+        }
+
+        .login-demo-footer a {
+            color: var(--primary);
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .login-demo-footer a:hover {
+            text-decoration: underline;
+        }
+
+        .login-features {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .login-feature-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.9rem;
+            color: #6b7280;
+        }
+
+        .login-feature-item i {
+            color: var(--success);
+            font-size: 1.1rem;
+        }
     </style>
 </head>
 <body>
@@ -581,6 +696,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#features">Features</a></li>
                     <li class="nav-item"><a class="nav-link" href="#pages">Pages</a></li>
+                    <li class="nav-item"><a class="nav-link" href="#login-demo">Login</a></li>
                     <li class="nav-item"><a class="nav-link" href="#tech">Tech Stack</a></li>
                     <li class="nav-item"><a class="nav-link" href="#database">Database</a></li>
                     <li class="nav-item"><a class="nav-link" href="#deployment">Deploy</a></li>
@@ -730,6 +846,96 @@
                 <div class="page-card">
                     <div class="page-header"><i class="fas fa-tachometer-alt"></i> Admin</div>
                     <div class="page-body">Dashboard with statistics and user management</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Login Demo Section -->
+    <section class="section mt-lg" id="login-demo">
+        <div class="container-fluid">
+            <h2 class="section-title">🔐 Login Demo</h2>
+            <p style="text-align: center; color: #6b7280; margin-bottom: 40px; font-size: 1.1rem;">
+                Try the authentication system with demo credentials
+            </p>
+            <div class="login-demo-container">
+                <div class="login-demo-header">
+                    <h3><i class="fas fa-sign-in-alt"></i> Welcome Back</h3>
+                    <p>Sign in to your account</p>
+                </div>
+                <div class="login-demo-body">
+                    <form id="demo-login-form">
+                        <div class="form-group-demo">
+                            <label for="demo-email">Email Address</label>
+                            <input 
+                                type="email" 
+                                id="demo-email" 
+                                placeholder="demo@example.com"
+                                value="demo@example.com"
+                                readonly
+                            >
+                        </div>
+                        <div class="form-group-demo">
+                            <label for="demo-password">Password</label>
+                            <input 
+                                type="password" 
+                                id="demo-password" 
+                                placeholder="demo123456"
+                                value="demo123456"
+                                readonly
+                            >
+                        </div>
+                        <button type="button" class="login-btn" onclick="handleDemoLogin(event)">
+                            <i class="fas fa-lock-open"></i> Demo Login
+                        </button>
+                        <div class="login-demo-footer">
+                            <span style="display: block; margin-bottom: 15px; color: #9ca3af;">
+                                Don't have an account? <a href="#">Sign up here</a>
+                            </span>
+                            <div class="login-features">
+                                <div class="login-feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Secure JWT Auth</span>
+                                </div>
+                                <div class="login-feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Email Verified</span>
+                                </div>
+                                <div class="login-feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>User Sessions</span>
+                                </div>
+                                <div class="login-feature-item">
+                                    <i class="fas fa-check-circle"></i>
+                                    <span>Role-Based Access</span>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Demo Credentials Info -->
+            <div style="max-width: 900px; margin: 50px auto;">
+                <div class="row">
+                    <div class="col-md-6">
+                        <div class="architecture-box">
+                            <strong><i class="fas fa-user-circle" style="color: var(--primary); margin-right: 10px;"></i> Regular User</strong>
+                            <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
+                                Email: demo@example.com<br>
+                                Password: demo123456
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="architecture-box">
+                            <strong><i class="fas fa-user-shield" style="color: var(--success); margin-right: 10px;"></i> Admin User</strong>
+                            <div style="margin-top: 10px; font-family: monospace; background: #f3f4f6; padding: 10px; border-radius: 5px; font-size: 0.9rem;">
+                                Email: admin@example.com<br>
+                                Password: admin123456
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1121,6 +1327,27 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        // Demo Login Handler
+        function handleDemoLogin(event) {
+            event.preventDefault();
+            const email = document.getElementById('demo-email').value;
+            const loginBtn = event.target;
+            
+            // Show success feedback
+            const originalText = loginBtn.innerHTML;
+            loginBtn.innerHTML = '<i class="fas fa-check-circle"></i> Login Successful!';
+            loginBtn.style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            
+            // Show alert
+            setTimeout(() => {
+                alert(`✓ Demo Login Successful!\n\nEmail: ${email}\n\nThis is a demo preview. In the live application, users are authenticated via Supabase and redirected to the home page.`);
+                
+                // Reset button
+                loginBtn.innerHTML = originalText;
+                loginBtn.style.background = '';
+            }, 500);
+        }
+
         // Scroll animations
         const observerOptions = {
             threshold: 0.1,
@@ -1136,7 +1363,7 @@
             });
         }, observerOptions);
 
-        document.querySelectorAll('.feature-card, .page-card, .tech-item, .stat-card, .step-box').forEach(el => {
+        document.querySelectorAll('.feature-card, .page-card, .tech-item, .stat-card, .step-box, .login-demo-container').forEach(el => {
             observer.observe(el);
         });
 
