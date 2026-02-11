@@ -81,6 +81,37 @@
         font-size: 18px;
       }
 
+      .toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+      }
+
+      .filters {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .filter-btn {
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--ink);
+        padding: 6px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .filter-btn.active {
+        background: var(--ink);
+        color: white;
+      }
+
       form {
         display: grid;
         gap: 12px;
@@ -172,6 +203,91 @@
         padding: 6px 12px;
       }
 
+      .icon-btns {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+      }
+
+      .icon-btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: white;
+        color: var(--ink);
+        cursor: pointer;
+      }
+
+      .icon-btn.danger {
+        color: #b91c1c;
+        border-color: rgba(185, 28, 28, 0.3);
+        background: rgba(254, 226, 226, 0.5);
+      }
+
+      .icon-btn svg {
+        width: 16px;
+        height: 16px;
+      }
+
+      .truncate-2 {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+
+      .row-completed td {
+        color: rgba(15, 23, 42, 0.45);
+      }
+
+      .row-completed .task-title {
+        text-decoration: line-through;
+      }
+
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        padding: 32px;
+        text-align: center;
+        color: rgba(15, 23, 42, 0.6);
+      }
+
+      .empty-icon {
+        width: 48px;
+        height: 48px;
+        color: rgba(15, 23, 42, 0.35);
+      }
+
+      .cards {
+        display: none;
+        gap: 12px;
+      }
+
+      .task-card {
+        border: 1px solid var(--border);
+        background: white;
+        border-radius: 18px;
+        padding: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .task-card .task-title {
+        font-weight: 700;
+      }
+
+      .task-meta {
+        font-size: 12px;
+        color: rgba(15, 23, 42, 0.55);
+      }
+
       .empty {
         color: rgba(15, 23, 42, 0.55);
         font-style: italic;
@@ -185,6 +301,14 @@
         th:nth-child(2),
         td:nth-child(2) {
           display: none;
+        }
+
+        table {
+          display: none;
+        }
+
+        .cards {
+          display: grid;
         }
       }
     </style>
