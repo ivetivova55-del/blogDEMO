@@ -6,6 +6,12 @@ const STATUS_LABELS = {
   COMPLETED: "Завършена",
 };
 
+const FILTER_LABELS = {
+  ALL: "Всички",
+  OPEN: "Отворени",
+  COMPLETED: "Завършени",
+};
+
 const STORAGE_KEYS = {
   USERS: "dmq_users",
   SESSION: "dmq_session",
@@ -13,6 +19,10 @@ const STORAGE_KEYS = {
 };
 
 const app = document.getElementById("app");
+
+let activeFilter = "ALL";
+let sortDirection = "asc";
+let editingTaskId = null;
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -91,6 +101,36 @@ const setTasksByUser = (email, tasks) => {
   const allTasks = getStored(STORAGE_KEYS.TASKS, {});
   allTasks[email] = tasks;
   setStored(STORAGE_KEYS.TASKS, allTasks);
+};
+
+const getFilteredSortedTasks = (tasks) => {
+  const filtered =
+    activeFilter === "ALL"
+      ? tasks
+      : tasks.filter((task) => task.status === activeFilter);
+
+  return [...filtered].sort((a, b) => {
+    const aDate = new Date(a.deadline);
+    const bDate = new Date(b.deadline);
+    return sortDirection === "asc" ? aDate - bDate : bDate - aDate;
+  });
+};
+
+const icon = {
+  check: () =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>`,
+  undo: () =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9H3"/></svg>`,
+  edit: () =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"/></svg>`,
+  trash: () =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>`,
+  clipboard: () =>
+    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="4" rx="1"/><path d="M4 6a2 2 0 0 1 2-2h2"/><path d="M18 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6"/></svg>`,
+  sort: (direction) =>
+    direction === "asc"
+      ? "▲"
+      : "▼",
 };
 
 const renderAuth = (variant = "login", error = "") => {
@@ -200,6 +240,7 @@ const renderDashboard = () => {
   }
 
   const tasks = getTasksByUser(session.email);
+  const viewTasks = getFilteredSortedTasks(tasks);
 
   app.innerHTML = `
     <header>
@@ -211,7 +252,7 @@ const renderDashboard = () => {
 
     <section class="grid">
       <div class="card">
-        <h2>Създай задача</h2>
+        <h2>${editingTaskId ? "Редакция на задача" : "Създай задача"}</h2>
         <form id="task-form">
           <div>
             <label for="title">Заглавие</label>
@@ -225,12 +266,39 @@ const renderDashboard = () => {
             <label for="deadline">Краен срок</label>
             <input id="deadline" name="deadline" type="date" required />
           </div>
-          <button type="submit">Добави задача</button>
+          <button type="submit">${
+            editingTaskId ? "Запази" : "Добави задача"
+          }</button>
+          ${
+            editingTaskId
+              ? `<button type="button" class="action-btn" id="cancel-edit">Откажи</button>`
+              : ""
+          }
         </form>
       </div>
 
       <div class="card">
         <h2>Текущи задачи</h2>
+        <div class="toolbar">
+          <div class="filters" role="tablist">
+            ${Object.entries(FILTER_LABELS)
+              .map(
+                ([key, label]) => `
+                  <button
+                    class="filter-btn ${activeFilter === key ? "active" : ""}"
+                    data-filter="${key}"
+                    type="button"
+                  >
+                    ${label}
+                  </button>
+                `
+              )
+              .join("")}
+          </div>
+          <button class="filter-btn" id="sort-deadline" type="button">
+            Краен срок ${icon.sort(sortDirection)}
+          </button>
+        </div>
         <table>
           <thead>
             <tr>
@@ -243,14 +311,18 @@ const renderDashboard = () => {
           </thead>
           <tbody>
             ${
-              tasks.length
-                ? tasks
+              viewTasks.length
+                ? viewTasks
                     .map((task) => {
                       const overdue = isOverdue(task);
                       return `
-                        <tr data-id="${task.id}">
-                          <td>${task.title}</td>
-                          <td>${task.description}</td>
+                        <tr data-id="${task.id}" class="${
+                          task.status === "COMPLETED" ? "row-completed" : ""
+                        }">
+                          <td class="task-title">${task.title}</td>
+                          <td title="${task.description}">
+                            <div class="truncate-2">${task.description}</div>
+                          </td>
                           <td class="${overdue ? "overdue" : ""}">${formatDate(
                         task.deadline
                       )}</td>
@@ -260,18 +332,78 @@ const renderDashboard = () => {
                             </span>
                           </td>
                           <td>
-                            <button class="action-btn" data-action="toggle">
-                              Превключи
-                            </button>
+                            <div class="icon-btns">
+                              <button class="icon-btn" data-action="toggle" title="${
+                                task.status === "OPEN" ? "Маркирай като завършена" : "Отвори отново"
+                              }">
+                                ${task.status === "OPEN" ? icon.check() : icon.undo()}
+                              </button>
+                              <button class="icon-btn" data-action="edit" title="Редакция">
+                                ${icon.edit()}
+                              </button>
+                              <button class="icon-btn danger" data-action="delete" title="Изтриване">
+                                ${icon.trash()}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       `;
                     })
                     .join("")
-                : `<tr><td class="empty" colspan="5">Няма задачи. Създай първата си задача.</td></tr>`
+                : `
+                  <tr>
+                    <td colspan="5">
+                      <div class="empty-state">
+                        <div class="empty-icon">${icon.clipboard()}</div>
+                        <div>Все още нямате задачи. Създайте първата си задача от формата вляво!</div>
+                      </div>
+                    </td>
+                  </tr>
+                `
             }
           </tbody>
         </table>
+
+        <div class="cards">
+          ${
+            viewTasks.length
+              ? viewTasks
+                  .map((task) => {
+                    const overdue = isOverdue(task);
+                    return `
+                      <div class="task-card ${
+                        task.status === "COMPLETED" ? "row-completed" : ""
+                      }" data-id="${task.id}">
+                        <div class="task-title">${task.title}</div>
+                        <div class="task-meta">${task.description}</div>
+                        <div class="task-meta ${overdue ? "overdue" : ""}">
+                          Краен срок: ${formatDate(task.deadline)}
+                        </div>
+                        <div>
+                          <span class="status ${task.status.toLowerCase()}">
+                            ${STATUS_LABELS[task.status]}
+                          </span>
+                        </div>
+                        <div class="icon-btns">
+                          <button class="icon-btn" data-action="toggle" title="${
+                            task.status === "OPEN" ? "Маркирай като завършена" : "Отвори отново"
+                          }">
+                            ${task.status === "OPEN" ? icon.check() : icon.undo()}
+                          </button>
+                          <button class="icon-btn" data-action="edit" title="Редакция">
+                            ${icon.edit()}
+                          </button>
+                          <button class="icon-btn danger" data-action="delete" title="Изтриване">
+                            ${icon.trash()}
+                          </button>
+                        </div>
+                      </div>
+                    `;
+                  })
+                  .join("")
+              : ""
+          }
+        </div>
       </div>
     </section>
   `;
@@ -282,35 +414,92 @@ const renderDashboard = () => {
   });
 
   const form = document.getElementById("task-form");
+  if (editingTaskId) {
+    const current = tasks.find((task) => task.id === editingTaskId);
+    if (current) {
+      form.querySelector("#title").value = current.title;
+      form.querySelector("#description").value = current.description;
+      form.querySelector("#deadline").value = current.deadline;
+    }
+  }
+
+  if (editingTaskId) {
+    document.getElementById("cancel-edit").addEventListener("click", () => {
+      editingTaskId = null;
+      renderDashboard();
+    });
+  }
+
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const formData = new FormData(form);
     const newTask = {
-      id: `task-${Date.now()}`,
       title: formData.get("title").trim(),
       description: formData.get("description").trim(),
       deadline: formData.get("deadline"),
       status: "OPEN",
     };
 
-    const updatedTasks = [newTask, ...tasks];
+    let updatedTasks = [...tasks];
+    if (editingTaskId) {
+      updatedTasks = updatedTasks.map((task) =>
+        task.id === editingTaskId
+          ? { ...task, ...newTask }
+          : task
+      );
+      editingTaskId = null;
+    } else {
+      updatedTasks = [{ id: `task-${Date.now()}`, ...newTask }, ...updatedTasks];
+    }
     setTasksByUser(session.email, updatedTasks);
     renderDashboard();
   });
 
-  app.querySelectorAll("[data-action='toggle']").forEach((button) => {
+  document.querySelectorAll("[data-filter]").forEach((button) => {
     button.addEventListener("click", () => {
-      const row = button.closest("tr");
-      const id = row?.dataset.id;
-      const task = tasks.find((item) => item.id === id);
-      if (!task) return;
-      const updatedTasks = tasks.map((item) =>
-        item.id === id
-          ? { ...item, status: item.status === "OPEN" ? "COMPLETED" : "OPEN" }
-          : item
-      );
-      setTasksByUser(session.email, updatedTasks);
+      activeFilter = button.dataset.filter;
       renderDashboard();
+    });
+  });
+
+  document.getElementById("sort-deadline").addEventListener("click", () => {
+    sortDirection = sortDirection === "asc" ? "desc" : "asc";
+    renderDashboard();
+  });
+
+  app.querySelectorAll("[data-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const parent = button.closest("tr") || button.closest(".task-card");
+      const id = parent?.dataset.id;
+      if (!id) return;
+
+      if (button.dataset.action === "toggle") {
+        const updatedTasks = tasks.map((item) =>
+          item.id === id
+            ? {
+                ...item,
+                status: item.status === "OPEN" ? "COMPLETED" : "OPEN",
+              }
+            : item
+        );
+        setTasksByUser(session.email, updatedTasks);
+        renderDashboard();
+        return;
+      }
+
+      if (button.dataset.action === "edit") {
+        editingTaskId = id;
+        renderDashboard();
+        return;
+      }
+
+      if (button.dataset.action === "delete") {
+        const confirmed = window.confirm("Сигурни ли сте, че искате да изтриете задачата?");
+        if (!confirmed) return;
+        const updatedTasks = tasks.filter((item) => item.id !== id);
+        setTasksByUser(session.email, updatedTasks);
+        renderDashboard();
+      }
     });
   });
 };
