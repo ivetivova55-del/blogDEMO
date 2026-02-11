@@ -39,7 +39,10 @@ export function TaskTable() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const today = useMemo(() => new Date(), []);
+  const today = useMemo(() => {
+    const now = new Date();
+    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+  }, []);
 
   const loadTasks = async () => {
     setIsLoading(true);
@@ -139,11 +142,16 @@ export function TaskTable() {
               </TableRow>
             ) : (
               tasks.map((task, index) => {
-                const deadline = new Date(task.deadline);
+                const deadlineDate = new Date(task.deadline);
+                const deadlineDay = new Date(
+                  deadlineDate.getFullYear(),
+                  deadlineDate.getMonth(),
+                  deadlineDate.getDate()
+                );
                 const isOverdue =
-                  task.status === "OPEN" && deadline < today;
+                  task.status === "OPEN" && deadlineDay < today;
                 const description =
-                  task.description.length > 80
+                  task.description && task.description.length > 80
                     ? `${task.description.slice(0, 80)}...`
                     : task.description;
 
