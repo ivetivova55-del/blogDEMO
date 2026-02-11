@@ -9,6 +9,12 @@
 --   ('user-uuid-here', 'demo@example.com', 'Demo User', 'user'),
 --   ('admin-uuid-here', 'admin@example.com', 'Admin User', 'admin');
 
+-- After inserting users, add sample tasks linked to user IDs:
+-- INSERT INTO tasks (user_id, title, description, completed, priority, due_date)
+-- VALUES
+--   ('user-uuid-here', 'Write SEO Blog Post', 'Outline and draft the Q1 SEO article.', false, 'high', NOW() + INTERVAL '3 days'),
+--   ('user-uuid-here', 'Email campaign review', 'Check segmentation and CTR for Q1 series.', true, 'medium', NOW() - INTERVAL '2 days');
+
 -- Insert sample articles with educational IT news and images
 INSERT INTO articles (title, content, excerpt, category_id, author_id, status, views, cover_image_url, created_at) 
 SELECT 
