@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import { LogOut } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/ui/theme-toggle";
 
 export function DashboardHeader({ name, email }) {
   return (
@@ -16,10 +17,16 @@ export function DashboardHeader({ name, email }) {
         </h1>
         <p className="mt-2 text-sm text-ink/60">Signed in as {email}</p>
       </div>
-      <Button variant="secondary" onClick={() => signOut({ callbackUrl: "/" })}>
-        <LogOut className="h-4 w-4" />
-        Sign out
-      </Button>
+      <div className="flex flex-wrap items-center gap-2">
+        <ThemeToggle />
+        <Button
+          variant="secondary"
+          onClick={() => signOut({ callbackUrl: "/" })}
+        >
+          <LogOut className="h-4 w-4" />
+          Sign out
+        </Button>
+      </div>
     </div>
   );
 }

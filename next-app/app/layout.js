@@ -1,5 +1,6 @@
 import { Sora, Newsreader } from "next/font/google";
 import "./globals.css";
+import { SonnerToaster } from "@/components/ui/sonner-toaster";
 
 const sora = Sora({
   variable: "--font-sora",
@@ -23,6 +24,7 @@ export default function RootLayout({ children }) {
         className={`${sora.variable} ${newsreader.variable} antialiased text-ink`}
       >
         {children}
+        <SonnerToaster />
       </body>
     </html>
   );

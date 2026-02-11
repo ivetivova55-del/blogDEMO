@@ -26,7 +26,10 @@ export async function POST(request) {
   }
 
   try {
-    const { title, description, deadline } = await request.json();
+    const allowedStatuses = ["IDEAS", "IN_PROGRESS", "FOR_REVIEW", "DONE"];
+    const allowedPriorities = ["LOW", "MEDIUM", "HIGH"];
+    const payload = await request.json();
+    const { title, description, deadline } = payload;
 
     if (!title || !description || !deadline) {
       return NextResponse.json(
@@ -35,11 +38,22 @@ export async function POST(request) {
       );
     }
 
+    const status = allowedStatuses.includes(payload.status)
+      ? payload.status
+      : "IDEAS";
+    const priority = allowedPriorities.includes(payload.priority)
+      ? payload.priority
+      : "MEDIUM";
+
     const task = await prisma.task.create({
       data: {
         title,
         description,
         deadline: new Date(deadline),
+        status,
+        priority,
+        tags: Array.isArray(payload.tags) ? payload.tags : [],
+        checklist: Array.isArray(payload.checklist) ? payload.checklist : [],
         userId: session.user.id,
       },
     });

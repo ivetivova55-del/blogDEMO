@@ -8,8 +8,16 @@ datasource db {
 }
 
 enum TaskStatus {
-  OPEN
-  COMPLETED
+  IDEAS
+  IN_PROGRESS
+  FOR_REVIEW
+  DONE
+}
+
+enum TaskPriority {
+  LOW
+  MEDIUM
+  HIGH
 }
 
 model User {
@@ -27,7 +35,10 @@ model Task {
   title       String
   description String
   deadline    DateTime
-  status      TaskStatus @default(OPEN)
+  status      TaskStatus @default(IDEAS)
+  priority    TaskPriority @default(MEDIUM)
+  tags        Json?
+  checklist   Json?
   userId      String
   user        User       @relation(fields: [userId], references: [id])
   createdAt   DateTime   @default(now())

@@ -6,6 +6,18 @@
   --sand: #efe7dd;
   --mint: #d7efe3;
   --sunset: #f6c1a6;
+  --surface: #ffffff;
+  --panel: rgba(255, 255, 255, 0.85);
+}
+
+.dark {
+  --ink: #e2e8f0;
+  --cream: #0f172a;
+  --sand: #111827;
+  --mint: #1f2937;
+  --sunset: #1f2937;
+  --surface: #0b1220;
+  --panel: rgba(15, 23, 42, 0.85);
 }
 
 @theme inline {
@@ -35,6 +47,11 @@ h3 {
   background: radial-gradient(circle at top, #fef7ee 0%, #f7f2ea 40%, #eef2f1 100%);
 }
 
+.dark body,
+.dark .bg-hero {
+  background: radial-gradient(circle at top, #0b1220 0%, #0a0f1a 55%, #070b12 100%);
+}
+
 @keyframes rise {
   from {
     opacity: 0;
@@ -48,4 +65,23 @@ h3 {
 
 .animate-rise {
   animation: rise 0.6s ease-out both;
+}
+
+.ql-container {
+  border: none !important;
+  font-family: var(--font-sans);
+}
+
+.ql-toolbar {
+  border: none !important;
+  border-bottom: 1px solid rgba(15, 23, 42, 0.1) !important;
+}
+
+.ql-editor {
+  min-height: 160px;
+  color: var(--ink);
+}
+
+.dark .ql-toolbar {
+  border-bottom: 1px solid rgba(148, 163, 184, 0.25) !important;
 }

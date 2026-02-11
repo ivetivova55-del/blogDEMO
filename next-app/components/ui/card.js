@@ -1,7 +1,7 @@
 export function Card({ className = "", ...props }) {
   return (
     <div
-      className={`rounded-3xl border border-ink/10 bg-white/80 p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.35)] backdrop-blur ${className}`}
+      className={`rounded-3xl border border-ink/10 bg-[var(--panel)] p-6 shadow-[0_30px_70px_-50px_rgba(15,23,42,0.35)] backdrop-blur ${className}`}
       {...props}
     />
   );
