@@ -1,0 +1,158 @@
+:root {
+  color-scheme: light;
+  --ink: #1f2937;
+  --sand: #f5f1ea;
+  --cream: #fffaf3;
+  --mint: #d7efe3;
+  --sunset: #f6c1a6;
+  --rose: #f4a9b5;
+  --border: rgba(31, 41, 55, 0.12);
+  --shadow: 0 24px 60px -40px rgba(31, 41, 55, 0.45);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body.dmq-body {
+  font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  background: radial-gradient(circle at top, #fff3e6 0%, #f5efe7 45%, #eef2f1 100%);
+  color: var(--ink);
+  min-height: 100vh;
+}
+
+.dmq-navbar {
+  background: linear-gradient(90deg, #d8735b 0%, #f0b18f 45%, #f4a9b5 100%);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.35);
+}
+
+.dmq-brand {
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: #ffffff !important;
+}
+
+.dmq-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 56px 20px 80px;
+}
+
+.dmq-hero {
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+}
+
+.dmq-kicker {
+  text-transform: uppercase;
+  letter-spacing: 0.35em;
+  font-size: 0.75rem;
+  color: rgba(31, 41, 55, 0.6);
+  font-weight: 600;
+}
+
+.dmq-card {
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.96);
+  box-shadow: 0 18px 50px -40px rgba(31, 41, 55, 0.45);
+}
+
+.dmq-pill {
+  border-radius: 999px;
+  background: rgba(31, 41, 55, 0.08);
+  color: rgba(31, 41, 55, 0.7);
+  padding: 8px 14px;
+  font-weight: 600;
+}
+
+.dmq-surface {
+  background: rgba(255, 255, 255, 0.88);
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+
+.dmq-form .form-label {
+  font-size: 0.72rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  font-weight: 700;
+  color: rgba(31, 41, 55, 0.6);
+}
+
+.dmq-form .form-control,
+.dmq-form .form-select,
+.dmq-form textarea {
+  border-radius: 16px;
+  border: 1px solid var(--border);
+  background: var(--cream);
+}
+
+.dmq-section-title {
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+  font-size: 0.8rem;
+}
+
+.status-open {
+  background: #fff2d7;
+  color: #a15c00;
+}
+
+.status-completed {
+  background: var(--mint);
+  color: #1d6b4f;
+}
+
+.status-overdue {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.task-card {
+  border: 1px solid var(--border);
+  border-radius: 18px;
+  padding: 16px;
+  background: #ffffff;
+}
+
+.task-card .task-title {
+  font-weight: 700;
+}
+
+.task-meta {
+  color: rgba(31, 41, 55, 0.6);
+  font-size: 0.9rem;
+}
+
+.dmq-table thead th {
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.7rem;
+  color: rgba(31, 41, 55, 0.6);
+}
+
+.dmq-empty {
+  border: 1px dashed var(--border);
+  padding: 24px;
+  border-radius: 16px;
+  text-align: center;
+  color: rgba(31, 41, 55, 0.6);
+}
+
+@media (max-width: 768px) {
+  .dmq-page {
+    padding: 32px 16px 64px;
+  }
+}
