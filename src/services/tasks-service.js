@@ -1,11 +1,13 @@
 import { supabase } from '../api/supabase-client.js';
 
 function mapStatusFromDb(status) {
-  if (!status) return 'open';
+  if (!status) return 'not_started';
 
   const value = String(status).toLowerCase();
-  if (value === 'done' || value === 'completed') return 'completed';
-  return 'open';
+  if (value === 'done' || value === 'completed') return 'done';
+  if (value === 'in_progress') return 'in_progress';
+  if (value === 'open') return 'not_started';
+  return 'not_started';
 }
 
 function mapStatusToDb(status) {
@@ -14,6 +16,7 @@ function mapStatusToDb(status) {
   const value = String(status).toLowerCase();
   if (value === 'completed' || value === 'done') return 'done';
   if (value === 'in_progress') return 'in_progress';
+  if (value === 'open') return 'not_started';
   return 'not_started';
 }
 

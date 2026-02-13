@@ -17,6 +17,13 @@ const summaryCompleted = qs('#summary-completed');
 const summaryOverdue = qs('#summary-overdue');
 const greeting = qs('#user-greeting');
 const adminLink = qs('#admin-link');
+const kanbanBoard = qs('#kanban-board');
+
+const STATUS_LABELS = {
+  not_started: 'To Do',
+  in_progress: 'In Progress',
+  done: 'Completed',
+};
 
 let tasks = [];
 let projects = [];
@@ -38,13 +45,53 @@ function applyFilterSort(items) {
 
 function renderSummary() {
   const total = tasks.length;
-  const open = tasks.filter((task) => task.status === 'open').length;
-  const completed = tasks.filter((task) => task.status === 'completed').length;
+  const open = tasks.filter((task) => task.status !== 'done').length;
+  const completed = tasks.filter((task) => task.status === 'done').length;
   const overdue = tasks.filter((task) => isOverdue(task)).length;
   summaryTotal.textContent = total;
   summaryOpen.textContent = open;
   summaryCompleted.textContent = completed;
   summaryOverdue.textContent = overdue;
+}
+
+function statusBadgeClass(status) {
+  if (status === 'done') return 'status-completed';
+  if (status === 'in_progress') return 'status-open';
+  return 'status-open';
+}
+
+function getToggleLabel(status) {
+  return status === 'done' ? 'Reopen' : 'Complete';
+}
+
+function getToggledStatus(status) {
+  return status === 'done' ? 'not_started' : 'done';
+}
+
+function renderKanban() {
+  const columns = qsa('[data-board-list]', kanbanBoard);
+  columns.forEach((column) => {
+    column.innerHTML = '';
+  });
+
+  const sorted = [...tasks].sort((a, b) => new Date(a.deadline || 0) - new Date(b.deadline || 0));
+
+  sorted.forEach((task) => {
+    const status = STATUS_LABELS[task.status] ? task.status : 'not_started';
+    const column = qs(`[data-board-status="${status}"]`, kanbanBoard);
+    if (!column) return;
+
+    const card = document.createElement('div');
+    card.className = 'task-card mb-2';
+    card.draggable = true;
+    card.dataset.taskId = task.id;
+    card.innerHTML = `
+      <div class="task-title">${task.title}</div>
+      <div class="task-meta">${formatDate(task.deadline)}</div>
+      <div><span class="status-badge ${statusBadgeClass(task.status)}">${STATUS_LABELS[status]}</span></div>
+    `;
+    column.appendChild(card);
+  });
 }
 
 function renderTasks() {
@@ -61,21 +108,19 @@ function renderTasks() {
 
   viewTasks.forEach((task) => {
     const overdue = isOverdue(task);
-    const statusBadge = task.status === 'completed'
-      ? 'status-completed'
-      : 'status-open';
+    const statusBadge = statusBadgeClass(task.status);
 
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${task.title}</td>
       <td class="text-muted">${task.description || '-'}</td>
       <td class="${overdue ? 'status-overdue' : ''}">${formatDate(task.deadline)}</td>
-      <td><span class="status-badge ${statusBadge}">${task.status}</span></td>
+      <td><span class="status-badge ${statusBadge}">${STATUS_LABELS[task.status] || STATUS_LABELS.not_started}</span></td>
       <td>
         <div class="d-flex gap-2 flex-wrap">
           <button class="btn btn-sm btn-outline-dark" data-action="view" data-id="${task.id}">View</button>
           <button class="btn btn-sm btn-outline-secondary" data-action="toggle" data-id="${task.id}">
-            ${task.status === 'open' ? 'Complete' : 'Reopen'}
+            ${getToggleLabel(task.status)}
           </button>
           <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${task.id}">Delete</button>
         </div>
@@ -89,17 +134,19 @@ function renderTasks() {
       <div class="task-title">${task.title}</div>
       <div class="task-meta">${task.description || '-'}</div>
       <div class="task-meta ${overdue ? 'status-overdue' : ''}">Deadline: ${formatDate(task.deadline)}</div>
-      <div><span class="status-badge ${statusBadge}">${task.status}</span></div>
+      <div><span class="status-badge ${statusBadge}">${STATUS_LABELS[task.status] || STATUS_LABELS.not_started}</span></div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-sm btn-outline-dark" data-action="view" data-id="${task.id}">View</button>
         <button class="btn btn-sm btn-outline-secondary" data-action="toggle" data-id="${task.id}">
-          ${task.status === 'open' ? 'Complete' : 'Reopen'}
+          ${getToggleLabel(task.status)}
         </button>
         <button class="btn btn-sm btn-outline-danger" data-action="delete" data-id="${task.id}">Delete</button>
       </div>
     `;
     tasksCards.appendChild(card);
   });
+
+  renderKanban();
 }
 
 function renderProjects() {
@@ -146,6 +193,44 @@ qsa('[data-filter]').forEach((button) => {
     button.classList.add('active');
     activeFilter = button.dataset.filter;
     renderTasks();
+  });
+});
+
+kanbanBoard.addEventListener('dragstart', (event) => {
+  const card = event.target.closest('[data-task-id]');
+  if (!card) return;
+  event.dataTransfer.effectAllowed = 'move';
+  event.dataTransfer.setData('text/plain', card.dataset.taskId);
+});
+
+qsa('[data-board-status]', kanbanBoard).forEach((column) => {
+  column.addEventListener('dragover', (event) => {
+    event.preventDefault();
+    event.dataTransfer.dropEffect = 'move';
+    column.classList.add('kanban-drop-active');
+  });
+
+  column.addEventListener('dragleave', () => {
+    column.classList.remove('kanban-drop-active');
+  });
+
+  column.addEventListener('drop', async (event) => {
+    event.preventDefault();
+    column.classList.remove('kanban-drop-active');
+
+    const taskId = event.dataTransfer.getData('text/plain');
+    const nextStatus = column.dataset.boardStatus;
+    if (!taskId || !nextStatus) return;
+
+    const task = tasks.find((item) => item.id === taskId);
+    if (!task || task.status === nextStatus) return;
+
+    try {
+      await updateTask(taskId, { status: nextStatus });
+      await refreshDashboard();
+    } catch (error) {
+      setAlert(alertBox, error.message || 'Unable to move task on board.');
+    }
   });
 });
 
@@ -197,7 +282,7 @@ qs('#tasks-panel').addEventListener('click', async (event) => {
     if (target.dataset.action === 'toggle') {
       const task = tasks.find((item) => item.id === taskId);
       if (!task) return;
-      const status = task.status === 'open' ? 'completed' : 'open';
+      const status = getToggledStatus(task.status);
       await updateTask(taskId, { status });
       await refreshDashboard();
       return;

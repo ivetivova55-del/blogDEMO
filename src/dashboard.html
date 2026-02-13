@@ -75,8 +75,9 @@
                 <div class="col-6">
                   <label class="form-label">Status</label>
                   <select class="form-select" name="status">
-                    <option value="open">Open</option>
-                    <option value="completed">Completed</option>
+                    <option value="not_started">To Do</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="done">Completed</option>
                   </select>
                 </div>
                 <div class="col-6">
@@ -98,8 +99,9 @@
             <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
               <div class="btn-group" role="group">
                 <button class="btn btn-outline-dark btn-sm active" data-filter="all">All</button>
-                <button class="btn btn-outline-dark btn-sm" data-filter="open">Open</button>
-                <button class="btn btn-outline-dark btn-sm" data-filter="completed">Completed</button>
+                <button class="btn btn-outline-dark btn-sm" data-filter="not_started">To Do</button>
+                <button class="btn btn-outline-dark btn-sm" data-filter="in_progress">In Progress</button>
+                <button class="btn btn-outline-dark btn-sm" data-filter="done">Completed</button>
               </div>
               <button class="btn btn-outline-dark btn-sm" id="sort-deadline">Sort: ASC</button>
             </div>
@@ -121,6 +123,32 @@
 
             <div class="d-grid gap-3 d-lg-none" id="tasks-cards"></div>
             <div class="dmq-empty d-none" id="tasks-empty">No tasks yet. Add your first task.</div>
+
+            <hr class="my-4" />
+
+            <div>
+              <h3 class="h6 mb-3">Task Board (Mini Kanban)</h3>
+              <div class="row g-3" id="kanban-board">
+                <div class="col-lg-4">
+                  <div class="dmq-card p-2 h-100">
+                    <div class="fw-semibold small text-uppercase text-muted px-2 py-1">To Do</div>
+                    <div class="kanban-column" data-board-status="not_started" data-board-list></div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="dmq-card p-2 h-100">
+                    <div class="fw-semibold small text-uppercase text-muted px-2 py-1">In Progress</div>
+                    <div class="kanban-column" data-board-status="in_progress" data-board-list></div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="dmq-card p-2 h-100">
+                    <div class="fw-semibold small text-uppercase text-muted px-2 py-1">Completed</div>
+                    <div class="kanban-column" data-board-status="done" data-board-list></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

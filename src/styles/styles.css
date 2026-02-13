@@ -131,6 +131,19 @@ body.dmq-body {
   font-weight: 700;
 }
 
+.kanban-column {
+  min-height: 220px;
+  border: 1px dashed var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.kanban-drop-active {
+  border-color: rgba(31, 41, 55, 0.45);
+  background: rgba(31, 41, 55, 0.04);
+}
+
 .task-meta {
   color: rgba(31, 41, 55, 0.6);
   font-size: 0.9rem;

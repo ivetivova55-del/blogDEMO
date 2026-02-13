@@ -17,7 +17,7 @@ export function toInputDate(value) {
 }
 
 export function isOverdue(task) {
-  if (!task?.deadline || task.status !== 'open') return false;
+  if (!task?.deadline || task.status === 'done') return false;
   const today = new Date();
   const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const deadline = new Date(task.deadline);
