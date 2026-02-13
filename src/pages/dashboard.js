@@ -23,7 +23,7 @@ const kanbanBoard = qs('#kanban-board');
 const STATUS_LABELS = {
   not_started: 'To Do',
   in_progress: 'In Progress',
-  done: 'Completed',
+  done: 'Complete',
 };
 
 let tasks = [];
@@ -31,11 +31,14 @@ let projects = [];
 let activeFilter = 'all';
 let sortDirection = 'asc';
 let currentUserId = null;
+let selectedProjectId = null;
 
 function applyFilterSort(items) {
   const filtered = activeFilter === 'all'
     ? items
-    : items.filter((task) => task.status === activeFilter);
+    : activeFilter === 'incomplete'
+      ? items.filter((task) => task.status !== 'done')
+      : items.filter((task) => task.status === activeFilter);
 
   return [...filtered].sort((a, b) => {
     const aDate = new Date(a.deadline || 0);
@@ -182,6 +185,15 @@ async function initDashboard() {
   try {
     projects = await fetchProjects(currentUserId);
     renderProjects();
+
+    const params = new URLSearchParams(window.location.search);
+    const queryProject = params.get('project');
+    if (queryProject && projects.some((project) => project.id === queryProject)) {
+      selectedProjectId = queryProject;
+      projectSelect.value = selectedProjectId;
+      setAlert(alertBox, 'Project selected. Create or manage tasks for this project.', 'info');
+    }
+
     await refreshDashboard();
   } catch (error) {
     setAlert(alertBox, error.message || 'Unable to load dashboard data.');

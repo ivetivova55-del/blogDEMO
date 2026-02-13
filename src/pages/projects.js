@@ -11,6 +11,7 @@ const cancelEditButton = qs('#cancel-edit');
 
 let currentUserId = null;
 let editingId = null;
+let currentProjects = [];
 
 function resetForm() {
   projectForm.reset();
@@ -47,6 +48,7 @@ function renderProjects(projects) {
 
 async function refreshProjects() {
   const projects = await fetchProjects(currentUserId);
+  currentProjects = projects;
   renderProjects(projects);
 }
 
@@ -96,12 +98,7 @@ projectsTable.addEventListener('click', async (event) => {
   if (!projectId) return;
 
   if (button.dataset.action === 'edit') {
-    const row = button.closest('tr');
-    projectForm.name.value = row.children[0].textContent.trim();
-    projectForm.description.value = row.children[1].textContent.trim() === '-' ? '' : row.children[1].textContent.trim();
-    editingId = projectId;
-    cancelEditButton.classList.remove('d-none');
-    projectForm.querySelector('button[type="submit"]').textContent = 'Update project';
+    window.location.href = `./dashboard.html?project=${encodeURIComponent(projectId)}`;
     return;
   }
 
