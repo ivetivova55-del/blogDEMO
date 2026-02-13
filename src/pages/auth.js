@@ -1,4 +1,5 @@
 import { qs, qsa, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
+import { applyTimeTheme } from '../utils/time-theme.js';
 
 const loginForm = qs('#login-form');
 const registerForm = qs('#register-form');
@@ -229,3 +230,4 @@ registerForm.addEventListener('submit', async (event) => {
 })();
 
 setToggleState(activeMode);
+applyTimeTheme();

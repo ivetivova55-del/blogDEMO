@@ -6,6 +6,7 @@ import {
   updateUserRole,
 } from '../services/admin-service.js';
 import { qs, setAlert, clearAlert } from '../utils/dom-utils.js';
+import { applyTimeTheme } from '../utils/time-theme.js';
 
 const alertBox = qs('#admin-alert');
 const usersTable = qs('#users-table-body');
@@ -113,3 +114,4 @@ usersTable.addEventListener('click', async (event) => {
 });
 
 initAdmin();
+applyTimeTheme();

@@ -4,6 +4,7 @@ import { fetchProjects } from '../services/projects-service.js';
 import { uploadAttachment, listAttachments, getSignedUrl, deleteAttachment } from '../services/attachments-service.js';
 import { formatDate, toInputDate } from '../utils/date-utils.js';
 import { qs, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
+import { applyTimeTheme } from '../utils/time-theme.js';
 
 const alertBox = qs('#task-alert');
 const taskTitle = qs('#task-title');
@@ -167,3 +168,4 @@ attachmentsList.addEventListener('click', async (event) => {
 });
 
 initPage();
+applyTimeTheme();

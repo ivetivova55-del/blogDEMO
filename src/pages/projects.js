@@ -1,6 +1,7 @@
 import { getCurrentUserProfile } from '../services/auth-service.js';
 import { fetchProjects, createProject, updateProject, deleteProject } from '../services/projects-service.js';
 import { qs, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
+import { applyTimeTheme } from '../utils/time-theme.js';
 
 const alertBox = qs('#projects-alert');
 const projectForm = qs('#project-form');
@@ -121,3 +122,4 @@ cancelEditButton.addEventListener('click', () => {
 });
 
 initProjects();
+applyTimeTheme();

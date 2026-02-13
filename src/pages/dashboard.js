@@ -3,6 +3,7 @@ import { fetchTasks, createTask, updateTask, deleteTask } from '../services/task
 import { fetchProjects } from '../services/projects-service.js';
 import { formatDate, isOverdue } from '../utils/date-utils.js';
 import { qs, qsa, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
+import { applyTimeTheme } from '../utils/time-theme.js';
 
 const alertBox = qs('#dashboard-alert');
 const tasksTableBody = qs('#tasks-table-body');
@@ -305,3 +306,4 @@ qs('#logout-button').addEventListener('click', async () => {
 });
 
 initDashboard();
+applyTimeTheme();
