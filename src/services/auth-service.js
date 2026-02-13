@@ -1,5 +1,62 @@
 import { supabase, getCurrentUser, getUserProfile } from '../api/supabase-client.js';
 
+function isMissingTableError(error) {
+  const message = [error?.message, error?.details, error?.hint, error?.code]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return (
+    message.includes('does not exist') ||
+    message.includes('could not find the table') ||
+    message.includes('schema cache')
+  );
+}
+
+async function upsertUserProfile(userId, email, fullName) {
+  const payload = {
+    id: userId,
+    email,
+    full_name: fullName,
+    role: 'user',
+  };
+
+  const { error: profileError } = await supabase
+    .from('profiles')
+    .upsert(payload, { onConflict: 'id' });
+
+  if (!profileError) return;
+  if (!isMissingTableError(profileError)) throw profileError;
+
+  const { error: usersError } = await supabase
+    .from('users')
+    .upsert(payload, { onConflict: 'id' });
+
+  if (usersError && !isMissingTableError(usersError)) {
+    throw usersError;
+  }
+}
+
+async function resolveCurrentUserProfile(userId) {
+  try {
+    return await getUserProfile(userId);
+  } catch (error) {
+    if (!isMissingTableError(error)) throw error;
+  }
+
+  const { data, error } = await supabase
+    .from('users')
+    .select('id, email, full_name, role, created_at')
+    .eq('id', userId)
+    .maybeSingle();
+
+  if (error && !isMissingTableError(error)) {
+    throw error;
+  }
+
+  return data || null;
+}
+
 export async function registerUser({ email, password, fullName }) {
   const { data, error } = await supabase.auth.signUp({
     email,
@@ -14,16 +71,7 @@ export async function registerUser({ email, password, fullName }) {
   if (error) throw error;
 
   if (data?.user) {
-    const { error: profileError } = await supabase
-      .from('profiles')
-      .upsert({
-        id: data.user.id,
-        email,
-        full_name: fullName,
-        role: 'user',
-      }, { onConflict: 'id' });
-
-    if (profileError) throw profileError;
+    await upsertUserProfile(data.user.id, email, fullName);
   }
 
   return data;
@@ -48,6 +96,15 @@ export async function logoutUser() {
 export async function getCurrentUserProfile() {
   const user = await getCurrentUser();
   if (!user) return null;
-  const profile = await getUserProfile(user.id);
+
+  const profile = await resolveCurrentUserProfile(user.id);
+  if (!profile) {
+    return {
+      ...user,
+      full_name: user.user_metadata?.full_name || null,
+      role: 'user',
+    };
+  }
+
   return { ...user, ...profile };
 }
