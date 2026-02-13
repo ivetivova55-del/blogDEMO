@@ -16,6 +16,7 @@ const summaryOpen = qs('#summary-open');
 const summaryCompleted = qs('#summary-completed');
 const summaryOverdue = qs('#summary-overdue');
 const greeting = qs('#user-greeting');
+const adminLink = qs('#admin-link');
 
 let tasks = [];
 let projects = [];
@@ -126,6 +127,9 @@ async function initDashboard() {
   }
   currentUserId = user.id;
   greeting.textContent = `Welcome, ${user.full_name || user.email}`;
+  if (adminLink && user.role !== 'admin') {
+    adminLink.classList.add('d-none');
+  }
 
   try {
     projects = await fetchProjects(currentUserId);

@@ -1,7 +1,7 @@
 import { getCurrentUserProfile } from '../services/auth-service.js';
 import { fetchTaskById, updateTask } from '../services/tasks-service.js';
 import { fetchProjects } from '../services/projects-service.js';
-import { uploadAttachment, listAttachments, deleteAttachmentRecord } from '../services/attachments-service.js';
+import { uploadAttachment, listAttachments, getSignedUrl, deleteAttachment } from '../services/attachments-service.js';
 import { formatDate, toInputDate } from '../utils/date-utils.js';
 import { qs, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
 
@@ -25,7 +25,18 @@ async function renderAttachments() {
     return;
   }
 
-  attachments.forEach((attachment) => {
+  const signedUrls = await Promise.all(
+    attachments.map(async (attachment) => {
+      try {
+        return await getSignedUrl(attachment.file_url);
+      } catch (error) {
+        return '';
+      }
+    })
+  );
+
+  attachments.forEach((attachment, index) => {
+    const signedUrl = signedUrls[index];
     const item = document.createElement('div');
     item.className = 'd-flex justify-content-between align-items-center border rounded-3 p-3 mb-2';
     item.innerHTML = `
@@ -34,8 +45,9 @@ async function renderAttachments() {
         <div class="text-muted small">Uploaded ${formatDate(attachment.uploaded_at)}</div>
       </div>
       <div class="d-flex gap-2">
-        <a class="btn btn-sm btn-outline-dark" href="${attachment.file_url}" target="_blank" rel="noreferrer">Open</a>
-        <button class="btn btn-sm btn-outline-danger" data-attachment-id="${attachment.id}">Remove</button>
+        <a class="btn btn-sm btn-outline-dark" href="${signedUrl}" target="_blank" rel="noreferrer">Open</a>
+        <a class="btn btn-sm btn-outline-secondary" href="${signedUrl}" download>Download</a>
+        <button class="btn btn-sm btn-outline-danger" data-attachment-id="${attachment.id}" data-file-path="${attachment.file_url}">Remove</button>
       </div>
     `;
     attachmentsList.appendChild(item);
@@ -128,7 +140,7 @@ attachmentForm.addEventListener('submit', async (event) => {
       setAlert(alertBox, 'Select a file to upload.');
       return;
     }
-    await uploadAttachment(taskId, file);
+    await uploadAttachment(taskId, currentUserId, file);
     fileInput.value = '';
     await renderAttachments();
   } catch (error) {
@@ -142,11 +154,12 @@ attachmentsList.addEventListener('click', async (event) => {
   const button = event.target.closest('[data-attachment-id]');
   if (!button) return;
   const attachmentId = button.dataset.attachmentId;
+  const filePath = button.dataset.filePath;
   const confirmed = window.confirm('Remove this attachment record?');
   if (!confirmed) return;
 
   try {
-    await deleteAttachmentRecord(attachmentId);
+    await deleteAttachment(attachmentId, filePath);
     await renderAttachments();
   } catch (error) {
     setAlert(alertBox, error.message || 'Unable to remove attachment.');
