@@ -27,9 +27,15 @@
             <h1 class="h4">Admin Panel</h1>
             <p class="text-muted mb-0">System overview for administrators.</p>
           </div>
-          <div class="dmq-card px-3 py-2 text-center">
-            <div class="small text-muted">Total tasks</div>
-            <div class="fw-bold" id="system-task-count">0</div>
+          <div class="d-flex gap-3 flex-wrap">
+            <div class="dmq-card px-3 py-2 text-center">
+              <div class="small text-muted">Total tasks</div>
+              <div class="fw-bold" id="system-task-count">0</div>
+            </div>
+            <div class="dmq-card px-3 py-2 text-center">
+              <div class="small text-muted">Total projects</div>
+              <div class="fw-bold" id="system-project-count">0</div>
+            </div>
           </div>
         </div>
 
@@ -43,11 +49,13 @@
                 <th>Email</th>
                 <th>Role</th>
                 <th>Joined</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody id="users-table-body"></tbody>
           </table>
         </div>
+        <div class="dmq-empty d-none" id="users-empty">No users found.</div>
       </div>
     </main>
 

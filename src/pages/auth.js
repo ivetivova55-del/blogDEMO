@@ -4,6 +4,7 @@ const loginForm = qs('#login-form');
 const registerForm = qs('#register-form');
 const alertBox = qs('#auth-alert');
 const toggleButtons = qsa('[data-auth-toggle]');
+const homeAdminLink = qs('#home-admin-link');
 
 const ALLOWED_EMAILS = ['svi@gmail.com', 'maria@gmail.com', 'peter@gmail.com'];
 const DEMO_PASSWORD = 'pass123';
@@ -216,6 +217,9 @@ registerForm.addEventListener('submit', async (event) => {
   try {
     const { getCurrentUserProfile } = await getAuthModule();
     const user = await getCurrentUserProfile();
+    if (homeAdminLink) {
+      homeAdminLink.classList.toggle('d-none', user?.role !== 'admin');
+    }
     if (user) {
       window.location.href = './dashboard.html';
     }
