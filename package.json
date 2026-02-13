@@ -7,7 +7,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "seed:sample": "node scripts/seed-sample-data.js"
   },
   "keywords": ["blog", "vite", "supabase", "javascript"],
   "author": "",

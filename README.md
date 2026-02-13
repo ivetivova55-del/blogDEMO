@@ -57,6 +57,30 @@ npm run build
 npm run preview
 ```
 
+### Seed Sample Projects/Tasks Data
+
+The repository includes a JS seed script that:
+- Creates/updates sample Supabase Auth users:
+	- `svi@gmail.com` / `pass123`
+	- `maria@gmail.com` / `pass123`
+	- `peter@gmail.com` / `pass123`
+- Seeds 4 projects
+- Adds default project stages (`Not Started`, `In Progress`, `Done`) when a stages table exists (`project_stages` or `stages`)
+- Inserts 11 tasks per project across different stages
+
+Required env variables:
+
+```bash
+SUPABASE_URL=https://your-project.supabase.co
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+```
+
+Run:
+
+```bash
+npm run seed:sample
+```
+
 ### Demo Credentials
 
 Test the platform with these marketing professional accounts:
