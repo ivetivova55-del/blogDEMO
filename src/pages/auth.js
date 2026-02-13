@@ -5,6 +5,9 @@ const registerForm = qs('#register-form');
 const alertBox = qs('#auth-alert');
 const toggleButtons = qsa('[data-auth-toggle]');
 
+const ALLOWED_EMAILS = ['svi@gmail.com', 'maria@gmail.com', 'peter@gmail.com'];
+const DEMO_PASSWORD = 'pass123';
+
 let activeMode = 'login';
 let isSubmitting = false;
 let authModulePromise = null;
@@ -43,6 +46,23 @@ function validateEmail(email) {
   return /^\S+@\S+\.\S+$/.test(email);
 }
 
+function isAllowedDemoEmail(email) {
+  return ALLOWED_EMAILS.includes((email || '').toLowerCase());
+}
+
+function isDuplicateUserError(error) {
+  const message = [error?.message, error?.details, error?.hint, error?.code]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return (
+    message.includes('already') ||
+    message.includes('registered') ||
+    message.includes('duplicate')
+  );
+}
+
 function validateLogin({ email, password }) {
   if (!email || !password) {
     return 'Please fill in email and password.';
@@ -52,8 +72,12 @@ function validateLogin({ email, password }) {
     return 'Please enter a valid email address.';
   }
 
-  if (password.length < 6) {
-    return 'Password must be at least 6 characters.';
+  if (!isAllowedDemoEmail(email)) {
+    return 'Use one of the demo accounts: svi@gmail.com, maria@gmail.com, peter@gmail.com.';
+  }
+
+  if (password !== DEMO_PASSWORD) {
+    return 'Use the demo password: pass123.';
   }
 
   return null;
@@ -72,8 +96,12 @@ function validateRegister({ fullName, email, password }) {
     return 'Please enter a valid email address.';
   }
 
-  if (password.length < 6) {
-    return 'Password must be at least 6 characters.';
+  if (!isAllowedDemoEmail(email)) {
+    return 'Registration is limited to demo accounts: svi@gmail.com, maria@gmail.com, peter@gmail.com.';
+  }
+
+  if (password !== DEMO_PASSWORD) {
+    return 'For demo mode, password must be pass123.';
   }
 
   return null;
@@ -171,6 +199,12 @@ registerForm.addEventListener('submit', async (event) => {
     registerForm.reset();
     toggleForms('login', { preserveAlert: true });
   } catch (error) {
+    if (isDuplicateUserError(error)) {
+      showAlert('This demo account already exists. Please sign in with pass123.', 'info');
+      toggleForms('login', { preserveAlert: true });
+      return;
+    }
+
     showAlert(error.message || 'Unable to register.', 'danger');
   } finally {
     setLoading(submitButton, false);
