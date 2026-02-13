@@ -1,4 +1,3 @@
-import { registerUser, loginUser, getCurrentUserProfile } from '../services/auth-service.js';
 import { qs, qsa, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
 
 const loginForm = qs('#login-form');
@@ -8,6 +7,18 @@ const toggleButtons = qsa('[data-auth-toggle]');
 
 let activeMode = 'login';
 let isSubmitting = false;
+let authModulePromise = null;
+
+async function getAuthModule() {
+  if (!authModulePromise) {
+    authModulePromise = import('../services/auth-service.js').catch((error) => {
+      authModulePromise = null;
+      throw error;
+    });
+  }
+
+  return authModulePromise;
+}
 
 function showAlert(message, variant = 'danger') {
   setAlert(alertBox, message, variant);
@@ -116,6 +127,7 @@ loginForm.addEventListener('submit', async (event) => {
   setLoading(submitButton, true, 'Signing in...');
 
   try {
+    const { loginUser } = await getAuthModule();
     await loginUser(payload);
     showAlert('Login successful. Redirecting to dashboard...', 'success');
     window.setTimeout(() => {
@@ -153,6 +165,7 @@ registerForm.addEventListener('submit', async (event) => {
   setLoading(submitButton, true, 'Creating...');
 
   try {
+    const { registerUser } = await getAuthModule();
     await registerUser(payload);
     showAlert('Account created successfully. You can now sign in.', 'success');
     registerForm.reset();
@@ -167,12 +180,13 @@ registerForm.addEventListener('submit', async (event) => {
 
 (async () => {
   try {
+    const { getCurrentUserProfile } = await getAuthModule();
     const user = await getCurrentUserProfile();
     if (user) {
       window.location.href = './dashboard.html';
     }
   } catch {
-    clearAlert(alertBox);
+    showAlert('Auth configuration is missing or invalid. Please check environment settings.', 'warning');
   }
 })();
 
