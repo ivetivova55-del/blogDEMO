@@ -1,5 +1,40 @@
 import { supabase } from '../api/supabase-client.js';
 
+const DEFAULT_PROJECT_STAGES = [
+  { name: 'Not Started', position: 1 },
+  { name: 'In Progress', position: 2 },
+  { name: 'Done', position: 3 },
+];
+
+function isMissingTableError(error) {
+  const message = [error?.message, error?.details, error?.hint, error?.code]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase();
+
+  return (
+    message.includes('could not find the table') ||
+    message.includes('schema cache') ||
+    message.includes('does not exist')
+  );
+}
+
+async function createDefaultStages(projectId) {
+  const payload = DEFAULT_PROJECT_STAGES.map((stage) => ({
+    project_id: projectId,
+    name: stage.name,
+    position: stage.position,
+  }));
+
+  const { error } = await supabase
+    .from('project_stages')
+    .upsert(payload, { onConflict: 'project_id,name' });
+
+  if (error && !isMissingTableError(error)) {
+    throw error;
+  }
+}
+
 export async function fetchProjects(userId) {
   const { data, error } = await supabase
     .from('projects')
@@ -19,6 +54,8 @@ export async function createProject(project) {
     .single();
 
   if (error) throw error;
+
+  await createDefaultStages(data.id);
   return data;
 }
 
