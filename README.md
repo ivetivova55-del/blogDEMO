@@ -7,6 +7,7 @@ DigitalMarketingQUILL Tasker предоставя личен dashboard, в ко�
 ![Build Status](https://img.shields.io/badge/build-ready-brightgreen)
 ![License](https://img.shields.io/badge/license-MIT-blue)
 ![Node Version](https://img.shields.io/badge/node-%3E%3D16.0.0-brightgreen)
+[![Netlify Status](https://api.netlify.com/api/v1/badges/afe69858-9151-4a59-ae7c-082c6f50081c/deploy-status)](https://app.netlify.com/projects/bolgdigidem/deploys)
 
 ## Concept of the Site
 
