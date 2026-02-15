@@ -1,6 +1,7 @@
 import { getCurrentUserProfile, logoutUser } from '../services/auth-service.js';
 import { fetchTasks, createTask, updateTask, deleteTask } from '../services/tasks-service.js';
 import { fetchProjects } from '../services/projects-service.js';
+import { uploadUserFile, listUserFiles, getUserFileDownloadUrl } from '../services/user-files-service.js';
 import { formatDate, isOverdue } from '../utils/date-utils.js';
 import { qs, qsa, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
 import { applyTimeTheme } from '../utils/time-theme.js';
@@ -19,6 +20,9 @@ const summaryOverdue = qs('#summary-overdue');
 const greeting = qs('#user-greeting');
 const adminLink = qs('#admin-link');
 const kanbanBoard = qs('#kanban-board');
+const userFileForm = qs('#user-file-form');
+const userFileInput = qs('#user-file-input');
+const userFilesList = qs('#user-files-list');
 
 const STATUS_LABELS = {
   not_started: 'To Do',
@@ -32,6 +36,48 @@ let activeFilter = 'all';
 let sortDirection = 'asc';
 let currentUserId = null;
 let selectedProjectId = null;
+
+function formatFileSize(bytes) {
+  if (!bytes || bytes <= 0) return '0 B';
+  const units = ['B', 'KB', 'MB', 'GB'];
+  let size = bytes;
+  let unitIndex = 0;
+
+  while (size >= 1024 && unitIndex < units.length - 1) {
+    size /= 1024;
+    unitIndex += 1;
+  }
+
+  const rounded = size >= 10 ? Math.round(size) : size.toFixed(1);
+  return `${rounded} ${units[unitIndex]}`;
+}
+
+async function renderUserFiles() {
+  if (!userFilesList || !currentUserId) return;
+
+  const files = await listUserFiles(currentUserId);
+  userFilesList.innerHTML = '';
+
+  if (!files.length) {
+    userFilesList.innerHTML = '<div class="dmq-empty">No files uploaded yet.</div>';
+    return;
+  }
+
+  files.forEach((file) => {
+    const item = document.createElement('div');
+    item.className = 'd-flex justify-content-between align-items-center border rounded-3 p-2 mb-2 gap-2';
+    item.innerHTML = `
+      <div class="text-truncate">
+        <div class="fw-semibold text-truncate">${file.name}</div>
+        <div class="small text-muted">${formatFileSize(file.size)} · ${formatDate(file.created_at)}</div>
+      </div>
+      <button class="btn btn-sm btn-outline-dark" data-file-download="${file.path}" data-file-name="${file.name}">
+        Download
+      </button>
+    `;
+    userFilesList.appendChild(item);
+  });
+}
 
 function applyFilterSort(items) {
   const filtered = activeFilter === 'all'
@@ -195,6 +241,7 @@ async function initDashboard() {
     }
 
     await refreshDashboard();
+    await renderUserFiles();
   } catch (error) {
     setAlert(alertBox, error.message || 'Unable to load dashboard data.');
   }
@@ -316,6 +363,60 @@ qs('#logout-button').addEventListener('click', async () => {
   await logoutUser();
   window.location.href = './index.html';
 });
+
+if (userFileForm && userFileInput && userFilesList) {
+  userFileForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearAlert(alertBox);
+
+    const file = userFileInput.files?.[0];
+    if (!file) {
+      setAlert(alertBox, 'Select a file first.');
+      return;
+    }
+
+    if (file.size > 10 * 1024 * 1024) {
+      setAlert(alertBox, 'Max file size is 10MB.');
+      return;
+    }
+
+    const submitButton = userFileForm.querySelector('button[type="submit"]');
+    setLoading(submitButton, true, 'Uploading...');
+
+    try {
+      await uploadUserFile(currentUserId, file);
+      userFileInput.value = '';
+      await renderUserFiles();
+      setAlert(alertBox, 'File uploaded successfully.', 'success');
+    } catch (error) {
+      setAlert(alertBox, error.message || 'Unable to upload file.');
+    } finally {
+      setLoading(submitButton, false);
+    }
+  });
+
+  userFilesList.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-file-download]');
+    if (!button) return;
+
+    const filePath = button.dataset.fileDownload;
+    const fileName = button.dataset.fileName || 'download';
+    if (!filePath) return;
+
+    button.disabled = true;
+    try {
+      const url = await getUserFileDownloadUrl(filePath);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = fileName;
+      link.click();
+    } catch (error) {
+      setAlert(alertBox, error.message || 'Unable to download file.');
+    } finally {
+      button.disabled = false;
+    }
+  });
+}
 
 initDashboard();
 applyTimeTheme();
