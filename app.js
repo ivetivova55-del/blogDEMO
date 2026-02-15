@@ -3,6 +3,7 @@ const APP_DESCRIPTION =
 
 const STATUS_LABELS = {
   OPEN: "Отворена",
+  IN_PROGRESS: "В процес",
   COMPLETED: "Завършена",
 };
 
@@ -33,6 +34,7 @@ const SPECIAL_USERS = [
 
 const FILTER_LABELS = {
   ALL: "Всички",
+  INCOMPLETE: "Незавършени",
   OPEN: "Отворени",
   COMPLETED: "Завършени",
 };
@@ -48,6 +50,9 @@ const app = document.getElementById("app");
 let activeFilter = "ALL";
 let sortDirection = "asc";
 let editingTaskId = null;
+let activeTaskView = "table";
+
+const STATUS_ORDER = ["OPEN", "IN_PROGRESS", "COMPLETED"];
 
 const formatDate = (value) => {
   if (!value) return "-";
@@ -60,7 +65,7 @@ const formatDate = (value) => {
 };
 
 const isOverdue = (task) => {
-  if (task.status !== "OPEN") return false;
+  if (normalizeTaskStatus(task.status) === "COMPLETED") return false;
   const today = new Date();
   const todayDay = new Date(today.getFullYear(), today.getMonth(), today.getDate());
   const deadline = new Date(task.deadline);
@@ -157,7 +162,10 @@ const getTasksByUser = (email) => {
     ];
     setStored(STORAGE_KEYS.TASKS, allTasks);
   }
-  return allTasks[email];
+  return allTasks[email].map((task) => ({
+    ...task,
+    status: normalizeTaskStatus(task.status),
+  }));
 };
 
 const setTasksByUser = (email, tasks) => {
@@ -166,10 +174,35 @@ const setTasksByUser = (email, tasks) => {
   setStored(STORAGE_KEYS.TASKS, allTasks);
 };
 
+const normalizeTaskStatus = (status) => {
+  if (status === "COMPLETED") return "COMPLETED";
+  if (status === "IN_PROGRESS") return "IN_PROGRESS";
+  return "OPEN";
+};
+
+const getNextStatus = (status) => {
+  const current = normalizeTaskStatus(status);
+  if (current === "OPEN") return "IN_PROGRESS";
+  if (current === "IN_PROGRESS") return "COMPLETED";
+  return "OPEN";
+};
+
+const updateTaskField = (tasks, taskId, field, value) =>
+  tasks.map((task) =>
+    task.id === taskId
+      ? {
+          ...task,
+          [field]: field === "status" ? normalizeTaskStatus(value) : value,
+        }
+      : task
+  );
+
 const getFilteredSortedTasks = (tasks) => {
   const filtered =
     activeFilter === "ALL"
       ? tasks
+      : activeFilter === "INCOMPLETE"
+      ? tasks.filter((task) => normalizeTaskStatus(task.status) !== "COMPLETED")
       : tasks.filter((task) => task.status === activeFilter);
 
   return [...filtered].sort((a, b) => {
@@ -194,6 +227,55 @@ const icon = {
     direction === "asc"
       ? "▲"
       : "▼",
+};
+
+const renderStatusOptions = (selectedStatus) =>
+  STATUS_ORDER.map(
+    (status) =>
+      `<option value="${status}" ${normalizeTaskStatus(selectedStatus) === status ? "selected" : ""}>${STATUS_LABELS[status]}</option>`
+  ).join("");
+
+const renderKanbanColumn = (tasks, status, title) => {
+  const columnTasks = tasks.filter((task) => normalizeTaskStatus(task.status) === status);
+
+  return `
+    <div class="card" style="padding: 14px;">
+      <h3 style="margin-top: 0; margin-bottom: 10px;">${title}</h3>
+      <div style="display: flex; flex-direction: column; gap: 10px; min-height: 160px;">
+        ${
+          columnTasks.length
+            ? columnTasks
+                .map(
+                  (task) => `
+                    <div class="task-card" data-id="${task.id}" style="border: 1px solid #d9dce3; border-radius: 10px; padding: 10px; background: #fff;">
+                      <div class="task-title">${task.title}</div>
+                      <div class="task-meta">${task.description}</div>
+                      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 8px;">
+                        <select data-inline-field="status" style="width: 100%;">
+                          ${renderStatusOptions(task.status)}
+                        </select>
+                        <input type="date" value="${task.deadline}" data-inline-field="deadline" style="width: 100%;" />
+                      </div>
+                      <div class="icon-btns" style="margin-top: 8px;">
+                        <button class="icon-btn" data-action="toggle" title="Смени статус">
+                          ${icon.check()}
+                        </button>
+                        <button class="icon-btn" data-action="edit" title="Редакция">
+                          ${icon.edit()}
+                        </button>
+                        <button class="icon-btn danger" data-action="delete" title="Изтриване">
+                          ${icon.trash()}
+                        </button>
+                      </div>
+                    </div>
+                  `
+                )
+                .join("")
+            : `<div class="empty-state" style="min-height: 80px; display: flex; align-items: center; justify-content: center;">Няма задачи</div>`
+        }
+      </div>
+    </div>
+  `;
 };
 
 const renderAuth = (variant = "login", error = "") => {
@@ -550,11 +632,17 @@ const renderDashboard = () => {
               )
               .join("")}
           </div>
-          <button class="filter-btn" id="sort-deadline" type="button">
-            Краен срок ${icon.sort(sortDirection)}
-          </button>
+          <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+            <div class="filters" role="tablist" id="view-toggle">
+              <button class="filter-btn ${activeTaskView === "table" ? "active" : ""}" data-view="table" type="button">Table View</button>
+              <button class="filter-btn ${activeTaskView === "board" ? "active" : ""}" data-view="board" type="button">Board View</button>
+            </div>
+            <button class="filter-btn" id="sort-deadline" type="button">
+              Краен срок ${icon.sort(sortDirection)}
+            </button>
+          </div>
         </div>
-        <table>
+        <table style="display: ${activeTaskView === "table" ? "table" : "none"};">
           <thead>
             <tr>
               <th>Заглавие</th>
@@ -578,20 +666,26 @@ const renderDashboard = () => {
                           <td title="${task.description}">
                             <div class="truncate-2">${task.description}</div>
                           </td>
-                          <td class="${overdue ? "overdue" : ""}">${formatDate(
-                        task.deadline
-                      )}</td>
                           <td>
-                            <span class="status ${task.status.toLowerCase()}">
-                              ${STATUS_LABELS[task.status]}
-                            </span>
+                            <input
+                              type="date"
+                              value="${task.deadline}"
+                              data-inline-field="deadline"
+                              class="${overdue ? "overdue" : ""}"
+                              style="width: 100%;"
+                            />
+                          </td>
+                          <td>
+                            <select data-inline-field="status" style="width: 100%;">
+                              ${renderStatusOptions(task.status)}
+                            </select>
                           </td>
                           <td>
                             <div class="icon-btns">
                               <button class="icon-btn" data-action="toggle" title="${
-                                task.status === "OPEN" ? "Маркирай като завършена" : "Отвори отново"
+                                normalizeTaskStatus(task.status) === "COMPLETED" ? "Отвори отново" : "Смени статус"
                               }">
-                                ${task.status === "OPEN" ? icon.check() : icon.undo()}
+                                ${normalizeTaskStatus(task.status) === "COMPLETED" ? icon.undo() : icon.check()}
                               </button>
                               <button class="icon-btn" data-action="edit" title="Редакция">
                                 ${icon.edit()}
@@ -618,6 +712,12 @@ const renderDashboard = () => {
             }
           </tbody>
         </table>
+
+        <div style="display: ${activeTaskView === "board" ? "grid" : "none"}; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin-top: 12px;">
+          ${renderKanbanColumn(viewTasks, "OPEN", "To Do")}
+          ${renderKanbanColumn(viewTasks, "IN_PROGRESS", "In Progress")}
+          ${renderKanbanColumn(viewTasks, "COMPLETED", "Completed")}
+        </div>
 
         <div class="cards">
           ${
@@ -694,11 +794,15 @@ const renderDashboard = () => {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     const formData = new FormData(form);
+    const currentTask = editingTaskId
+      ? tasks.find((task) => task.id === editingTaskId)
+      : null;
+
     const newTask = {
       title: formData.get("title").trim(),
       description: formData.get("description").trim(),
       deadline: formData.get("deadline"),
-      status: "OPEN",
+      status: currentTask ? normalizeTaskStatus(currentTask.status) : "OPEN",
     };
 
     let updatedTasks = [...tasks];
@@ -723,9 +827,29 @@ const renderDashboard = () => {
     });
   });
 
+  document.querySelectorAll("[data-view]").forEach((button) => {
+    button.addEventListener("click", () => {
+      activeTaskView = button.dataset.view;
+      renderDashboard();
+    });
+  });
+
   document.getElementById("sort-deadline").addEventListener("click", () => {
     sortDirection = sortDirection === "asc" ? "desc" : "asc";
     renderDashboard();
+  });
+
+  app.querySelectorAll("[data-inline-field]").forEach((input) => {
+    input.addEventListener("change", (event) => {
+      const taskContainer = event.target.closest("tr") || event.target.closest(".task-card");
+      const taskId = taskContainer?.dataset.id;
+      const field = event.target.dataset.inlineField;
+      if (!taskId || !field) return;
+
+      const updatedTasks = updateTaskField(tasks, taskId, field, event.target.value);
+      setTasksByUser(session.email, updatedTasks);
+      renderDashboard();
+    });
   });
 
   app.querySelectorAll("[data-action]").forEach((button) => {
@@ -739,7 +863,7 @@ const renderDashboard = () => {
           item.id === id
             ? {
                 ...item,
-                status: item.status === "OPEN" ? "COMPLETED" : "OPEN",
+                status: getNextStatus(item.status),
               }
             : item
         );
