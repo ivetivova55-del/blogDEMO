@@ -2,6 +2,7 @@ import { getCurrentUserProfile, logoutUser } from '../services/auth-service.js';
 import { fetchTasks, createTask, updateTask, deleteTask } from '../services/tasks-service.js';
 import { fetchProjects } from '../services/projects-service.js';
 import { uploadUserFile, listUserFiles, getUserFileDownloadUrl } from '../services/user-files-service.js';
+import { success, error, info } from '../services/notifications-service.js';
 import { formatDate, isOverdue } from '../utils/date-utils.js';
 import { qs, qsa, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
 import { applyTimeTheme } from '../utils/time-theme.js';
@@ -237,13 +238,13 @@ async function initDashboard() {
     if (queryProject && projects.some((project) => project.id === queryProject)) {
       selectedProjectId = queryProject;
       projectSelect.value = selectedProjectId;
-      setAlert(alertBox, 'Project selected. Create or manage tasks for this project.', 'info');
+      info('Project selected. Create or manage tasks for this project.');
     }
 
     await refreshDashboard();
     await renderUserFiles();
   } catch (error) {
-    setAlert(alertBox, error.message || 'Unable to load dashboard data.');
+    error(error.message || 'Unable to load dashboard data.');
   }
 }
 
@@ -289,7 +290,7 @@ qsa('[data-board-status]', kanbanBoard).forEach((column) => {
       await updateTask(taskId, { status: nextStatus });
       await refreshDashboard();
     } catch (error) {
-      setAlert(alertBox, error.message || 'Unable to move task on board.');
+      error(error.message || 'Unable to move task on board.');
     }
   });
 });
@@ -319,8 +320,9 @@ taskForm.addEventListener('submit', async (event) => {
     });
     taskForm.reset();
     await refreshDashboard();
+    success('Task created successfully.');
   } catch (error) {
-    setAlert(alertBox, error.message || 'Unable to create task.');
+    error(error.message || 'Unable to create task.');
   } finally {
     setLoading(submitButton, false);
   }
@@ -345,6 +347,7 @@ qs('#tasks-panel').addEventListener('click', async (event) => {
       const status = getToggledStatus(task.status);
       await updateTask(taskId, { status });
       await refreshDashboard();
+      success('Task status updated.');
       return;
     }
 
@@ -353,9 +356,10 @@ qs('#tasks-panel').addEventListener('click', async (event) => {
       if (!confirmed) return;
       await deleteTask(taskId);
       await refreshDashboard();
+      success('Task deleted.');
     }
   } catch (error) {
-    setAlert(alertBox, error.message || 'Action failed.');
+    error(error.message || 'Action failed.');
   }
 });
 
@@ -371,12 +375,12 @@ if (userFileForm && userFileInput && userFilesList) {
 
     const file = userFileInput.files?.[0];
     if (!file) {
-      setAlert(alertBox, 'Select a file first.');
+      error('Select a file first.');
       return;
     }
 
     if (file.size > 10 * 1024 * 1024) {
-      setAlert(alertBox, 'Max file size is 10MB.');
+      error('Max file size is 10MB.');
       return;
     }
 
@@ -387,9 +391,9 @@ if (userFileForm && userFileInput && userFilesList) {
       await uploadUserFile(currentUserId, file);
       userFileInput.value = '';
       await renderUserFiles();
-      setAlert(alertBox, 'File uploaded successfully.', 'success');
+      success('File uploaded successfully.');
     } catch (error) {
-      setAlert(alertBox, error.message || 'Unable to upload file.');
+      error(error.message || 'Unable to upload file.');
     } finally {
       setLoading(submitButton, false);
     }
@@ -410,8 +414,9 @@ if (userFileForm && userFileInput && userFilesList) {
       link.href = url;
       link.download = fileName;
       link.click();
+      info('File download started.');
     } catch (error) {
-      setAlert(alertBox, error.message || 'Unable to download file.');
+      error(error.message || 'Unable to download file.');
     } finally {
       button.disabled = false;
     }
