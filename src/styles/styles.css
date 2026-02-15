@@ -696,8 +696,15 @@ body.dmq-body {
 .dmq-calendar-section {
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 16px;
+  padding: 20px;
   background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  box-shadow: var(--shadow-md);
+}
+
+.dmq-calendar-section h2 {
+  color: var(--ink);
+  font-weight: 700;
+  letter-spacing: -0.5px;
 }
 
 .dmq-calendar {
@@ -712,11 +719,11 @@ body.dmq-body {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-  gap: 1px;
+  gap: 0;
 }
 
 .calendar-weekday {
-  padding: 12px 8px;
+  padding: 14px 12px;
   text-align: center;
   font-weight: 600;
   font-size: 0.875rem;
@@ -729,15 +736,15 @@ body.dmq-body {
 .calendar-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
+  gap: 2px;
   background: var(--border);
-  padding: 1px;
+  padding: 2px;
 }
 
 .calendar-day {
   background: white;
-  min-height: 100px;
-  padding: 8px;
+  min-height: 120px;
+  padding: 12px;
   position: relative;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   cursor: pointer;
@@ -762,9 +769,9 @@ body.dmq-body {
 
 .calendar-day-number {
   font-weight: 700;
-  font-size: 0.875rem;
+  font-size: 1rem;
   color: var(--ink);
-  margin-bottom: 4px;
+  margin-bottom: 6px;
 }
 
 .calendar-day.other-month .calendar-day-number {
@@ -774,30 +781,30 @@ body.dmq-body {
 .calendar-day-tasks {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
   flex: 1;
   min-height: 0;
   overflow: hidden;
 }
 
 .calendar-task-dot {
-  width: 6px;
-  height: 6px;
+  width: 7px;
+  height: 7px;
   border-radius: 50%;
   display: inline-block;
   flex-shrink: 0;
 }
 
 .calendar-task-item {
-  font-size: 0.7rem;
-  padding: 2px 4px;
-  border-radius: 3px;
+  font-size: 0.75rem;
+  padding: 3px 6px;
+  border-radius: 4px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 3px;
   font-weight: 500;
   transition: all 0.2s ease;
 }
@@ -853,25 +860,50 @@ body.dmq-body {
 }
 
 /* Calendar responsive design */
+@media (max-width: 992px) {
+  .calendar-day {
+    min-height: 100px;
+    font-size: 0.9rem;
+  }
+
+  .calendar-task-item {
+    font-size: 0.7rem;
+    padding: 2px 4px;
+  }
+
+  .calendar-day-number {
+    font-size: 0.9rem;
+  }
+}
+
 @media (max-width: 768px) {
   .calendar-day {
-    min-height: 80px;
+    min-height: 90px;
+    padding: 10px;
     font-size: 0.875rem;
   }
 
   .calendar-task-item {
     font-size: 0.65rem;
+    padding: 2px 3px;
   }
 
   .calendar-day-number {
+    font-size: 0.85rem;
+    margin-bottom: 4px;
+  }
+
+  .calendar-weekday {
+    padding: 10px 6px;
     font-size: 0.8rem;
   }
 }
 
 @media (max-width: 576px) {
   .calendar-day {
-    min-height: 70px;
-    padding: 6px;
+    min-height: 80px;
+    padding: 8px;
+    font-size: 0.8rem;
   }
 
   .calendar-task-item {
@@ -881,11 +913,19 @@ body.dmq-body {
 
   .calendar-day-number {
     font-size: 0.75rem;
-    margin-bottom: 2px;
+    margin-bottom: 3px;
   }
 
   .calendar-weekday {
     padding: 8px 4px;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+  }
+
+  .dmq-calendar-section {
+    padding: 12px;
+  }
+
+  .dmq-calendar-section h2 {
+    font-size: 1rem;
   }
 }
