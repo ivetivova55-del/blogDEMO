@@ -29,6 +29,14 @@ const calendarMonth = qs('#cal-month');
 const calendarPrev = qs('#cal-prev');
 const calendarNext = qs('#cal-next');
 
+// Sidebar and navigation
+const sidebarToggle = qs('#sidebar-toggle');
+const sidebar = qs('.dmq-sidebar');
+const sidebarOverlay = qs('#sidebarOverlay');
+const sectionTitle = qs('#section-title');
+const navLinks = qsa('.sidebar-nav .nav-link');
+const dashboardSections = qsa('.dashboard-section');
+
 // Calendar state
 let currentCalendarDate = new Date();
 
@@ -344,6 +352,51 @@ function applyFilterSort(items) {
     const bDate = new Date(b.deadline || 0);
     return sortDirection === 'asc' ? aDate - bDate : bDate - aDate;
   });
+}
+
+/* ========== Sidebar Navigation & Section Switching ========== */
+
+function switchSection(sectionName) {
+  // Hide all sections
+  dashboardSections.forEach((section) => {
+    section.classList.add('d-none');
+  });
+
+  // Show selected section
+  const selectedSection = qs(`[data-section="${sectionName}"]`);
+  if (selectedSection) {
+    selectedSection.classList.remove('d-none');
+  }
+
+  // Update active nav link
+  navLinks.forEach((link) => {
+    link.classList.toggle('active', link.dataset.section === sectionName);
+  });
+
+  // Update title
+  const sectionTitles = {
+    overview: 'Dashboard Overview',
+    tasks: 'All Tasks',
+    calendar: 'Deadline Calendar',
+    board: 'Task Board (Kanban)',
+    files: 'My Files',
+  };
+  sectionTitle.textContent = sectionTitles[sectionName] || 'Dashboard';
+
+  // Close sidebar on mobile
+  if (window.innerWidth <= 1024) {
+    closeSidebar();
+  }
+}
+
+function toggleSidebar() {
+  sidebar.classList.toggle('show');
+  sidebarOverlay.classList.toggle('show');
+}
+
+function closeSidebar() {
+  sidebar.classList.remove('show');
+  sidebarOverlay.classList.remove('show');
 }
 
 function renderSummary() {
@@ -690,6 +743,27 @@ if (userFileForm && userFileInput && userFilesList) {
     }
   });
 }
+
+/* ========== Sidebar Navigation Event Listeners ========== */
+
+if (sidebarToggle) {
+  sidebarToggle.addEventListener('click', toggleSidebar);
+}
+
+if (sidebarOverlay) {
+  sidebarOverlay.addEventListener('click', closeSidebar);
+}
+
+// Section switcher buttons
+qsa('[data-section]').forEach((element) => {
+  if (element.classList.contains('nav-link')) {
+    element.addEventListener('click', (e) => {
+      e.preventDefault();
+      const section = element.dataset.section;
+      switchSection(section);
+    });
+  }
+});
 
 initDashboard();
 applyTimeTheme();
