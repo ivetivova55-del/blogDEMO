@@ -92,7 +92,36 @@
                   <span class="calendar-legend-dot" style="background: #3b82f6;"></span>
                   <small>Multiple tasks</small>
                 </div>
+                <div class="d-flex align-items-center gap-2" style="margin-left: auto; border-left: 1px solid var(--border); padding-left: 12px;">
+                  <small class="text-muted">Priority:</small>
+                  <span class="calendar-legend-dot" style="background: #ef4444; margin-left: 6px;"></span>
+                  <small>High</small>
+                  <span class="calendar-legend-dot" style="background: #f59e0b; margin-left: 6px;"></span>
+                  <small>Medium</small>
+                  <span class="calendar-legend-dot" style="background: #3b82f6; margin-left: 6px;"></span>
+                  <small>Low</small>
+                </div>
               </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Calendar Day Details Modal -->
+      <div class="modal fade" id="calendarDayModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header dmq-modal-header">
+              <h5 class="modal-title" id="calendarDayTitle">Tasks for this day</h5>
+              <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+              <div id="calendarDayTasks" class="d-flex flex-column gap-3">
+                <div class="text-muted">Loading...</div>
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
             </div>
           </div>
         </div>

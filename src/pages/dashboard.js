@@ -44,6 +44,8 @@ let activeFilter = 'all';
 let sortDirection = 'asc';
 let currentUserId = null;
 let selectedProjectId = null;
+let selectedCalendarDay = null;
+let calendarDayModal = null;
 
 function formatFileSize(bytes) {
   if (!bytes || bytes <= 0) return '0 B';
@@ -138,13 +140,20 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
 
   // Check if today
   const today = new Date();
+  let isToday = false;
   if (!isOtherMonth) {
     if (dayNum === today.getDate() &&
         currentCalendarDate.getMonth() === today.getMonth() &&
         currentCalendarDate.getFullYear() === today.getFullYear()) {
       day.classList.add('today');
+      isToday = true;
     }
   }
+
+  // Store date info for click handler
+  const dateStr = `${currentCalendarDate.getFullYear()}-${String(currentCalendarDate.getMonth() + 1).padStart(2, '0')}-${String(dayNum).padStart(2, '0')}`;
+  day.dataset.date = dateStr;
+  day.dataset.dayNum = dayNum;
 
   const dayNumber = document.createElement('div');
   dayNumber.className = 'calendar-day-number';
@@ -154,27 +163,28 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
   const tasksContainer = document.createElement('div');
   tasksContainer.className = 'calendar-day-tasks';
 
-  // Show up to 2 task indicators
+  // Show up to 2 task indicators with priority coloring
   dayTasks.slice(0, 2).forEach((task) => {
     const status = getTaskStatusForCalendar(task);
     if (!status) return;
 
     const taskItem = document.createElement('div');
-    taskItem.className = `calendar-task-item ${status}`;
+    const priorityClass = `priority-${task.priority || 'medium'}`;
+    taskItem.className = `calendar-task-item ${status} ${priorityClass}`;
     
     const dot = document.createElement('span');
     dot.className = 'calendar-task-dot';
     
-    // Color by status
-    if (status === 'overdue') dot.style.background = '#ef4444';
-    if (status === 'today') dot.style.background = '#f59e0b';
-    if (status === 'due-soon') dot.style.background = '#84cc16';
-    if (status === 'done') dot.style.background = '#10b981';
+    // Color by priority
+    if (task.priority === 'high') dot.style.background = '#ef4444';
+    else if (task.priority === 'low') dot.style.background = '#3b82f6';
+    else dot.style.background = '#f59e0b'; // medium
 
     const title = document.createElement('span');
     title.textContent = task.title;
     title.style.overflow = 'hidden';
     title.style.textOverflow = 'ellipsis';
+    title.title = task.title; // Hover tooltip
 
     taskItem.appendChild(dot);
     taskItem.appendChild(title);
@@ -198,7 +208,101 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
     day.appendChild(count);
   }
 
+  // Add click handler to show day details
+  if (!isOtherMonth && dayTasks.length > 0) {
+    day.addEventListener('click', () => showCalendarDayDetails(dateStr, dayNum, dayTasks));
+  }
+
   return day;
+}
+
+function showCalendarDayDetails(dateStr, dayNum, dayTasks) {
+  selectedCalendarDay = dateStr;
+  
+  // Update modal title
+  const dateObj = new Date(dateStr);
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  const dayName = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][dateObj.getDay()];
+  const title = qs('#calendarDayTitle');
+  title.textContent = `${dayName}, ${monthNames[dateObj.getMonth()]} ${dayNum}`;
+
+  // Build task details
+  const tasksContainer = qs('#calendarDayTasks');
+  tasksContainer.innerHTML = '';
+
+  const summary = document.createElement('div');
+  summary.className = 'calendar-quickview';
+  summary.innerHTML = `
+    <div class="calendar-day-summary"><strong>${dayTasks.length}</strong> task${dayTasks.length !== 1 ? 's' : ''} on this day</div>
+  `;
+  tasksContainer.appendChild(summary);
+
+  dayTasks.forEach((task) => {
+    const card = document.createElement('div');
+    const priorityClass = `${task.priority || 'medium'}-priority`;
+    card.className = `calendar-day-task-card ${priorityClass}`;
+    
+    const statusLabel = STATUS_LABELS[task.status] || task.status;
+    const isCompleted = task.status === 'done';
+    const taskDeadline = formatDate(task.deadline);
+
+    card.innerHTML = `
+      <div class="calendar-task-title">${task.title}</div>
+      <div class="calendar-task-meta">
+        <span class="calendar-task-meta-item">
+          <span class="calendar-task-badge status-${task.status}">${statusLabel}</span>
+        </span>
+        <span class="calendar-task-meta-item">
+          <span>Priority:</span>
+          <strong>${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium'}</strong>
+        </span>
+        <span class="calendar-task-meta-item">
+          📅 ${taskDeadline}
+        </span>
+      </div>
+      ${task.description ? `<div style="font-size: 0.85rem; color: var(--ink-secondary); margin-bottom: 8px;">${task.description}</div>` : ''}
+      <div class="calendar-task-actions">
+        <button class="calendar-task-action-btn ${isCompleted ? 'complete' : ''}" data-action="view" data-id="${task.id}">
+          View Details
+        </button>
+        <button class="calendar-task-action-btn ${isCompleted ? 'complete' : ''}" data-action="quick-toggle" data-id="${task.id}">
+          ${isCompleted ? '✓ Completed' : 'Mark Complete'}
+        </button>
+      </div>
+    `;
+
+    // Add event listeners
+    const viewBtn = card.querySelector('[data-action="view"]');
+    const toggleBtn = card.querySelector('[data-action="quick-toggle"]');
+
+    viewBtn.addEventListener('click', () => {
+      const modal = bootstrap.Modal.getInstance(document.getElementById('calendarDayModal'));
+      if (modal) modal.hide();
+      window.location.href = `./task-details.html?id=${task.id}`;
+    });
+
+    toggleBtn.addEventListener('click', async () => {
+      const newStatus = isCompleted ? 'not_started' : 'done';
+      try {
+        await updateTask(task.id, { status: newStatus });
+        success(`Task ${newStatus === 'done' ? 'completed' : 'reopened'}.`);
+        const modal = bootstrap.Modal.getInstance(document.getElementById('calendarDayModal'));
+        if (modal) modal.hide();
+        await refreshDashboard();
+      } catch (err) {
+        error(err.message || 'Failed to update task.');
+      }
+    });
+
+    tasksContainer.appendChild(card);
+  });
+
+  // Show modal
+  if (!calendarDayModal) {
+    calendarDayModal = new bootstrap.Modal(document.getElementById('calendarDayModal'));
+  }
+  calendarDayModal.show();
 }
 
 async function renderUserFiles() {
