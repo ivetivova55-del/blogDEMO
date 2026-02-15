@@ -6,7 +6,7 @@ const SAMPLE_USERS = [
   { email: 'svi@gmail.com', password: 'pass123', fullName: 'Svi Marketer', role: 'user' },
   { email: 'maria@gmail.com', password: 'pass123', fullName: 'Maria Petrova', role: 'user' },
   { email: 'peter@gmail.com', password: 'pass123', fullName: 'Peter Ivanov', role: 'user' },
-  { email: 'admin@digiquill.com', password: 'admin123456', fullName: 'DigiQuill Admin', role: 'admin' },
+  { email: 'admin@digiquill.com', password: 'pass123', fullName: 'DigiQuill Admin', role: 'admin' },
 ];
 
 const PROJECT_DEFINITIONS = [

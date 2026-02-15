@@ -79,8 +79,8 @@ function validateLogin({ email, password }) {
   }
 
   if (email === 'admin@digiquill.com') {
-    if (password !== DEMO_PASSWORD && password !== 'admin123456') {
-      return 'Use admin password: pass123 or admin123456.';
+    if (password !== DEMO_PASSWORD) {
+      return 'Use admin password: pass123.';
     }
     return null;
   }
