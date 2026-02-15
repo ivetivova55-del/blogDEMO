@@ -178,8 +178,8 @@ async function initDashboard() {
   }
   currentUserId = user.id;
   greeting.textContent = `Welcome, ${user.full_name || user.email}`;
-  if (adminLink && user.role !== 'admin') {
-    adminLink.classList.add('d-none');
+  if (adminLink) {
+    adminLink.classList.toggle('d-none', user.role !== 'admin');
   }
 
   try {

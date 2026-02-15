@@ -18,7 +18,6 @@ async function upsertUserProfile(userId, email, fullName) {
     id: userId,
     email,
     full_name: fullName,
-    role: 'user',
   };
 
   const { error: profileError } = await supabase

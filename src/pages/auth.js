@@ -7,7 +7,7 @@ const alertBox = qs('#auth-alert');
 const toggleButtons = qsa('[data-auth-toggle]');
 const homeAdminLink = qs('#home-admin-link');
 
-const ALLOWED_EMAILS = ['svi@gmail.com', 'maria@gmail.com', 'peter@gmail.com'];
+const ALLOWED_EMAILS = ['svi@gmail.com', 'maria@gmail.com', 'peter@gmail.com', 'admin@digiquill.com'];
 const DEMO_PASSWORD = 'pass123';
 
 let activeMode = 'login';
@@ -75,7 +75,14 @@ function validateLogin({ email, password }) {
   }
 
   if (!isAllowedDemoEmail(email)) {
-    return 'Use one of the demo accounts: svi@gmail.com, maria@gmail.com, peter@gmail.com.';
+    return 'Use one of the demo accounts: svi@gmail.com, maria@gmail.com, peter@gmail.com, admin@digiquill.com.';
+  }
+
+  if (email === 'admin@digiquill.com') {
+    if (password !== DEMO_PASSWORD && password !== 'admin123456') {
+      return 'Use admin password: pass123 or admin123456.';
+    }
+    return null;
   }
 
   if (password !== DEMO_PASSWORD) {
@@ -100,6 +107,10 @@ function validateRegister({ fullName, email, password }) {
 
   if (!isAllowedDemoEmail(email)) {
     return 'Registration is limited to demo accounts: svi@gmail.com, maria@gmail.com, peter@gmail.com.';
+  }
+
+  if (email === 'admin@digiquill.com') {
+    return 'Admin demo account is pre-created. Please sign in instead.';
   }
 
   if (password !== DEMO_PASSWORD) {

@@ -3,9 +3,10 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const SAMPLE_USERS = [
-  { email: 'svi@gmail.com', password: 'pass123', fullName: 'Svi Marketer' },
-  { email: 'maria@gmail.com', password: 'pass123', fullName: 'Maria Petrova' },
-  { email: 'peter@gmail.com', password: 'pass123', fullName: 'Peter Ivanov' },
+  { email: 'svi@gmail.com', password: 'pass123', fullName: 'Svi Marketer', role: 'user' },
+  { email: 'maria@gmail.com', password: 'pass123', fullName: 'Maria Petrova', role: 'user' },
+  { email: 'peter@gmail.com', password: 'pass123', fullName: 'Peter Ivanov', role: 'user' },
+  { email: 'admin@digiquill.com', password: 'admin123456', fullName: 'DigiQuill Admin', role: 'admin' },
 ];
 
 const PROJECT_DEFINITIONS = [
@@ -176,7 +177,7 @@ async function ensureAuthUser(supabase, { email, password, fullName }) {
   return data.user;
 }
 
-async function upsertPublicUserTables(supabase, authUser, fullName) {
+async function upsertPublicUserTables(supabase, authUser, fullName, role = 'user') {
   const usersTableExists = await hasTable(supabase, 'users').catch((error) => {
     if (isMissingRelationError(error)) return false;
     throw error;
@@ -190,7 +191,7 @@ async function upsertPublicUserTables(supabase, authUser, fullName) {
             id: authUser.id,
             email: authUser.email,
             full_name: fullName,
-            role: 'user',
+            role,
           },
         ],
         { onConflict: 'id' }
@@ -217,7 +218,7 @@ async function upsertPublicUserTables(supabase, authUser, fullName) {
             id: authUser.id,
             email: authUser.email,
             full_name: fullName,
-            role: 'user',
+            role,
           },
         ],
         { onConflict: 'id' }
@@ -426,7 +427,7 @@ async function main() {
   console.log('Seeding sample auth users...');
   for (const sampleUser of SAMPLE_USERS) {
     const authUser = await ensureAuthUser(supabase, sampleUser);
-    await upsertPublicUserTables(supabase, authUser, sampleUser.fullName);
+    await upsertPublicUserTables(supabase, authUser, sampleUser.fullName, sampleUser.role);
     userMap.set(sampleUser.email, authUser);
     console.log(`- user ready: ${sampleUser.email}`);
   }
