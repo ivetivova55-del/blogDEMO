@@ -28,6 +28,9 @@ const calendarDays = qs('#calendar-days');
 const calendarMonth = qs('#cal-month');
 const calendarPrev = qs('#cal-prev');
 const calendarNext = qs('#cal-next');
+const projectsGrid = qs('#projects-grid');
+const projectsEmpty = qs('#projects-empty');
+const newProjectBtn = qs('#new-project-btn');
 
 // Sidebar and navigation
 const sidebarToggle = qs('#sidebar-toggle');
@@ -380,8 +383,14 @@ function switchSection(sectionName) {
     calendar: 'Deadline Calendar',
     board: 'Task Board (Kanban)',
     files: 'My Files',
+    projects: 'My Projects',
   };
   sectionTitle.textContent = sectionTitles[sectionName] || 'Dashboard';
+
+  // Load projects if switching to projects section
+  if (sectionName === 'projects') {
+    renderProjectsList();
+  }
 
   // Close sidebar on mobile
   if (window.innerWidth <= 1024) {
@@ -505,7 +514,7 @@ function renderTasks() {
   renderKanban();
 }
 
-function renderProjects() {
+function renderProjectsDrop() {
   projectSelect.innerHTML = '<option value="">No project</option>';
   projects.forEach((project) => {
     const option = document.createElement('option');
@@ -515,12 +524,45 @@ function renderProjects() {
   });
 }
 
+function renderProjectsList() {
+  if (!projectsGrid) return;
+
+  if (!projects || projects.length === 0) {
+    projectsGrid.innerHTML = '';
+    projectsEmpty.classList.remove('d-none');
+    return;
+  }
+
+  projectsEmpty.classList.add('d-none');
+  projectsGrid.innerHTML = projects.map((project) => {
+    const taskCount = tasks.filter(t => t.project_id === project.id).length;
+    const completedCount = tasks.filter(t => t.project_id === project.id && t.status === 'done').length;
+    const progressPercent = taskCount > 0 ? Math.round((completedCount / taskCount) * 100) : 0;
+
+    return `
+      <div class="col-md-6 col-lg-4">
+        <div class="dmq-card h-100 p-3" style="cursor: pointer; transition: transform 0.2s;" onclick="window.location.href='./projects.html?id=${project.id}'">
+          <h5 class="card-title">${project.name}</h5>
+          <p class="card-text text-muted small">${project.description || 'No description'}</p>
+          <div class="progress mb-2" style="height: 6px;">
+            <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+          </div>
+          <small class="text-muted">
+            ${completedCount}/${taskCount} tasks complete
+          </small>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
 async function refreshDashboard() {
   clearAlert(alertBox);
   tasks = await fetchTasks(currentUserId);
   renderSummary();
   renderTasks();
   renderCalendar();
+  renderProjectsList();
 }
 
 async function initDashboard() {
@@ -537,7 +579,7 @@ async function initDashboard() {
 
   try {
     projects = await fetchProjects(currentUserId);
-    renderProjects();
+    renderProjectsDrop();
 
     const params = new URLSearchParams(window.location.search);
     const queryProject = params.get('project');
@@ -752,6 +794,12 @@ if (sidebarToggle) {
 
 if (sidebarOverlay) {
   sidebarOverlay.addEventListener('click', closeSidebar);
+}
+
+if (newProjectBtn) {
+  newProjectBtn.addEventListener('click', () => {
+    window.location.href = './projects.html';
+  });
 }
 
 // Section switcher buttons

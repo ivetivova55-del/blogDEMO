@@ -52,7 +52,7 @@
           <span>Files</span>
         </a>
         <hr>
-        <a href="./projects.html" class="nav-link">
+        <a href="#dashboard-projects" class="nav-link" data-section="projects">
           <span class="icon">📂</span>
           <span>Projects</span>
         </a>
@@ -293,6 +293,18 @@
             <div id="user-files-list" class="files-list"></div>
           </div>
         </div>
+      </section>
+
+      <!-- Projects Section -->
+      <section class="dashboard-section d-none" data-section="projects" id="dashboard-projects">
+        <div class="section-header">
+          <h2 class="section-title">Projects</h2>
+          <div class="section-controls">
+            <button class="btn btn-dark btn-sm" id="new-project-btn">+ New Project</button>
+          </div>
+        </div>
+        <div class="row g-3" id="projects-grid"></div>
+        <div class="dmq-empty d-none" id="projects-empty">No projects yet. Create your first project.</div>
       </section>
 
     </main>
