@@ -2,6 +2,7 @@ import { getCurrentUserProfile, logoutUser } from '../services/auth-service.js';
 import { fetchTasks, fetchAllTasks, createTask, updateTask, deleteTask } from '../services/tasks-service.js';
 import { fetchProjects } from '../services/projects-service.js';
 import { uploadUserFile, listUserFiles, getUserFileDownloadUrl } from '../services/user-files-service.js';
+import { fetchAllUsers } from '../services/admin-service.js';
 import { success, error, info } from '../services/notifications-service.js';
 import { formatDate, isOverdue } from '../utils/date-utils.js';
 import { qs, qsa, setAlert, clearAlert, setLoading } from '../utils/dom-utils.js';
@@ -11,6 +12,13 @@ const alertBox = qs('#dashboard-alert');
 const tasksTableBody = qs('#tasks-table-body');
 const tasksCards = qs('#tasks-cards');
 const tasksEmpty = qs('#tasks-empty');
+const tasksPanel = qs('#tasks-panel');
+const myTasksView = qs('#my-tasks-view');
+const allTasksView = qs('#all-tasks-view');
+const allTasksCards = qs('#all-tasks-cards');
+const allTasksEmpty = qs('#all-tasks-empty');
+const taskViewButtons = qsa('[data-task-view]');
+const allTasksToggle = qs('#all-tasks-toggle');
 const sortButton = qs('#sort-deadline');
 const taskForm = qs('#task-form');
 const projectSelect = qs('#task-project');
@@ -28,14 +36,24 @@ const calendarDays = qs('#calendar-days');
 const calendarMonth = qs('#cal-month');
 const calendarPrev = qs('#cal-prev');
 const calendarNext = qs('#cal-next');
+const calendarMonthView = qs('#calendar-month-view');
+const calendarAgendaView = qs('#calendar-agenda-view');
+const calendarViewButtons = qsa('[data-cal-view]');
+const calendarStatusFilter = qs('#calendar-status-filter');
+const calendarPriorityFilter = qs('#calendar-priority-filter');
 const projectsGrid = qs('#projects-grid');
 const projectsEmpty = qs('#projects-empty');
 const newProjectBtn = qs('#new-project-btn');
+const navTasksCount = qs('#nav-tasks-count');
+const navCalendarCount = qs('#nav-calendar-count');
+const navFilesCount = qs('#nav-files-count');
+const navProjectsCount = qs('#nav-projects-count');
 
 // Sidebar and navigation
 const sidebarToggle = qs('#sidebar-toggle');
 const sidebar = qs('.dmq-sidebar');
 const sidebarOverlay = qs('#sidebarOverlay');
+const sidebarToggleDesktop = qs('#sidebar-toggle-desktop');
 const sectionTitle = qs('#section-title');
 const navLinks = qsa('.sidebar-nav .nav-link');
 const dashboardSections = qsa('.dashboard-section');
@@ -50,14 +68,23 @@ const STATUS_LABELS = {
 };
 
 let tasks = [];
+let allTasks = [];
 let projects = [];
 let activeFilter = 'all';
 let sortDirection = 'asc';
 let currentUserId = null;
 let currentUserRole = null;
+let currentUserName = '';
 let selectedProjectId = null;
 let selectedCalendarDay = null;
 let calendarDayModal = null;
+let activeTaskView = 'mine';
+let calendarView = 'month';
+let calendarFilters = {
+  status: 'all',
+  priority: 'all',
+};
+let usersById = {};
 
 function formatFileSize(bytes) {
   if (!bytes || bytes <= 0) return '0 B';
@@ -72,6 +99,44 @@ function formatFileSize(bytes) {
 
   const rounded = size >= 10 ? Math.round(size) : size.toFixed(1);
   return `${rounded} ${units[unitIndex]}`;
+}
+
+function updateNavCounts(filesCount = null) {
+  if (navTasksCount) navTasksCount.textContent = tasks.length;
+  if (navCalendarCount) {
+    const datedTasks = tasks.filter((task) => task.deadline).length;
+    navCalendarCount.textContent = datedTasks;
+  }
+  if (navProjectsCount) navProjectsCount.textContent = projects.length;
+  if (navFilesCount && filesCount !== null) navFilesCount.textContent = filesCount;
+}
+
+function buildUserMap(users) {
+  return (users || []).reduce((acc, user) => {
+    acc[user.id] = user;
+    return acc;
+  }, {});
+}
+
+function getUserLabel(userId) {
+  const user = usersById[userId];
+  if (!user) return 'Unknown user';
+  return user.full_name || user.email || 'Unknown user';
+}
+
+function setTaskView(view) {
+  activeTaskView = view;
+  taskViewButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.taskView === view);
+  });
+
+  if (myTasksView) {
+    myTasksView.classList.toggle('d-none', view !== 'mine');
+  }
+
+  if (allTasksView) {
+    allTasksView.classList.toggle('d-none', view !== 'all');
+  }
 }
 
 function getTaskStatusForCalendar(task) {
@@ -90,42 +155,73 @@ function getTaskStatusForCalendar(task) {
   return null;
 }
 
-function renderCalendar() {
-  if (!calendarDays || !tasks.length) return;
+function formatShortDate(value) {
+  if (!value) return '';
+  return new Date(value).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+  });
+}
 
+function applyCalendarFilters(items) {
+  return items.filter((task) => {
+    if (calendarFilters.status !== 'all' && task.status !== calendarFilters.status) {
+      return false;
+    }
+    if (calendarFilters.priority !== 'all' && task.priority !== calendarFilters.priority) {
+      return false;
+    }
+    return Boolean(task.deadline);
+  });
+}
+
+function setCalendarView(view) {
+  calendarView = view;
+  calendarViewButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.calView === view);
+  });
+  renderCalendar();
+}
+
+async function handleCalendarDrop(taskId, dateStr) {
+  if (!taskId || !dateStr) return;
+
+  try {
+    await updateTask(taskId, { deadline: dateStr });
+    success('Task rescheduled.');
+    await refreshDashboard();
+  } catch (err) {
+    error(err.message || 'Unable to reschedule task.');
+  }
+}
+
+function renderCalendarMonth(viewTasks) {
   const year = currentCalendarDate.getFullYear();
   const month = currentCalendarDate.getMonth();
-  
-  // Update month/year display
+
   const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'];
   calendarMonth.textContent = `${monthNames[month]} ${year}`;
 
-  // Get first day of month and number of days
   const firstDay = new Date(year, month, 1).getDay();
   const daysInMonth = new Date(year, month + 1, 0).getDate();
   const daysInPrevMonth = new Date(year, month, 0).getDate();
 
-  // Group tasks by deadline date
   const tasksByDate = {};
-  tasks.forEach((task) => {
-    if (task.deadline) {
-      const dateKey = task.deadline; // Format: YYYY-MM-DD
-      if (!tasksByDate[dateKey]) tasksByDate[dateKey] = [];
-      tasksByDate[dateKey].push(task);
-    }
+  viewTasks.forEach((task) => {
+    const dateKey = task.deadline;
+    if (!tasksByDate[dateKey]) tasksByDate[dateKey] = [];
+    tasksByDate[dateKey].push(task);
   });
 
   calendarDays.innerHTML = '';
 
-  // Previous month's days (grayed out)
   for (let i = firstDay - 1; i >= 0; i--) {
     const day = daysInPrevMonth - i;
     const dayElement = createCalendarDay(day, true, []);
     calendarDays.appendChild(dayElement);
   }
 
-  // Current month's days
   for (let day = 1; day <= daysInMonth; day++) {
     const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
     const dayTasks = tasksByDate[dateStr] || [];
@@ -133,13 +229,129 @@ function renderCalendar() {
     calendarDays.appendChild(dayElement);
   }
 
-  // Next month's days (grayed out)
   const totalCells = calendarDays.children.length;
-  const remainingCells = 42 - totalCells; // 6 rows × 7 days
+  const remainingCells = 42 - totalCells;
   for (let day = 1; day <= remainingCells; day++) {
     const dayElement = createCalendarDay(day, true, []);
     calendarDays.appendChild(dayElement);
   }
+}
+
+function getWeekStart(date) {
+  const start = new Date(date);
+  const day = start.getDay();
+  start.setDate(start.getDate() - day);
+  start.setHours(0, 0, 0, 0);
+  return start;
+}
+
+function renderCalendarAgenda(viewTasks) {
+  if (!calendarAgendaView) return;
+
+  const isWeek = calendarView === 'week';
+  const startDate = isWeek ? getWeekStart(currentCalendarDate) : new Date(currentCalendarDate);
+  const dayCount = isWeek ? 7 : 1;
+  const endDate = new Date(startDate);
+  endDate.setDate(startDate.getDate() + dayCount - 1);
+
+  calendarMonth.textContent = isWeek
+    ? `Week of ${formatShortDate(startDate)}`
+    : formatDate(startDate);
+
+  calendarAgendaView.innerHTML = '';
+
+  for (let i = 0; i < dayCount; i += 1) {
+    const dayDate = new Date(startDate);
+    dayDate.setDate(startDate.getDate() + i);
+    const dateStr = dayDate.toISOString().split('T')[0];
+    const dayTasks = viewTasks.filter((task) => task.deadline === dateStr);
+
+    const dayCard = document.createElement('div');
+    dayCard.className = 'calendar-agenda-day';
+    dayCard.dataset.date = dateStr;
+
+    const title = document.createElement('div');
+    title.className = 'calendar-agenda-title';
+    title.innerHTML = `
+      <span>${dayDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</span>
+      <span>${dayTasks.length} task${dayTasks.length !== 1 ? 's' : ''}</span>
+    `;
+
+    const list = document.createElement('div');
+    list.className = 'calendar-agenda-list';
+
+    if (!dayTasks.length) {
+      const empty = document.createElement('div');
+      empty.className = 'text-muted small';
+      empty.textContent = 'No tasks';
+      list.appendChild(empty);
+    } else {
+      dayTasks.forEach((task) => {
+        const item = document.createElement('div');
+        item.className = 'calendar-task-pill';
+        item.draggable = true;
+        item.dataset.taskId = task.id;
+
+        const dot = document.createElement('span');
+        dot.className = 'calendar-task-dot';
+        if (task.priority === 'high') dot.style.background = '#ef4444';
+        else if (task.priority === 'low') dot.style.background = '#3b82f6';
+        else dot.style.background = '#f59e0b';
+
+        const titleText = document.createElement('span');
+        titleText.textContent = task.title;
+
+        item.appendChild(dot);
+        item.appendChild(titleText);
+
+        item.addEventListener('dragstart', (event) => {
+          event.dataTransfer.effectAllowed = 'move';
+          event.dataTransfer.setData('text/plain', task.id);
+        });
+
+        list.appendChild(item);
+      });
+    }
+
+    dayCard.appendChild(title);
+    dayCard.appendChild(list);
+
+    dayCard.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      dayCard.classList.add('kanban-drop-active');
+    });
+
+    dayCard.addEventListener('dragleave', () => {
+      dayCard.classList.remove('kanban-drop-active');
+    });
+
+    dayCard.addEventListener('drop', async (event) => {
+      event.preventDefault();
+      dayCard.classList.remove('kanban-drop-active');
+      const taskId = event.dataTransfer.getData('text/plain');
+      await handleCalendarDrop(taskId, dateStr);
+    });
+
+    calendarAgendaView.appendChild(dayCard);
+  }
+}
+
+function renderCalendar() {
+  if (!calendarDays || !calendarMonth) return;
+
+  const viewTasks = applyCalendarFilters(tasks);
+
+  if (calendarView === 'month') {
+    if (calendarMonthView) calendarMonthView.classList.remove('d-none');
+    if (calendarAgendaView) calendarAgendaView.classList.add('d-none');
+    renderCalendarMonth(viewTasks);
+    return;
+  }
+
+  if (calendarMonthView) calendarMonthView.classList.add('d-none');
+  if (calendarAgendaView) calendarAgendaView.classList.remove('d-none');
+  renderCalendarAgenda(viewTasks);
 }
 
 function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
@@ -183,6 +395,8 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
     const taskItem = document.createElement('div');
     const priorityClass = `priority-${task.priority || 'medium'}`;
     taskItem.className = `calendar-task-item ${status} ${priorityClass}`;
+    taskItem.draggable = true;
+    taskItem.dataset.taskId = task.id;
     
     const dot = document.createElement('span');
     dot.className = 'calendar-task-dot';
@@ -201,6 +415,11 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
     taskItem.appendChild(dot);
     taskItem.appendChild(title);
     tasksContainer.appendChild(taskItem);
+
+    taskItem.addEventListener('dragstart', (event) => {
+      event.dataTransfer.effectAllowed = 'move';
+      event.dataTransfer.setData('text/plain', task.id);
+    });
   });
 
   if (dayTasks.length > 2) {
@@ -223,6 +442,25 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
   // Add click handler to show day details
   if (!isOtherMonth && dayTasks.length > 0) {
     day.addEventListener('click', () => showCalendarDayDetails(dateStr, dayNum, dayTasks));
+  }
+
+  if (!isOtherMonth) {
+    day.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      day.classList.add('kanban-drop-active');
+    });
+
+    day.addEventListener('dragleave', () => {
+      day.classList.remove('kanban-drop-active');
+    });
+
+    day.addEventListener('drop', async (event) => {
+      event.preventDefault();
+      day.classList.remove('kanban-drop-active');
+      const taskId = event.dataTransfer.getData('text/plain');
+      await handleCalendarDrop(taskId, dateStr);
+    });
   }
 
   return day;
@@ -325,8 +563,11 @@ async function renderUserFiles() {
 
   if (!files.length) {
     userFilesList.innerHTML = '<div class="dmq-empty">No files uploaded yet.</div>';
+    updateNavCounts(0);
     return;
   }
+
+  updateNavCounts(files.length);
 
   files.forEach((file) => {
     const item = document.createElement('div');
@@ -400,13 +641,20 @@ function switchSection(sectionName) {
 }
 
 function toggleSidebar() {
-  sidebar.classList.toggle('show');
-  sidebarOverlay.classList.toggle('show');
+  const isMobile = window.innerWidth <= 1024;
+  if (isMobile) {
+    sidebar.classList.toggle('show');
+    sidebarOverlay.classList.toggle('show');
+    return;
+  }
+
+  document.body.classList.toggle('sidebar-collapsed');
 }
 
 function closeSidebar() {
   sidebar.classList.remove('show');
   sidebarOverlay.classList.remove('show');
+  document.body.classList.remove('sidebar-collapsed');
 }
 
 function renderSummary() {
@@ -441,22 +689,58 @@ function renderKanban() {
   });
 
   const sorted = [...tasks].sort((a, b) => new Date(a.deadline || 0) - new Date(b.deadline || 0));
+  const grouped = {
+    not_started: [],
+    in_progress: [],
+    done: [],
+  };
 
   sorted.forEach((task) => {
     const status = STATUS_LABELS[task.status] ? task.status : 'not_started';
-    const column = qs(`[data-board-status="${status}"]`, kanbanBoard);
+    grouped[status].push(task);
+  });
+
+  Object.keys(grouped).forEach((statusKey) => {
+    const column = qs(`[data-board-status="${statusKey}"]`, kanbanBoard);
     if (!column) return;
 
-    const card = document.createElement('div');
-    card.className = 'task-card mb-2';
-    card.draggable = true;
-    card.dataset.taskId = task.id;
-    card.innerHTML = `
-      <div class="task-title">${task.title}</div>
-      <div class="task-meta">${formatDate(task.deadline)}</div>
-      <div><span class="status-badge ${statusBadgeClass(task.status)}">${STATUS_LABELS[status]}</span></div>
-    `;
-    column.appendChild(card);
+    const limit = Number(column.dataset.wipLimit || 0);
+    const countMeta = qs(`[data-kanban-count="${statusKey}"]`, kanbanBoard);
+    if (countMeta) {
+      countMeta.textContent = grouped[statusKey].length;
+      const metaWrap = countMeta.closest('.kanban-meta');
+      if (metaWrap) {
+        metaWrap.classList.toggle('is-over', limit > 0 && grouped[statusKey].length > limit);
+      }
+    }
+
+    const priorityOrder = ['high', 'medium', 'low'];
+    priorityOrder.forEach((priority) => {
+      const lane = document.createElement('div');
+      lane.className = 'kanban-lane';
+      lane.innerHTML = `<div class="kanban-lane-title">${priority} priority</div>`;
+
+      grouped[statusKey]
+        .filter((task) => (task.priority || 'medium') === priority)
+        .forEach((task) => {
+          const card = document.createElement('div');
+          card.className = 'task-card kanban-task-card mb-2';
+          card.draggable = true;
+          card.dataset.taskId = task.id;
+
+          card.innerHTML = `
+            <div class="task-title">${task.title}</div>
+            <div class="task-meta">Deadline: ${formatDate(task.deadline)}</div>
+            <div class="task-meta">Priority: ${priority}</div>
+            <div class="task-meta">Assignee: ${currentUserName || 'You'}</div>
+            <div><span class="status-badge ${statusBadgeClass(task.status)}">${STATUS_LABELS[statusKey]}</span></div>
+          `;
+
+          lane.appendChild(card);
+        });
+
+      column.appendChild(lane);
+    });
   });
 }
 
@@ -475,15 +759,12 @@ function renderTasks() {
   viewTasks.forEach((task) => {
     const overdue = isOverdue(task);
     const statusBadge = statusBadgeClass(task.status);
-    const userName = task.users?.full_name || task.users?.email || 'Unknown';
-    const userDisplay = currentUserRole === 'admin' ? `<td class="text-muted small">${userName}</td>` : '';
 
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${task.title}</td>
       <td class="text-muted">${task.description || '-'}</td>
       <td class="${overdue ? 'status-overdue' : ''}">${formatDate(task.deadline)}</td>
-      ${userDisplay}
       <td><span class="status-badge ${statusBadge}">${STATUS_LABELS[task.status] || STATUS_LABELS.not_started}</span></td>
       <td>
         <div class="d-flex gap-2 flex-wrap">
@@ -499,12 +780,10 @@ function renderTasks() {
 
     const card = document.createElement('div');
     card.className = 'task-card';
-    const userInfo = currentUserRole === 'admin' ? `<div class="task-meta text-muted small">Assigned to: ${userName}</div>` : '';
     card.innerHTML = `
       <div class="task-title">${task.title}</div>
       <div class="task-meta">${task.description || '-'}</div>
       <div class="task-meta ${overdue ? 'status-overdue' : ''}">Deadline: ${formatDate(task.deadline)}</div>
-      ${userInfo}
       <div><span class="status-badge ${statusBadge}">${STATUS_LABELS[task.status] || STATUS_LABELS.not_started}</span></div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-sm btn-outline-dark" data-action="view" data-id="${task.id}">View</button>
@@ -520,7 +799,77 @@ function renderTasks() {
   renderKanban();
 }
 
+function renderAllTasks() {
+  if (!allTasksCards || !allTasksView) return;
+
+  const viewTasks = applyFilterSort(allTasks);
+  allTasksCards.innerHTML = '';
+
+  if (!viewTasks.length) {
+    if (allTasksEmpty) allTasksEmpty.classList.remove('d-none');
+    return;
+  }
+
+  if (allTasksEmpty) allTasksEmpty.classList.add('d-none');
+
+  viewTasks.forEach((task) => {
+    const user = usersById[task.user_id] || {};
+    const statusLabel = STATUS_LABELS[task.status] || STATUS_LABELS.not_started;
+    const card = document.createElement('div');
+    card.className = 'task-detail-card';
+    card.innerHTML = `
+      <div class="task-detail-header">
+        <div>
+          <div class="task-title">${task.title}</div>
+          <div class="task-meta">${task.description || 'No description'}</div>
+        </div>
+        <span class="status-badge ${statusBadgeClass(task.status)}">${statusLabel}</span>
+      </div>
+      <div class="task-detail-grid">
+        <div class="task-detail-item">
+          <span class="label">Assignee</span>
+          <span class="value">${user.full_name || user.email || 'Unknown user'}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">Email</span>
+          <span class="value">${user.email || '-'}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">Role</span>
+          <span class="value">${user.role || 'user'}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">Priority</span>
+          <span class="value">${task.priority || 'medium'}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">Deadline</span>
+          <span class="value">${formatDate(task.deadline)}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">Project</span>
+          <span class="value">${task.project_id || '-'}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">Created</span>
+          <span class="value">${formatDate(task.created_at)}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">Updated</span>
+          <span class="value">${formatDate(task.updated_at)}</span>
+        </div>
+        <div class="task-detail-item">
+          <span class="label">User ID</span>
+          <span class="value">${task.user_id}</span>
+        </div>
+      </div>
+    `;
+    allTasksCards.appendChild(card);
+  });
+}
+
 function renderProjectsDrop() {
+  if (!projectSelect) return;
   projectSelect.innerHTML = '<option value="">No project</option>';
   projects.forEach((project) => {
     const option = document.createElement('option');
@@ -536,6 +885,7 @@ function renderProjectsList() {
   if (!projects || projects.length === 0) {
     projectsGrid.innerHTML = '';
     projectsEmpty.classList.remove('d-none');
+    updateNavCounts();
     return;
   }
 
@@ -560,15 +910,27 @@ function renderProjectsList() {
       </div>
     `;
   }).join('');
+  updateNavCounts();
 }
 
 async function refreshDashboard() {
   clearAlert(alertBox);
-  tasks = currentUserRole === 'admin' ? await fetchAllTasks() : await fetchTasks(currentUserId);
+  tasks = await fetchTasks(currentUserId);
+
+  if (currentUserRole === 'admin') {
+    const [users, systemTasks] = await Promise.all([
+      fetchAllUsers(),
+      fetchAllTasks(),
+    ]);
+    usersById = buildUserMap(users);
+    allTasks = systemTasks;
+    renderAllTasks();
+  }
   renderSummary();
   renderTasks();
   renderCalendar();
   renderProjectsList();
+  updateNavCounts();
 }
 
 async function initDashboard() {
@@ -579,18 +941,18 @@ async function initDashboard() {
   }
   currentUserId = user.id;
   currentUserRole = user.role;
+  currentUserName = user.full_name || user.email || 'You';
   greeting.textContent = `Welcome, ${user.full_name || user.email}`;
   if (currentUserRole === 'admin') {
-    greeting.textContent += ' (Admin - Viewing all tasks)';
-    // Show admin column header
-    const adminColumnHeader = qs('.admin-column-header');
-    if (adminColumnHeader) {
-      adminColumnHeader.classList.remove('d-none');
-    }
+    greeting.textContent += ' (Admin)';
   }
   if (adminLink) {
     adminLink.classList.toggle('d-none', user.role !== 'admin');
   }
+  if (allTasksToggle) {
+    allTasksToggle.classList.toggle('d-none', user.role !== 'admin');
+  }
+  setTaskView('mine');
 
   try {
     projects = await fetchProjects(currentUserId);
@@ -617,6 +979,15 @@ qsa('[data-filter]').forEach((button) => {
     button.classList.add('active');
     activeFilter = button.dataset.filter;
     renderTasks();
+    if (currentUserRole === 'admin') {
+      renderAllTasks();
+    }
+  });
+});
+
+taskViewButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    setTaskView(button.dataset.taskView);
   });
 });
 
@@ -662,19 +1033,54 @@ sortButton.addEventListener('click', () => {
   sortDirection = sortDirection === 'asc' ? 'desc' : 'asc';
   sortButton.textContent = `Sort: ${sortDirection.toUpperCase()}`;
   renderTasks();
+  if (currentUserRole === 'admin') {
+    renderAllTasks();
+  }
 });
 
 // Calendar navigation
 if (calendarPrev) {
   calendarPrev.addEventListener('click', () => {
-    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    if (calendarView === 'month') {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    } else if (calendarView === 'week') {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() - 7);
+    } else {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() - 1);
+    }
     renderCalendar();
   });
 }
 
 if (calendarNext) {
   calendarNext.addEventListener('click', () => {
-    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    if (calendarView === 'month') {
+      currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    } else if (calendarView === 'week') {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() + 7);
+    } else {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() + 1);
+    }
+    renderCalendar();
+  });
+}
+
+calendarViewButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    setCalendarView(button.dataset.calView);
+  });
+});
+
+if (calendarStatusFilter) {
+  calendarStatusFilter.addEventListener('change', () => {
+    calendarFilters.status = calendarStatusFilter.value;
+    renderCalendar();
+  });
+}
+
+if (calendarPriorityFilter) {
+  calendarPriorityFilter.addEventListener('change', () => {
+    calendarFilters.priority = calendarPriorityFilter.value;
     renderCalendar();
   });
 }
@@ -706,40 +1112,42 @@ taskForm.addEventListener('submit', async (event) => {
   }
 });
 
-qs('#tasks-panel').addEventListener('click', async (event) => {
-  const target = event.target.closest('[data-action]');
-  if (!target) return;
+if (tasksPanel) {
+  tasksPanel.addEventListener('click', async (event) => {
+    const target = event.target.closest('[data-action]');
+    if (!target) return;
 
-  const taskId = target.dataset.id;
-  if (!taskId) return;
+    const taskId = target.dataset.id;
+    if (!taskId) return;
 
-  try {
-    if (target.dataset.action === 'view') {
-      window.location.href = `./task-details.html?id=${taskId}`;
-      return;
+    try {
+      if (target.dataset.action === 'view') {
+        window.location.href = `./task-details.html?id=${taskId}`;
+        return;
+      }
+
+      if (target.dataset.action === 'toggle') {
+        const task = tasks.find((item) => item.id === taskId);
+        if (!task) return;
+        const status = getToggledStatus(task.status);
+        await updateTask(taskId, { status });
+        await refreshDashboard();
+        success('Task status updated.');
+        return;
+      }
+
+      if (target.dataset.action === 'delete') {
+        const confirmed = window.confirm('Delete this task?');
+        if (!confirmed) return;
+        await deleteTask(taskId);
+        await refreshDashboard();
+        success('Task deleted.');
+      }
+    } catch (error) {
+      error(error.message || 'Action failed.');
     }
-
-    if (target.dataset.action === 'toggle') {
-      const task = tasks.find((item) => item.id === taskId);
-      if (!task) return;
-      const status = getToggledStatus(task.status);
-      await updateTask(taskId, { status });
-      await refreshDashboard();
-      success('Task status updated.');
-      return;
-    }
-
-    if (target.dataset.action === 'delete') {
-      const confirmed = window.confirm('Delete this task?');
-      if (!confirmed) return;
-      await deleteTask(taskId);
-      await refreshDashboard();
-      success('Task deleted.');
-    }
-  } catch (error) {
-    error(error.message || 'Action failed.');
-  }
-});
+  });
+}
 
 qs('#logout-button').addEventListener('click', async () => {
   await logoutUser();
@@ -805,6 +1213,10 @@ if (userFileForm && userFileInput && userFilesList) {
 
 if (sidebarToggle) {
   sidebarToggle.addEventListener('click', toggleSidebar);
+}
+
+if (sidebarToggleDesktop) {
+  sidebarToggleDesktop.addEventListener('click', toggleSidebar);
 }
 
 if (sidebarOverlay) {

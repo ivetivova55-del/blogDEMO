@@ -18,6 +18,7 @@
         </button>
         <a class="navbar-brand dmq-brand" href="./index.html">DigitalMarketingQUILL</a>
         <div class="d-flex gap-2 ms-auto">
+          <button class="btn btn-outline-light btn-sm sidebar-toggle-desktop" id="sidebar-toggle-desktop" type="button">Toggle Nav</button>
           <a class="btn btn-outline-light btn-sm" href="./projects.html">Projects</a>
           <a class="btn btn-outline-light btn-sm d-none" href="./admin.html" id="admin-link">Admin</a>
           <button class="btn btn-light btn-sm" id="logout-button">Logout</button>
@@ -38,10 +39,12 @@
         <a href="#dashboard-tasks" class="nav-link" data-section="tasks">
           <span class="icon">✓</span>
           <span>Tasks</span>
+          <span class="nav-count" id="nav-tasks-count">0</span>
         </a>
         <a href="#dashboard-calendar" class="nav-link" data-section="calendar">
           <span class="icon">📅</span>
           <span>Calendar</span>
+          <span class="nav-count" id="nav-calendar-count">0</span>
         </a>
         <a href="#dashboard-board" class="nav-link" data-section="board">
           <span class="icon">🎯</span>
@@ -50,11 +53,13 @@
         <a href="#dashboard-files" class="nav-link" data-section="files">
           <span class="icon">📁</span>
           <span>Files</span>
+          <span class="nav-count" id="nav-files-count">0</span>
         </a>
         <hr>
         <a href="#dashboard-projects" class="nav-link" data-section="projects">
           <span class="icon">📂</span>
           <span>Projects</span>
+          <span class="nav-count" id="nav-projects-count">0</span>
         </a>
       </nav>
     </aside>
@@ -147,33 +152,47 @@
       <section class="dashboard-section d-none" data-section="tasks" id="dashboard-tasks">
         <div class="section-header">
           <h2 class="section-title">Tasks</h2>
-          <div class="section-controls">
-            <div class="btn-group" role="group">
-              <button class="btn btn-outline-dark btn-sm active" data-filter="all">All</button>
-              <button class="btn btn-outline-dark btn-sm" data-filter="incomplete">Incomplete</button>
-              <button class="btn btn-outline-dark btn-sm" data-filter="not_started">To Do</button>
-              <button class="btn btn-outline-dark btn-sm" data-filter="done">Complete</button>
+        </div>
+        <div id="tasks-panel">
+          <div class="tasks-toolbar">
+            <div class="tasks-toolbar-left">
+              <div class="btn-group" role="group" id="task-view-toggle">
+                <button class="btn btn-outline-dark btn-sm active" data-task-view="mine">My Tasks</button>
+                <button class="btn btn-outline-dark btn-sm d-none" data-task-view="all" id="all-tasks-toggle">All Users</button>
+              </div>
+              <div class="btn-group" role="group">
+                <button class="btn btn-outline-dark btn-sm active" data-filter="all">All</button>
+                <button class="btn btn-outline-dark btn-sm" data-filter="incomplete">Incomplete</button>
+                <button class="btn btn-outline-dark btn-sm" data-filter="not_started">To Do</button>
+                <button class="btn btn-outline-dark btn-sm" data-filter="done">Complete</button>
+              </div>
             </div>
             <button class="btn btn-outline-dark btn-sm" id="sort-deadline">Sort: ASC</button>
           </div>
+          <div id="my-tasks-view">
+            <div class="table-responsive">
+              <table class="table dmq-table align-middle">
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Deadline</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="tasks-table-body"></tbody>
+              </table>
+            </div>
+            <div class="d-grid gap-3 d-lg-none" id="tasks-cards"></div>
+            <div class="dmq-empty d-none" id="tasks-empty">No tasks yet. Add your first task.</div>
+          </div>
+          <div class="d-none" id="all-tasks-view">
+            <div class="dmq-readonly-note">Read-only view of all user tasks.</div>
+            <div class="task-cards-grid" id="all-tasks-cards"></div>
+            <div class="dmq-empty d-none" id="all-tasks-empty">No tasks available.</div>
+          </div>
         </div>
-        <div class="table-responsive">
-          <table class="table dmq-table align-middle">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Description</th>
-                <th>Deadline</th>
-                <th class="admin-column-header d-none">Assigned To</th>
-                <th>Status</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody id="tasks-table-body"></tbody>
-          </table>
-        </div>
-        <div class="d-grid gap-3 d-lg-none" id="tasks-cards"></div>
-        <div class="dmq-empty d-none" id="tasks-empty">No tasks yet. Add your first task.</div>
       </section>
 
       <!-- Calendar Section -->
@@ -181,13 +200,34 @@
         <div class="section-header">
           <h2 class="section-title">Deadline Calendar</h2>
           <div class="section-controls">
-            <button class="btn btn-sm btn-outline-dark" id="cal-prev">← Prev</button>
-            <span class="btn btn-sm btn-light" id="cal-month" style="min-width: 150px;">Month</span>
-            <button class="btn btn-sm btn-outline-dark" id="cal-next">Next →</button>
+            <div class="btn-group" role="group" id="calendar-view-toggle">
+              <button class="btn btn-sm btn-outline-dark active" data-cal-view="month">Month</button>
+              <button class="btn btn-sm btn-outline-dark" data-cal-view="week">Week</button>
+              <button class="btn btn-sm btn-outline-dark" data-cal-view="day">Day</button>
+            </div>
+            <div class="calendar-filters">
+              <select class="form-select form-select-sm" id="calendar-status-filter">
+                <option value="all" selected>Status: All</option>
+                <option value="not_started">To Do</option>
+                <option value="in_progress">In Progress</option>
+                <option value="done">Complete</option>
+              </select>
+              <select class="form-select form-select-sm" id="calendar-priority-filter">
+                <option value="all" selected>Priority: All</option>
+                <option value="high">High</option>
+                <option value="medium">Medium</option>
+                <option value="low">Low</option>
+              </select>
+            </div>
+            <div class="btn-group" role="group">
+              <button class="btn btn-sm btn-outline-dark" id="cal-prev">← Prev</button>
+              <span class="btn btn-sm btn-light" id="cal-month" style="min-width: 150px;">Month</span>
+              <button class="btn btn-sm btn-outline-dark" id="cal-next">Next →</button>
+            </div>
           </div>
         </div>
         <div class="dmq-calendar-section">
-          <div class="dmq-calendar">
+          <div class="dmq-calendar" id="calendar-month-view">
             <div class="calendar-weekdays">
               <div class="calendar-weekday">Sun</div>
               <div class="calendar-weekday">Mon</div>
@@ -199,6 +239,7 @@
             </div>
             <div class="calendar-days" id="calendar-days"></div>
           </div>
+          <div class="calendar-agenda d-none" id="calendar-agenda-view"></div>
           <div class="mt-3 pt-3 border-top">
             <div id="calendar-legend" class="d-flex flex-wrap gap-3">
               <div class="d-flex align-items-center gap-2">
@@ -259,20 +300,29 @@
         <div class="row g-3" id="kanban-board">
           <div class="col-lg-4">
             <div class="dmq-card p-2 h-100">
-              <div class="fw-semibold small text-uppercase text-muted px-2 py-1">To Do</div>
-              <div class="kanban-column" data-board-status="not_started" data-board-list></div>
+              <div class="kanban-column-header">
+                <div class="kanban-title">To Do</div>
+                <div class="kanban-meta"><span data-kanban-count="not_started">0</span> / <span data-kanban-limit="not_started">6</span></div>
+              </div>
+              <div class="kanban-column" data-board-status="not_started" data-board-list data-wip-limit="6"></div>
             </div>
           </div>
           <div class="col-lg-4">
             <div class="dmq-card p-2 h-100">
-              <div class="fw-semibold small text-uppercase text-muted px-2 py-1">In Progress</div>
-              <div class="kanban-column" data-board-status="in_progress" data-board-list></div>
+              <div class="kanban-column-header">
+                <div class="kanban-title">In Progress</div>
+                <div class="kanban-meta"><span data-kanban-count="in_progress">0</span> / <span data-kanban-limit="in_progress">4</span></div>
+              </div>
+              <div class="kanban-column" data-board-status="in_progress" data-board-list data-wip-limit="4"></div>
             </div>
           </div>
           <div class="col-lg-4">
             <div class="dmq-card p-2 h-100">
-              <div class="fw-semibold small text-uppercase text-muted px-2 py-1">Completed</div>
-              <div class="kanban-column" data-board-status="done" data-board-list></div>
+              <div class="kanban-column-header">
+                <div class="kanban-title">Completed</div>
+                <div class="kanban-meta"><span data-kanban-count="done">0</span> / <span data-kanban-limit="done">8</span></div>
+              </div>
+              <div class="kanban-column" data-board-status="done" data-board-list data-wip-limit="8"></div>
             </div>
           </div>
         </div>

@@ -42,12 +42,13 @@ export async function fetchTasks(userId) {
 export async function fetchAllTasks() {
   const { data, error } = await supabase
     .from('tasks')
-    .select('id, project_id, user_id, title, description, deadline, status, priority, updated_at, created_at, users!inner(id, email, full_name)')
+    .select('id, project_id, user_id, title, description, deadline, status, priority, updated_at, created_at')
     .order('deadline', { ascending: true });
 
   if (error) throw error;
   return (data || []).map(normalizeTask);
 }
+
 
 export async function fetchTaskById(taskId) {
   const { data, error } = await supabase
