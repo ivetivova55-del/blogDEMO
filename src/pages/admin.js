@@ -73,7 +73,7 @@ async function initAdmin() {
     return;
   }
 
-  if (user.role !== 'admin') {
+  if (String(user.role || '').toLowerCase() !== 'admin') {
     window.location.href = './dashboard.html';
     return;
   }

@@ -1,5 +1,10 @@
 import { supabase, getCurrentUser, getUserProfile } from '../api/supabase-client.js';
 
+function normalizeRole(value) {
+  const normalized = String(value || '').trim().toLowerCase();
+  return normalized === 'admin' ? 'admin' : 'user';
+}
+
 function isMissingTableError(error) {
   const message = [error?.message, error?.details, error?.hint, error?.code]
     .filter(Boolean)
@@ -105,5 +110,5 @@ export async function getCurrentUserProfile() {
     };
   }
 
-  return { ...user, ...profile };
+  return { ...user, ...profile, role: normalizeRole(profile.role) };
 }

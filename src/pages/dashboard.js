@@ -999,17 +999,17 @@ async function initDashboard() {
     return;
   }
   currentUserId = user.id;
-  currentUserRole = user.role;
+  currentUserRole = String(user.role || '').toLowerCase();
   currentUserName = user.full_name || user.email || 'You';
   greeting.textContent = `Welcome, ${user.full_name || user.email}`;
   if (currentUserRole === 'admin') {
     greeting.textContent += ' (Admin)';
   }
   if (adminLink) {
-    adminLink.classList.toggle('d-none', user.role !== 'admin');
+    adminLink.classList.toggle('d-none', currentUserRole !== 'admin');
   }
   if (allTasksToggle) {
-    allTasksToggle.classList.toggle('d-none', user.role !== 'admin');
+    allTasksToggle.classList.toggle('d-none', currentUserRole !== 'admin');
   }
   setTaskView('mine');
   setDisplayView('list');
