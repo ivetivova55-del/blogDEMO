@@ -109,19 +109,19 @@ async function addSprintTasks() {
   try {
     console.log('🔍 Finding admin user and Q2 SEO Content Sprint2 project...\n');
 
-    // Get admin user
-    const { data: adminUser, error: adminError } = await supabase
-      .from('users')
-      .select('id')
-      .eq('email', 'admin@digiquill.com')
-      .single();
+    // Sign in as admin to have proper auth context
+    const { data: signInData, error: signInError } = await supabase.auth.signInWithPassword({
+      email: 'admin@digiquill.com',
+      password: 'pass123',
+    });
 
-    if (adminError || !adminUser) {
-      console.error('❌ Could not find admin user:', adminError?.message);
+    if (signInError || !signInData.user) {
+      console.error('❌ Could not sign in as admin:', signInError?.message);
       return;
     }
 
-    console.log('✅ Found admin user:', adminUser.id);
+    const adminUser = signInData.user;
+    console.log('✅ Signed in as admin user:', adminUser.id);
 
     // Get all projects first
     const { data: allProjects } = await supabase
