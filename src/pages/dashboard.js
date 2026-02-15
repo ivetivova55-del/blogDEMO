@@ -1,5 +1,5 @@
 import { getCurrentUserProfile, logoutUser } from '../services/auth-service.js';
-import { fetchTasks, createTask, updateTask, deleteTask } from '../services/tasks-service.js';
+import { fetchTasks, fetchAllTasks, createTask, updateTask, deleteTask } from '../services/tasks-service.js';
 import { fetchProjects } from '../services/projects-service.js';
 import { uploadUserFile, listUserFiles, getUserFileDownloadUrl } from '../services/user-files-service.js';
 import { success, error, info } from '../services/notifications-service.js';
@@ -54,6 +54,7 @@ let projects = [];
 let activeFilter = 'all';
 let sortDirection = 'asc';
 let currentUserId = null;
+let currentUserRole = null;
 let selectedProjectId = null;
 let selectedCalendarDay = null;
 let calendarDayModal = null;
@@ -474,12 +475,15 @@ function renderTasks() {
   viewTasks.forEach((task) => {
     const overdue = isOverdue(task);
     const statusBadge = statusBadgeClass(task.status);
+    const userName = task.users?.full_name || task.users?.email || 'Unknown';
+    const userDisplay = currentUserRole === 'admin' ? `<td class="text-muted small">${userName}</td>` : '';
 
     const row = document.createElement('tr');
     row.innerHTML = `
       <td>${task.title}</td>
       <td class="text-muted">${task.description || '-'}</td>
       <td class="${overdue ? 'status-overdue' : ''}">${formatDate(task.deadline)}</td>
+      ${userDisplay}
       <td><span class="status-badge ${statusBadge}">${STATUS_LABELS[task.status] || STATUS_LABELS.not_started}</span></td>
       <td>
         <div class="d-flex gap-2 flex-wrap">
@@ -495,10 +499,12 @@ function renderTasks() {
 
     const card = document.createElement('div');
     card.className = 'task-card';
+    const userInfo = currentUserRole === 'admin' ? `<div class="task-meta text-muted small">Assigned to: ${userName}</div>` : '';
     card.innerHTML = `
       <div class="task-title">${task.title}</div>
       <div class="task-meta">${task.description || '-'}</div>
       <div class="task-meta ${overdue ? 'status-overdue' : ''}">Deadline: ${formatDate(task.deadline)}</div>
+      ${userInfo}
       <div><span class="status-badge ${statusBadge}">${STATUS_LABELS[task.status] || STATUS_LABELS.not_started}</span></div>
       <div class="d-flex gap-2 flex-wrap">
         <button class="btn btn-sm btn-outline-dark" data-action="view" data-id="${task.id}">View</button>
@@ -558,7 +564,7 @@ function renderProjectsList() {
 
 async function refreshDashboard() {
   clearAlert(alertBox);
-  tasks = await fetchTasks(currentUserId);
+  tasks = currentUserRole === 'admin' ? await fetchAllTasks() : await fetchTasks(currentUserId);
   renderSummary();
   renderTasks();
   renderCalendar();
@@ -572,7 +578,16 @@ async function initDashboard() {
     return;
   }
   currentUserId = user.id;
+  currentUserRole = user.role;
   greeting.textContent = `Welcome, ${user.full_name || user.email}`;
+  if (currentUserRole === 'admin') {
+    greeting.textContent += ' (Admin - Viewing all tasks)';
+    // Show admin column header
+    const adminColumnHeader = qs('.admin-column-header');
+    if (adminColumnHeader) {
+      adminColumnHeader.classList.remove('d-none');
+    }
+  }
   if (adminLink) {
     adminLink.classList.toggle('d-none', user.role !== 'admin');
   }
