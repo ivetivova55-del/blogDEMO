@@ -24,6 +24,13 @@ const kanbanBoard = qs('#kanban-board');
 const userFileForm = qs('#user-file-form');
 const userFileInput = qs('#user-file-input');
 const userFilesList = qs('#user-files-list');
+const calendarDays = qs('#calendar-days');
+const calendarMonth = qs('#cal-month');
+const calendarPrev = qs('#cal-prev');
+const calendarNext = qs('#cal-next');
+
+// Calendar state
+let currentCalendarDate = new Date();
 
 const STATUS_LABELS = {
   not_started: 'To Do',
@@ -51,6 +58,147 @@ function formatFileSize(bytes) {
 
   const rounded = size >= 10 ? Math.round(size) : size.toFixed(1);
   return `${rounded} ${units[unitIndex]}`;
+}
+
+function getTaskStatusForCalendar(task) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  
+  if (!task.deadline) return null;
+  
+  const deadline = new Date(task.deadline);
+  deadline.setHours(0, 0, 0, 0);
+  
+  if (task.status === 'done') return 'done';
+  if (deadline < today) return 'overdue';
+  if (deadline.getTime() === today.getTime()) return 'today';
+  if ((deadline - today) / (1000 * 60 * 60 * 24) <= 7) return 'due-soon';
+  return null;
+}
+
+function renderCalendar() {
+  if (!calendarDays || !tasks.length) return;
+
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+  
+  // Update month/year display
+  const monthNames = ['January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'];
+  calendarMonth.textContent = `${monthNames[month]} ${year}`;
+
+  // Get first day of month and number of days
+  const firstDay = new Date(year, month, 1).getDay();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const daysInPrevMonth = new Date(year, month, 0).getDate();
+
+  // Group tasks by deadline date
+  const tasksByDate = {};
+  tasks.forEach((task) => {
+    if (task.deadline) {
+      const dateKey = task.deadline; // Format: YYYY-MM-DD
+      if (!tasksByDate[dateKey]) tasksByDate[dateKey] = [];
+      tasksByDate[dateKey].push(task);
+    }
+  });
+
+  calendarDays.innerHTML = '';
+
+  // Previous month's days (grayed out)
+  for (let i = firstDay - 1; i >= 0; i--) {
+    const day = daysInPrevMonth - i;
+    const dayElement = createCalendarDay(day, true, []);
+    calendarDays.appendChild(dayElement);
+  }
+
+  // Current month's days
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    const dayTasks = tasksByDate[dateStr] || [];
+    const dayElement = createCalendarDay(day, false, dayTasks);
+    calendarDays.appendChild(dayElement);
+  }
+
+  // Next month's days (grayed out)
+  const totalCells = calendarDays.children.length;
+  const remainingCells = 42 - totalCells; // 6 rows × 7 days
+  for (let day = 1; day <= remainingCells; day++) {
+    const dayElement = createCalendarDay(day, true, []);
+    calendarDays.appendChild(dayElement);
+  }
+}
+
+function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
+  const day = document.createElement('div');
+  day.className = 'calendar-day';
+  
+  if (isOtherMonth) {
+    day.classList.add('other-month');
+  }
+
+  // Check if today
+  const today = new Date();
+  if (!isOtherMonth) {
+    if (dayNum === today.getDate() &&
+        currentCalendarDate.getMonth() === today.getMonth() &&
+        currentCalendarDate.getFullYear() === today.getFullYear()) {
+      day.classList.add('today');
+    }
+  }
+
+  const dayNumber = document.createElement('div');
+  dayNumber.className = 'calendar-day-number';
+  dayNumber.textContent = dayNum;
+  day.appendChild(dayNumber);
+
+  const tasksContainer = document.createElement('div');
+  tasksContainer.className = 'calendar-day-tasks';
+
+  // Show up to 2 task indicators
+  dayTasks.slice(0, 2).forEach((task) => {
+    const status = getTaskStatusForCalendar(task);
+    if (!status) return;
+
+    const taskItem = document.createElement('div');
+    taskItem.className = `calendar-task-item ${status}`;
+    
+    const dot = document.createElement('span');
+    dot.className = 'calendar-task-dot';
+    
+    // Color by status
+    if (status === 'overdue') dot.style.background = '#ef4444';
+    if (status === 'today') dot.style.background = '#f59e0b';
+    if (status === 'due-soon') dot.style.background = '#84cc16';
+    if (status === 'done') dot.style.background = '#10b981';
+
+    const title = document.createElement('span');
+    title.textContent = task.title;
+    title.style.overflow = 'hidden';
+    title.style.textOverflow = 'ellipsis';
+
+    taskItem.appendChild(dot);
+    taskItem.appendChild(title);
+    tasksContainer.appendChild(taskItem);
+  });
+
+  if (dayTasks.length > 2) {
+    const moreLabel = document.createElement('div');
+    moreLabel.className = 'calendar-task-item multiple';
+    moreLabel.textContent = `+${dayTasks.length - 2} more`;
+    tasksContainer.appendChild(moreLabel);
+  }
+
+  day.appendChild(tasksContainer);
+
+  // Show task count badge
+  if (dayTasks.length > 0 && !isOtherMonth) {
+    const count = document.createElement('div');
+    count.className = 'calendar-task-count';
+    count.textContent = dayTasks.length;
+    day.appendChild(count);
+  }
+
+  return day;
 }
 
 async function renderUserFiles() {
@@ -215,6 +363,7 @@ async function refreshDashboard() {
   tasks = await fetchTasks(currentUserId);
   renderSummary();
   renderTasks();
+  renderCalendar();
 }
 
 async function initDashboard() {
@@ -300,6 +449,21 @@ sortButton.addEventListener('click', () => {
   sortButton.textContent = `Sort: ${sortDirection.toUpperCase()}`;
   renderTasks();
 });
+
+// Calendar navigation
+if (calendarPrev) {
+  calendarPrev.addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    renderCalendar();
+  });
+}
+
+if (calendarNext) {
+  calendarNext.addEventListener('click', () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    renderCalendar();
+  });
+}
 
 taskForm.addEventListener('submit', async (event) => {
   event.preventDefault();
