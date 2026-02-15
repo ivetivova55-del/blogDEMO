@@ -46,10 +46,6 @@
           <span>Calendar</span>
           <span class="nav-count" id="nav-calendar-count">0</span>
         </a>
-        <a href="#dashboard-board" class="nav-link" data-section="board">
-          <span class="icon">🎯</span>
-          <span>Kanban Board</span>
-        </a>
         <a href="#dashboard-files" class="nav-link" data-section="files">
           <span class="icon">📁</span>
           <span>Files</span>
@@ -167,25 +163,90 @@
                 <button class="btn btn-outline-dark btn-sm" data-filter="done">Complete</button>
               </div>
             </div>
-            <button class="btn btn-outline-dark btn-sm" id="sort-deadline">Sort: ASC</button>
+            <div class="tasks-toolbar-right">
+              <div class="btn-group" role="group" id="tasks-view-switcher">
+                <button class="btn btn-outline-dark btn-sm active" data-display-view="list">List View</button>
+                <button class="btn btn-outline-dark btn-sm" data-display-view="board">Board View</button>
+              </div>
+              <button class="btn btn-outline-dark btn-sm" id="sort-deadline">Sort: ASC</button>
+            </div>
+          </div>
+          <div class="tasks-visualization" id="tasks-visualization">
+            <span class="tasks-chip" id="tasks-chip-count">Showing 0 of 0</span>
+            <span class="tasks-chip" id="tasks-chip-filter">Filter: All</span>
+            <span class="tasks-chip" id="tasks-chip-sort">Sort: ASC</span>
+            <span class="tasks-chip" id="tasks-chip-view">View: List</span>
+            <span class="tasks-chip tasks-chip-time" id="tasks-chip-updated">Updated: --:--:--</span>
+          </div>
+          <div class="tasks-info-menu" id="tasks-info-menu">
+            <div class="tasks-info-card">
+              <div class="tasks-info-value" id="tasks-summary-total">0</div>
+              <div class="tasks-info-label">Total Tasks</div>
+            </div>
+            <div class="tasks-info-card">
+              <div class="tasks-info-value" id="tasks-summary-open">0</div>
+              <div class="tasks-info-label">Open</div>
+            </div>
+            <div class="tasks-info-card">
+              <div class="tasks-info-value" id="tasks-summary-completed">0</div>
+              <div class="tasks-info-label">Completed</div>
+            </div>
+            <div class="tasks-info-card tasks-info-card-alert">
+              <div class="tasks-info-value" id="tasks-summary-overdue">0</div>
+              <div class="tasks-info-label">Overdue</div>
+            </div>
           </div>
           <div id="my-tasks-view">
-            <div class="table-responsive">
-              <table class="table dmq-table align-middle">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Deadline</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="tasks-table-body"></tbody>
-              </table>
+            <div id="tasks-list-view">
+              <div class="table-responsive">
+                <table class="table dmq-table align-middle">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>Description</th>
+                      <th>Deadline</th>
+                      <th>Status</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody id="tasks-table-body"></tbody>
+                </table>
+              </div>
+              <div class="d-grid gap-3 d-lg-none" id="tasks-cards"></div>
+              <div class="dmq-empty d-none" id="tasks-empty">No tasks yet. Add your first task.</div>
             </div>
-            <div class="d-grid gap-3 d-lg-none" id="tasks-cards"></div>
-            <div class="dmq-empty d-none" id="tasks-empty">No tasks yet. Add your first task.</div>
+            <div class="d-none" id="tasks-board-view">
+              <h3 class="h6 mb-3">Task Board (Mini Kanban)</h3>
+              <div class="row g-3" id="kanban-board">
+                <div class="col-lg-4">
+                  <div class="dmq-card p-2 h-100">
+                    <div class="kanban-column-header">
+                      <div class="kanban-title">To Do</div>
+                      <div class="kanban-meta"><span data-kanban-count="not_started">0</span> / <span data-kanban-limit="not_started">6</span></div>
+                    </div>
+                    <div class="kanban-column" data-board-status="not_started" data-board-list data-wip-limit="6"></div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="dmq-card p-2 h-100">
+                    <div class="kanban-column-header">
+                      <div class="kanban-title">In Progress</div>
+                      <div class="kanban-meta"><span data-kanban-count="in_progress">0</span> / <span data-kanban-limit="in_progress">4</span></div>
+                    </div>
+                    <div class="kanban-column" data-board-status="in_progress" data-board-list data-wip-limit="4"></div>
+                  </div>
+                </div>
+                <div class="col-lg-4">
+                  <div class="dmq-card p-2 h-100">
+                    <div class="kanban-column-header">
+                      <div class="kanban-title">Completed</div>
+                      <div class="kanban-meta"><span data-kanban-count="done">0</span> / <span data-kanban-limit="done">8</span></div>
+                    </div>
+                    <div class="kanban-column" data-board-status="done" data-board-list data-wip-limit="8"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
           <div class="d-none" id="all-tasks-view">
             <div class="dmq-readonly-note">Read-only view of all user tasks.</div>
@@ -292,42 +353,6 @@
         </div>
       </div>
 
-      <!-- Kanban Board Section -->
-      <section class="dashboard-section d-none" data-section="board" id="dashboard-board">
-        <div class="section-header">
-          <h2 class="section-title">Task Board (Kanban)</h2>
-        </div>
-        <div class="row g-3" id="kanban-board">
-          <div class="col-lg-4">
-            <div class="dmq-card p-2 h-100">
-              <div class="kanban-column-header">
-                <div class="kanban-title">To Do</div>
-                <div class="kanban-meta"><span data-kanban-count="not_started">0</span> / <span data-kanban-limit="not_started">6</span></div>
-              </div>
-              <div class="kanban-column" data-board-status="not_started" data-board-list data-wip-limit="6"></div>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="dmq-card p-2 h-100">
-              <div class="kanban-column-header">
-                <div class="kanban-title">In Progress</div>
-                <div class="kanban-meta"><span data-kanban-count="in_progress">0</span> / <span data-kanban-limit="in_progress">4</span></div>
-              </div>
-              <div class="kanban-column" data-board-status="in_progress" data-board-list data-wip-limit="4"></div>
-            </div>
-          </div>
-          <div class="col-lg-4">
-            <div class="dmq-card p-2 h-100">
-              <div class="kanban-column-header">
-                <div class="kanban-title">Completed</div>
-                <div class="kanban-meta"><span data-kanban-count="done">0</span> / <span data-kanban-limit="done">8</span></div>
-              </div>
-              <div class="kanban-column" data-board-status="done" data-board-list data-wip-limit="8"></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       <!-- Files Section -->
       <section class="dashboard-section d-none" data-section="files" id="dashboard-files">
         <div class="section-header">
@@ -358,97 +383,6 @@
         <div class="dmq-empty d-none" id="projects-empty">No projects yet. Create your first project.</div>
       </section>
 
-    </main>
-
-    <script type="module" src="./pages/dashboard.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  </body>
-</html>
-                  </select>
-                </div>
-                <div class="col-6">
-                  <label class="form-label">Priority</label>
-                  <select class="form-select" name="priority">
-                    <option value="low">Low</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-              </div>
-              <button class="btn btn-dark w-100 mt-3" type="submit">Add task</button>
-            </form>
-          </div>
-
-          <div class="dmq-card p-3 mt-4">
-            <h2 class="h5">My Files</h2>
-            <form id="user-file-form" class="dmq-form mb-3">
-              <div class="d-flex flex-column gap-2">
-                <input class="form-control" type="file" id="user-file-input" />
-                <button class="btn btn-outline-dark" type="submit">Upload file</button>
-              </div>
-            </form>
-            <div id="user-files-list"></div>
-          </div>
-        </div>
-
-        <div class="col-lg-8">
-          <div class="dmq-card p-3" id="tasks-panel">
-            <div class="d-flex flex-wrap justify-content-between align-items-center gap-2 mb-3">
-              <div class="btn-group" role="group">
-                <button class="btn btn-outline-dark btn-sm active" data-filter="all">All</button>
-                <button class="btn btn-outline-dark btn-sm" data-filter="incomplete">Incomplete</button>
-                <button class="btn btn-outline-dark btn-sm" data-filter="not_started">To Do</button>
-                <button class="btn btn-outline-dark btn-sm" data-filter="done">Complete</button>
-              </div>
-              <button class="btn btn-outline-dark btn-sm" id="sort-deadline">Sort: ASC</button>
-            </div>
-
-            <div class="table-responsive">
-              <table class="table dmq-table align-middle">
-                <thead>
-                  <tr>
-                    <th>Title</th>
-                    <th>Description</th>
-                    <th>Deadline</th>
-                    <th>Status</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="tasks-table-body"></tbody>
-              </table>
-            </div>
-
-            <div class="d-grid gap-3 d-lg-none" id="tasks-cards"></div>
-            <div class="dmq-empty d-none" id="tasks-empty">No tasks yet. Add your first task.</div>
-
-            <hr class="my-4" />
-
-            <div>
-              <h3 class="h6 mb-3">Task Board (Mini Kanban)</h3>
-              <div class="row g-3" id="kanban-board">
-                <div class="col-lg-4">
-                  <div class="dmq-card p-2 h-100">
-                    <div class="fw-semibold small text-uppercase text-muted px-2 py-1">To Do</div>
-                    <div class="kanban-column" data-board-status="not_started" data-board-list></div>
-                  </div>
-                </div>
-                <div class="col-lg-4">
-                  <div class="dmq-card p-2 h-100">
-                    <div class="fw-semibold small text-uppercase text-muted px-2 py-1">In Progress</div>
-                    <div class="kanban-column" data-board-status="in_progress" data-board-list></div>
-                  </div>
-                </div>
-                <div class="col-lg-4">
-                  <div class="dmq-card p-2 h-100">
-                    <div class="fw-semibold small text-uppercase text-muted px-2 py-1">Completed</div>
-                    <div class="kanban-column" data-board-status="done" data-board-list></div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
     </main>
 
     <script type="module" src="./pages/dashboard.js"></script>

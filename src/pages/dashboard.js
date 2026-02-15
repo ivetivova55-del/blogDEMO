@@ -19,6 +19,15 @@ const allTasksCards = qs('#all-tasks-cards');
 const allTasksEmpty = qs('#all-tasks-empty');
 const taskViewButtons = qsa('[data-task-view]');
 const allTasksToggle = qs('#all-tasks-toggle');
+const tasksListView = qs('#tasks-list-view');
+const tasksBoardView = qs('#tasks-board-view');
+const displayViewButtons = qsa('[data-display-view]');
+const tasksViewSwitcher = qs('#tasks-view-switcher');
+const tasksChipCount = qs('#tasks-chip-count');
+const tasksChipFilter = qs('#tasks-chip-filter');
+const tasksChipSort = qs('#tasks-chip-sort');
+const tasksChipView = qs('#tasks-chip-view');
+const tasksChipUpdated = qs('#tasks-chip-updated');
 const sortButton = qs('#sort-deadline');
 const taskForm = qs('#task-form');
 const projectSelect = qs('#task-project');
@@ -26,6 +35,10 @@ const summaryTotal = qs('#summary-total');
 const summaryOpen = qs('#summary-open');
 const summaryCompleted = qs('#summary-completed');
 const summaryOverdue = qs('#summary-overdue');
+const tasksSummaryTotal = qs('#tasks-summary-total');
+const tasksSummaryOpen = qs('#tasks-summary-open');
+const tasksSummaryCompleted = qs('#tasks-summary-completed');
+const tasksSummaryOverdue = qs('#tasks-summary-overdue');
 const greeting = qs('#user-greeting');
 const adminLink = qs('#admin-link');
 const kanbanBoard = qs('#kanban-board');
@@ -79,6 +92,7 @@ let selectedProjectId = null;
 let selectedCalendarDay = null;
 let calendarDayModal = null;
 let activeTaskView = 'mine';
+let activeDisplayView = 'list';
 let calendarView = 'month';
 let calendarFilters = {
   status: 'all',
@@ -137,6 +151,44 @@ function setTaskView(view) {
   if (allTasksView) {
     allTasksView.classList.toggle('d-none', view !== 'all');
   }
+
+  if (tasksViewSwitcher) {
+    tasksViewSwitcher.classList.toggle('d-none', view !== 'mine');
+  }
+}
+
+function setDisplayView(view) {
+  activeDisplayView = view;
+  displayViewButtons.forEach((button) => {
+    button.classList.toggle('active', button.dataset.displayView === view);
+  });
+
+  if (tasksListView) {
+    tasksListView.classList.toggle('d-none', view !== 'list');
+  }
+
+  if (tasksBoardView) {
+    tasksBoardView.classList.toggle('d-none', view !== 'board');
+  }
+
+  updateTasksVisualization(applyFilterSort(tasks));
+}
+
+function getFilterLabel(filterValue) {
+  if (filterValue === 'incomplete') return 'Incomplete';
+  if (filterValue === 'not_started') return 'To Do';
+  if (filterValue === 'done') return 'Complete';
+  return 'All';
+}
+
+function updateTasksVisualization(viewTasks) {
+  if (!tasksChipCount || !tasksChipFilter || !tasksChipSort || !tasksChipView || !tasksChipUpdated) return;
+
+  tasksChipCount.textContent = `Showing ${viewTasks.length} of ${tasks.length}`;
+  tasksChipFilter.textContent = `Filter: ${getFilterLabel(activeFilter)}`;
+  tasksChipSort.textContent = `Sort: ${sortDirection.toUpperCase()}`;
+  tasksChipView.textContent = `View: ${activeDisplayView === 'board' ? 'Board' : 'List'}`;
+  tasksChipUpdated.textContent = `Updated: ${new Date().toLocaleTimeString('en-GB')}`;
 }
 
 function getTaskStatusForCalendar(task) {
@@ -623,7 +675,6 @@ function switchSection(sectionName) {
     overview: 'Dashboard Overview',
     tasks: 'All Tasks',
     calendar: 'Deadline Calendar',
-    board: 'Task Board (Kanban)',
     files: 'My Files',
     projects: 'My Projects',
   };
@@ -666,6 +717,11 @@ function renderSummary() {
   summaryOpen.textContent = open;
   summaryCompleted.textContent = completed;
   summaryOverdue.textContent = overdue;
+
+  if (tasksSummaryTotal) tasksSummaryTotal.textContent = total;
+  if (tasksSummaryOpen) tasksSummaryOpen.textContent = open;
+  if (tasksSummaryCompleted) tasksSummaryCompleted.textContent = completed;
+  if (tasksSummaryOverdue) tasksSummaryOverdue.textContent = overdue;
 }
 
 function statusBadgeClass(status) {
@@ -682,13 +738,13 @@ function getToggledStatus(status) {
   return status === 'done' ? 'not_started' : 'done';
 }
 
-function renderKanban() {
+function renderKanban(viewTasks) {
   const columns = qsa('[data-board-list]', kanbanBoard);
   columns.forEach((column) => {
     column.innerHTML = '';
   });
 
-  const sorted = [...tasks].sort((a, b) => new Date(a.deadline || 0) - new Date(b.deadline || 0));
+  const sorted = [...viewTasks].sort((a, b) => new Date(a.deadline || 0) - new Date(b.deadline || 0));
   const grouped = {
     not_started: [],
     in_progress: [],
@@ -751,6 +807,8 @@ function renderTasks() {
 
   if (!viewTasks.length) {
     tasksEmpty.classList.remove('d-none');
+    renderKanban(viewTasks);
+    updateTasksVisualization(viewTasks);
     return;
   }
 
@@ -796,7 +854,8 @@ function renderTasks() {
     tasksCards.appendChild(card);
   });
 
-  renderKanban();
+  renderKanban(viewTasks);
+  updateTasksVisualization(viewTasks);
 }
 
 function renderAllTasks() {
@@ -953,6 +1012,7 @@ async function initDashboard() {
     allTasksToggle.classList.toggle('d-none', user.role !== 'admin');
   }
   setTaskView('mine');
+  setDisplayView('list');
 
   try {
     projects = await fetchProjects(currentUserId);
@@ -960,7 +1020,7 @@ async function initDashboard() {
 
     const params = new URLSearchParams(window.location.search);
     const queryProject = params.get('project');
-    if (queryProject && projects.some((project) => project.id === queryProject)) {
+    if (queryProject && projectSelect && projects.some((project) => project.id === queryProject)) {
       selectedProjectId = queryProject;
       projectSelect.value = selectedProjectId;
       info('Project selected. Create or manage tasks for this project.');
@@ -968,8 +1028,8 @@ async function initDashboard() {
 
     await refreshDashboard();
     await renderUserFiles();
-  } catch (error) {
-    error(error.message || 'Unable to load dashboard data.');
+  } catch (err) {
+    error(err.message || 'Unable to load dashboard data.');
   }
 }
 
@@ -988,6 +1048,12 @@ qsa('[data-filter]').forEach((button) => {
 taskViewButtons.forEach((button) => {
   button.addEventListener('click', () => {
     setTaskView(button.dataset.taskView);
+  });
+});
+
+displayViewButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    setDisplayView(button.dataset.displayView);
   });
 });
 
@@ -1023,8 +1089,8 @@ qsa('[data-board-status]', kanbanBoard).forEach((column) => {
     try {
       await updateTask(taskId, { status: nextStatus });
       await refreshDashboard();
-    } catch (error) {
-      error(error.message || 'Unable to move task on board.');
+    } catch (err) {
+      error(err.message || 'Unable to move task on board.');
     }
   });
 });
@@ -1105,8 +1171,8 @@ taskForm.addEventListener('submit', async (event) => {
     taskForm.reset();
     await refreshDashboard();
     success('Task created successfully.');
-  } catch (error) {
-    error(error.message || 'Unable to create task.');
+  } catch (err) {
+    error(err.message || 'Unable to create task.');
   } finally {
     setLoading(submitButton, false);
   }
@@ -1143,8 +1209,8 @@ if (tasksPanel) {
         await refreshDashboard();
         success('Task deleted.');
       }
-    } catch (error) {
-      error(error.message || 'Action failed.');
+    } catch (err) {
+      error(err.message || 'Action failed.');
     }
   });
 }
@@ -1178,8 +1244,8 @@ if (userFileForm && userFileInput && userFilesList) {
       userFileInput.value = '';
       await renderUserFiles();
       success('File uploaded successfully.');
-    } catch (error) {
-      error(error.message || 'Unable to upload file.');
+    } catch (err) {
+      error(err.message || 'Unable to upload file.');
     } finally {
       setLoading(submitButton, false);
     }
@@ -1201,8 +1267,8 @@ if (userFileForm && userFileInput && userFilesList) {
       link.download = fileName;
       link.click();
       info('File download started.');
-    } catch (error) {
-      error(error.message || 'Unable to download file.');
+    } catch (err) {
+      error(err.message || 'Unable to download file.');
     } finally {
       button.disabled = false;
     }
