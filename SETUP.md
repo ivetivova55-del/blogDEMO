@@ -11,7 +11,20 @@ cp .env.example .env
 ### 2. Configure Supabase
 1. Go to https://supabase.com and create a free account
 2. Create a new project
-3. Copy your URL and anon key to `.env`
+3. Copy your Project URL and key(s) to `.env`:
+
+```dotenv
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_PUBLISHABLE_KEY=sb_publishable_xxxxxxxxxxxxxxxxxxxxxxxxx
+
+# Backward-compatible fallback (optional):
+VITE_SUPABASE_ANON_KEY=your_public_anon_key_here
+
+# BACKEND / CLI ONLY (NEVER prefix with VITE_, keep strictly server-side)
+SUPABASE_SERVICE_ROLE_KEY=your_NEW_rolled_secret_key_here
+```
+
+Security note: never put `service_role` or `sb_secret_*` keys in frontend builds. Only use `SUPABASE_SERVICE_ROLE_KEY` in server-side scripts/CI.
 
 ### 3. Setup Database
 In Supabase SQL editor, run:
