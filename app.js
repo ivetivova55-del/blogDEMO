@@ -6,6 +6,31 @@ const STATUS_LABELS = {
   COMPLETED: "Завършена",
 };
 
+const USER_ROLES = {
+  USER: "USER",
+  ADMIN: "ADMIN",
+};
+
+const ROLE_LABELS = {
+  USER: "Потребител",
+  ADMIN: "Админ",
+};
+
+const SPECIAL_USERS = [
+  {
+    name: "DigiQuill Admin",
+    email: "admin@digiquill.com",
+    password: "admin123456",
+    role: USER_ROLES.ADMIN,
+  },
+  {
+    name: "DigiQuill Demo",
+    email: "demo@digiquill.com",
+    password: "demo123456",
+    role: USER_ROLES.USER,
+  },
+];
+
 const FILTER_LABELS = {
   ALL: "Всички",
   OPEN: "Отворени",
@@ -63,8 +88,46 @@ const setStored = (key, value) => {
 const getSession = () => getStored(STORAGE_KEYS.SESSION, null);
 const setSession = (session) => setStored(STORAGE_KEYS.SESSION, session);
 
-const getUsers = () => getStored(STORAGE_KEYS.USERS, []);
+const normalizeUser = (user) => ({
+  ...user,
+  role: user?.role === USER_ROLES.ADMIN ? USER_ROLES.ADMIN : USER_ROLES.USER,
+});
+
+const getUsers = () => getStored(STORAGE_KEYS.USERS, []).map(normalizeUser);
 const setUsers = (users) => setStored(STORAGE_KEYS.USERS, users);
+
+const isProtectedUser = (email) =>
+  SPECIAL_USERS.some((user) => user.email === email);
+
+const ensureSpecialUsers = () => {
+  const users = getUsers();
+  let hasChanges = false;
+
+  SPECIAL_USERS.forEach((specialUser) => {
+    const existing = users.find((user) => user.email === specialUser.email);
+    if (!existing) {
+      users.push({ ...specialUser });
+      hasChanges = true;
+      return;
+    }
+
+    if (existing.role !== specialUser.role) {
+      existing.role = specialUser.role;
+      hasChanges = true;
+    }
+  });
+
+  if (hasChanges) {
+    setUsers(users);
+  }
+};
+
+const getTaskMap = () => getStored(STORAGE_KEYS.TASKS, {});
+
+const getTaskCountByEmail = (email) => {
+  const taskMap = getTaskMap();
+  return Array.isArray(taskMap[email]) ? taskMap[email].length : 0;
+};
 
 const getTasksByUser = (email) => {
   const allTasks = getStored(STORAGE_KEYS.TASKS, {});
@@ -134,6 +197,8 @@ const icon = {
 };
 
 const renderAuth = (variant = "login", error = "") => {
+  ensureSpecialUsers();
+
   app.innerHTML = `
     <header>
       <p>DigitalMarketingQUILL</p>
@@ -182,6 +247,15 @@ const renderAuth = (variant = "login", error = "") => {
             ${variant === "login" ? "Регистрация" : "Вход"}
           </button>
         </p>
+        ${
+          variant === "login"
+            ? `
+              <p class="subtitle" style="margin-top: 12px;">
+                Специални профили: demo@digiquill.com / demo123456 и admin@digiquill.com / admin123456
+              </p>
+            `
+            : ""
+        }
       </div>
     </section>
   `;
@@ -211,9 +285,9 @@ const renderAuth = (variant = "login", error = "") => {
         return;
       }
 
-      users.push({ name, email, password });
+      users.push({ name, email, password, role: USER_ROLES.USER });
       setUsers(users);
-      setSession({ name, email });
+      setSession({ name, email, role: USER_ROLES.USER });
       renderDashboard();
       return;
     }
@@ -227,8 +301,182 @@ const renderAuth = (variant = "login", error = "") => {
       return;
     }
 
-    setSession({ name: user.name, email: user.email });
+    setSession({ name: user.name, email: user.email, role: user.role });
     renderDashboard();
+  });
+};
+
+const renderAdminPanel = () => {
+  const session = getSession();
+  if (!session) {
+    renderAuth("login");
+    return;
+  }
+
+  if (session.role !== USER_ROLES.ADMIN) {
+    renderDashboard();
+    return;
+  }
+
+  ensureSpecialUsers();
+  const users = getUsers();
+
+  app.innerHTML = `
+    <header>
+      <p>Admin Panel</p>
+      <h1>Управление на потребители и роли</h1>
+      <div class="subtitle">Влезнал си като ${session.email} (${ROLE_LABELS[session.role]})</div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+        <button class="action-btn" id="back-dashboard" type="button">Към Dashboard</button>
+        <button class="action-btn" id="logout" type="button">Изход</button>
+      </div>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Потребители</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>Име</th>
+              <th>Имейл</th>
+              <th>Роля</th>
+              <th>Задачи</th>
+              <th>Действия</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${users
+              .map((user) => {
+                const isSelf = user.email === session.email;
+                const isProtected = isProtectedUser(user.email);
+
+                return `
+                  <tr data-user-email="${user.email}">
+                    <td>${user.name}</td>
+                    <td>${user.email}</td>
+                    <td>
+                      <span class="status ${user.role === USER_ROLES.ADMIN ? "completed" : "open"}">
+                        ${ROLE_LABELS[user.role]}
+                      </span>
+                    </td>
+                    <td>${getTaskCountByEmail(user.email)}</td>
+                    <td>
+                      <div class="icon-btns">
+                        <button
+                          class="icon-btn"
+                          data-admin-action="toggle-role"
+                          ${isProtected ? "disabled" : ""}
+                          title="${
+                            user.role === USER_ROLES.ADMIN
+                              ? "Направи потребител"
+                              : "Направи админ"
+                          }"
+                        >
+                          ${icon.edit()}
+                        </button>
+                        <button
+                          class="icon-btn danger"
+                          data-admin-action="delete-user"
+                          ${isProtected || isSelf ? "disabled" : ""}
+                          title="Изтриване"
+                        >
+                          ${icon.trash()}
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `;
+              })
+              .join("")}
+          </tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Специални потребители</h2>
+        <p class="subtitle" style="margin-bottom: 12px;">Тези акаунти са защитени и винаги съществуват в системата.</p>
+        <ul>
+          ${SPECIAL_USERS.map(
+            (user) => `
+              <li style="margin: 8px 0;">
+                <strong>${user.email}</strong> — ${ROLE_LABELS[user.role]}
+              </li>
+            `
+          ).join("")}
+        </ul>
+      </div>
+    </section>
+  `;
+
+  document.getElementById("back-dashboard").addEventListener("click", () => {
+    renderDashboard();
+  });
+
+  document.getElementById("logout").addEventListener("click", () => {
+    setSession(null);
+    renderAuth("login");
+  });
+
+  app.querySelectorAll("[data-admin-action]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const row = button.closest("tr");
+      const email = row?.dataset.userEmail;
+      if (!email) return;
+
+      if (button.dataset.adminAction === "toggle-role") {
+        if (isProtectedUser(email)) return;
+
+        const usersList = getUsers();
+        const updatedUsers = usersList.map((user) => {
+          if (user.email !== email) return user;
+          return {
+            ...user,
+            role:
+              user.role === USER_ROLES.ADMIN
+                ? USER_ROLES.USER
+                : USER_ROLES.ADMIN,
+          };
+        });
+
+        setUsers(updatedUsers);
+
+        const updatedSessionUser = updatedUsers.find(
+          (user) => user.email === session.email
+        );
+        if (updatedSessionUser) {
+          setSession({
+            name: updatedSessionUser.name,
+            email: updatedSessionUser.email,
+            role: updatedSessionUser.role,
+          });
+        }
+
+        renderAdminPanel();
+        return;
+      }
+
+      if (button.dataset.adminAction === "delete-user") {
+        if (isProtectedUser(email) || email === session.email) return;
+
+        const confirmed = window.confirm(
+          "Сигурни ли сте, че искате да изтриете потребителя?"
+        );
+        if (!confirmed) return;
+
+        const usersList = getUsers();
+        const updatedUsers = usersList.filter((user) => user.email !== email);
+        setUsers(updatedUsers);
+
+        const taskMap = getTaskMap();
+        if (taskMap[email]) {
+          delete taskMap[email];
+          setStored(STORAGE_KEYS.TASKS, taskMap);
+        }
+
+        renderAdminPanel();
+      }
+    });
   });
 };
 
@@ -246,8 +494,15 @@ const renderDashboard = () => {
     <header>
       <p>Dashboard</p>
       <h1>Здравей, ${session.name}</h1>
-      <div class="subtitle">Влезнал си като ${session.email}</div>
-      <button class="action-btn" id="logout" type="button">Изход</button>
+      <div class="subtitle">Влезнал си като ${session.email} (${ROLE_LABELS[session.role] || ROLE_LABELS.USER})</div>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-top: 12px;">
+        ${
+          session.role === USER_ROLES.ADMIN
+            ? `<button class="action-btn" id="open-admin" type="button">Админ панел</button>`
+            : ""
+        }
+        <button class="action-btn" id="logout" type="button">Изход</button>
+      </div>
     </header>
 
     <section class="grid">
@@ -413,6 +668,12 @@ const renderDashboard = () => {
     renderAuth("login");
   });
 
+  if (session.role === USER_ROLES.ADMIN) {
+    document.getElementById("open-admin").addEventListener("click", () => {
+      renderAdminPanel();
+    });
+  }
+
   const form = document.getElementById("task-form");
   if (editingTaskId) {
     const current = tasks.find((task) => task.id === editingTaskId);
@@ -505,8 +766,15 @@ const renderDashboard = () => {
 };
 
 const init = () => {
+  ensureSpecialUsers();
   const session = getSession();
   if (session?.email) {
+    if (!session.role) {
+      const user = getUsers().find((entry) => entry.email === session.email);
+      if (user) {
+        setSession({ name: user.name, email: user.email, role: user.role });
+      }
+    }
     renderDashboard();
   } else {
     renderAuth("login");
