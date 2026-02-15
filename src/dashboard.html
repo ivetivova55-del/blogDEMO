@@ -50,6 +50,54 @@
 
       <div id="dashboard-alert" class="alert d-none" role="alert"></div>
 
+      <!-- Deadline Calendar Section -->
+      <div class="row g-4 mb-4">
+        <div class="col-12">
+          <div class="dmq-calendar-section">
+            <div class="d-flex justify-content-between align-items-center mb-3">
+              <h2 class="h5 mb-0">Deadline Calendar</h2>
+              <div class="d-flex gap-1">
+                <button class="btn btn-sm btn-outline-dark" id="cal-prev">← Prev</button>
+                <span class="btn btn-sm btn-light" id="cal-month" style="min-width: 150px;">Month</span>
+                <button class="btn btn-sm btn-outline-dark" id="cal-next">Next →</button>
+              </div>
+            </div>
+            <div class="dmq-calendar">
+              <div class="calendar-weekdays">
+                <div class="calendar-weekday">Sun</div>
+                <div class="calendar-weekday">Mon</div>
+                <div class="calendar-weekday">Tue</div>
+                <div class="calendar-weekday">Wed</div>
+                <div class="calendar-weekday">Thu</div>
+                <div class="calendar-weekday">Fri</div>
+                <div class="calendar-weekday">Sat</div>
+              </div>
+              <div class="calendar-days" id="calendar-days"></div>
+            </div>
+            <div class="mt-3 pt-3 border-top">
+              <div id="calendar-legend" class="d-flex flex-wrap gap-3">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="calendar-legend-dot" style="background: #84cc16;"></span>
+                  <small>Due soon</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="calendar-legend-dot" style="background: #f59e0b;"></span>
+                  <small>Due today</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="calendar-legend-dot" style="background: #ef4444;"></span>
+                  <small>Overdue</small>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="calendar-legend-dot" style="background: #3b82f6;"></span>
+                  <small>Multiple tasks</small>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div class="row g-4">
         <div class="col-lg-4">
           <div class="dmq-card p-3">
