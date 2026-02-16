@@ -42,6 +42,8 @@ const tasksSummaryOverdue = qs('#tasks-summary-overdue');
 const greeting = qs('#user-greeting');
 const adminLink = qs('#admin-link');
 const kanbanBoard = qs('#kanban-board');
+const allKanbanBoard = qs('#all-kanban-board');
+const allTasksBoardWrap = qs('#all-tasks-board-wrap');
 const userFileForm = qs('#user-file-form');
 const userFileInput = qs('#user-file-input');
 const userFilesList = qs('#user-files-list');
@@ -99,6 +101,15 @@ let calendarFilters = {
   priority: 'all',
 };
 let usersById = {};
+let activeSectionName = 'overview';
+
+function updateAllTasksBoardVisibility() {
+  if (!allTasksBoardWrap) return;
+  const shouldShow =
+    activeSectionName === 'tasks' &&
+    currentUserRole === 'admin';
+  allTasksBoardWrap.classList.toggle('d-none', !shouldShow);
+}
 
 function formatFileSize(bytes) {
   if (!bytes || bytes <= 0) return '0 B';
@@ -155,6 +166,8 @@ function setTaskView(view) {
   if (tasksViewSwitcher) {
     tasksViewSwitcher.classList.toggle('d-none', view !== 'mine');
   }
+
+  updateAllTasksBoardVisibility();
 }
 
 function setDisplayView(view) {
@@ -654,6 +667,7 @@ function applyFilterSort(items) {
 /* ========== Sidebar Navigation & Section Switching ========== */
 
 function switchSection(sectionName) {
+  activeSectionName = sectionName;
   // Hide all sections
   dashboardSections.forEach((section) => {
     section.classList.add('d-none');
@@ -679,6 +693,8 @@ function switchSection(sectionName) {
     projects: 'My Projects',
   };
   sectionTitle.textContent = sectionTitles[sectionName] || 'Dashboard';
+
+  updateAllTasksBoardVisibility();
 
   // Load projects if switching to projects section
   if (sectionName === 'projects') {
@@ -738,8 +754,12 @@ function getToggledStatus(status) {
   return status === 'done' ? 'not_started' : 'done';
 }
 
-function renderKanban(viewTasks) {
-  const columns = qsa('[data-board-list]', kanbanBoard);
+function renderKanbanBoard(boardElement, viewTasks, options = {}) {
+  if (!boardElement) return;
+
+  const { getAssigneeLabel } = options;
+
+  const columns = qsa('[data-board-list]', boardElement);
   columns.forEach((column) => {
     column.innerHTML = '';
   });
@@ -757,11 +777,11 @@ function renderKanban(viewTasks) {
   });
 
   Object.keys(grouped).forEach((statusKey) => {
-    const column = qs(`[data-board-status="${statusKey}"]`, kanbanBoard);
+    const column = qs(`[data-board-status="${statusKey}"]`, boardElement);
     if (!column) return;
 
     const limit = Number(column.dataset.wipLimit || 0);
-    const countMeta = qs(`[data-kanban-count="${statusKey}"]`, kanbanBoard);
+    const countMeta = qs(`[data-kanban-count="${statusKey}"]`, boardElement);
     if (countMeta) {
       countMeta.textContent = grouped[statusKey].length;
       const metaWrap = countMeta.closest('.kanban-meta');
@@ -784,11 +804,15 @@ function renderKanban(viewTasks) {
           card.draggable = true;
           card.dataset.taskId = task.id;
 
+          const assigneeLabel = typeof getAssigneeLabel === 'function'
+            ? getAssigneeLabel(task)
+            : (currentUserName || 'You');
+
           card.innerHTML = `
             <div class="task-title">${task.title}</div>
             <div class="task-meta">Deadline: ${formatDate(task.deadline)}</div>
             <div class="task-meta">Priority: ${priority}</div>
-            <div class="task-meta">Assignee: ${currentUserName || 'You'}</div>
+            <div class="task-meta">Assignee: ${assigneeLabel}</div>
             <div><span class="status-badge ${statusBadgeClass(task.status)}">${STATUS_LABELS[statusKey]}</span></div>
           `;
 
@@ -796,6 +820,62 @@ function renderKanban(viewTasks) {
         });
 
       column.appendChild(lane);
+    });
+  });
+}
+
+function renderKanban(viewTasks) {
+  renderKanbanBoard(kanbanBoard, viewTasks);
+}
+
+function renderAllTasksKanban(viewTasks) {
+  renderKanbanBoard(allKanbanBoard, viewTasks, {
+    getAssigneeLabel: (task) => {
+      const user = usersById[task.user_id];
+      return user?.full_name || user?.email || task.user_id || 'Unknown user';
+    },
+  });
+}
+
+function attachKanbanDnD(boardElement, options) {
+  if (!boardElement) return;
+
+  const { getTaskById, onMove } = options;
+
+  boardElement.addEventListener('dragstart', (event) => {
+    const card = event.target.closest('[data-task-id]');
+    if (!card) return;
+    event.dataTransfer.effectAllowed = 'move';
+    event.dataTransfer.setData('text/plain', card.dataset.taskId);
+  });
+
+  qsa('[data-board-status]', boardElement).forEach((column) => {
+    column.addEventListener('dragover', (event) => {
+      event.preventDefault();
+      event.dataTransfer.dropEffect = 'move';
+      column.classList.add('kanban-drop-active');
+    });
+
+    column.addEventListener('dragleave', () => {
+      column.classList.remove('kanban-drop-active');
+    });
+
+    column.addEventListener('drop', async (event) => {
+      event.preventDefault();
+      column.classList.remove('kanban-drop-active');
+
+      const taskId = event.dataTransfer.getData('text/plain');
+      const nextStatus = column.dataset.boardStatus;
+      if (!taskId || !nextStatus) return;
+
+      const task = typeof getTaskById === 'function' ? getTaskById(taskId) : null;
+      if (!task || task.status === nextStatus) return;
+
+      try {
+        await onMove(taskId, nextStatus);
+      } catch (err) {
+        error(err.message || 'Unable to move task on board.');
+      }
     });
   });
 }
@@ -925,6 +1005,8 @@ function renderAllTasks() {
     `;
     allTasksCards.appendChild(card);
   });
+
+  renderAllTasksKanban(viewTasks);
 }
 
 function renderProjectsDrop() {
@@ -1013,6 +1095,7 @@ async function initDashboard() {
   }
   setTaskView('mine');
   setDisplayView('list');
+  updateAllTasksBoardVisibility();
 
   try {
     projects = await fetchProjects(currentUserId);
@@ -1057,42 +1140,20 @@ displayViewButtons.forEach((button) => {
   });
 });
 
-kanbanBoard.addEventListener('dragstart', (event) => {
-  const card = event.target.closest('[data-task-id]');
-  if (!card) return;
-  event.dataTransfer.effectAllowed = 'move';
-  event.dataTransfer.setData('text/plain', card.dataset.taskId);
+attachKanbanDnD(kanbanBoard, {
+  getTaskById: (taskId) => tasks.find((item) => item.id === taskId),
+  onMove: async (taskId, nextStatus) => {
+    await updateTask(taskId, { status: nextStatus });
+    await refreshDashboard();
+  },
 });
 
-qsa('[data-board-status]', kanbanBoard).forEach((column) => {
-  column.addEventListener('dragover', (event) => {
-    event.preventDefault();
-    event.dataTransfer.dropEffect = 'move';
-    column.classList.add('kanban-drop-active');
-  });
-
-  column.addEventListener('dragleave', () => {
-    column.classList.remove('kanban-drop-active');
-  });
-
-  column.addEventListener('drop', async (event) => {
-    event.preventDefault();
-    column.classList.remove('kanban-drop-active');
-
-    const taskId = event.dataTransfer.getData('text/plain');
-    const nextStatus = column.dataset.boardStatus;
-    if (!taskId || !nextStatus) return;
-
-    const task = tasks.find((item) => item.id === taskId);
-    if (!task || task.status === nextStatus) return;
-
-    try {
-      await updateTask(taskId, { status: nextStatus });
-      await refreshDashboard();
-    } catch (err) {
-      error(err.message || 'Unable to move task on board.');
-    }
-  });
+attachKanbanDnD(allKanbanBoard, {
+  getTaskById: (taskId) => allTasks.find((item) => item.id === taskId),
+  onMove: async (taskId, nextStatus) => {
+    await updateTask(taskId, { status: nextStatus });
+    await refreshDashboard();
+  },
 });
 
 sortButton.addEventListener('click', () => {

@@ -89,12 +89,49 @@
         </div>
       </div>
 
+      <div class="d-none" id="all-tasks-board-wrap">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-3">
+          <h2 class="h6 mb-0">All Tasks Board (Kanban)</h2>
+          <div class="small text-muted">Drag &amp; drop cards to update status.</div>
+        </div>
+        <div class="row g-3" id="all-kanban-board">
+          <div class="col-lg-4">
+            <div class="dmq-card p-2 h-100">
+              <div class="kanban-column-header">
+                <div class="kanban-title">To Do</div>
+                <div class="kanban-meta"><span data-kanban-count="not_started">0</span></div>
+              </div>
+              <div class="kanban-column" data-board-status="not_started" data-board-list></div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="dmq-card p-2 h-100">
+              <div class="kanban-column-header">
+                <div class="kanban-title">In Progress</div>
+                <div class="kanban-meta"><span data-kanban-count="in_progress">0</span></div>
+              </div>
+              <div class="kanban-column" data-board-status="in_progress" data-board-list></div>
+            </div>
+          </div>
+          <div class="col-lg-4">
+            <div class="dmq-card p-2 h-100">
+              <div class="kanban-column-header">
+                <div class="kanban-title">Completed</div>
+                <div class="kanban-meta"><span data-kanban-count="done">0</span></div>
+              </div>
+              <div class="kanban-column" data-board-status="done" data-board-list></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <div id="dashboard-alert" class="alert d-none" role="alert"></div>
 
       <!-- Overview Section -->
       <section class="dashboard-section" data-section="overview" id="dashboard-overview">
         <div class="section-header">
           <h2 class="section-title">Overview</h2>
+          <p class="text-muted mb-0">DigitalMarketingQUILL Tasker helps you plan marketing work, track deadlines, and manage projects in one focused dashboard.</p>
         </div>
         <div class="content-grid">
           <!-- Quick Create Widget -->
@@ -249,7 +286,7 @@
             </div>
           </div>
           <div class="d-none" id="all-tasks-view">
-            <div class="dmq-readonly-note">Read-only view of all user tasks.</div>
+            <div class="dmq-readonly-note">All users tasks (Admin).</div>
             <div class="task-cards-grid" id="all-tasks-cards"></div>
             <div class="dmq-empty d-none" id="all-tasks-empty">No tasks available.</div>
           </div>
