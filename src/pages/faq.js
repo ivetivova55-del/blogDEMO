@@ -289,7 +289,8 @@ function renderRecentAndFavorites() {
     return acc;
   }, {});
 
-  const renderList = (wrap, ids, emptyText) => {
+  const renderList = (wrap, ids, emptyText, options = {}) => {
+    const { allowRemove = false, allowUnsave = false } = options;
     wrap.innerHTML = '';
     if (!ids.length) {
       wrap.innerHTML = `<div class="small text-muted">${escapeHtml(emptyText)}</div>`;
@@ -299,21 +300,63 @@ function renderRecentAndFavorites() {
     ids.forEach((id) => {
       const faq = byId[id];
       if (!faq) return;
-      const button = document.createElement('button');
-      button.type = 'button';
-      button.className = 'btn btn-sm btn-outline-dark text-start';
-      button.dataset.jumpFaq = id;
-      button.textContent = faq.question;
-      wrap.appendChild(button);
+      const item = document.createElement('div');
+      item.className = 'dmq-card p-2';
+      item.innerHTML = `
+        <div class="fw-semibold" style="font-size: 0.85rem;">${escapeHtml(faq.question)}</div>
+        <div class="d-flex gap-2 flex-wrap mt-2">
+          <button class="btn btn-sm btn-outline-dark" type="button" data-jump-faq="${escapeHtml(id)}">Open</button>
+          <button class="btn btn-sm btn-outline-secondary" type="button" data-copy-faq="${escapeHtml(id)}">Copy link</button>
+          ${allowRemove ? `<button class="btn btn-sm btn-outline-secondary" type="button" data-remove-recent="${escapeHtml(id)}">Remove</button>` : ''}
+          ${allowUnsave ? `<button class="btn btn-sm btn-outline-danger" type="button" data-unsave-faq="${escapeHtml(id)}">Unsave</button>` : ''}
+        </div>
+      `;
+      wrap.appendChild(item);
     });
   };
 
-  renderList(recentWrap, recentIds, 'Open a question to see it here.');
-  renderList(favoritesWrap, favoriteIds, 'Save a question to pin it here.');
+  renderList(recentWrap, recentIds, 'Open a question to see it here.', { allowRemove: true });
+  renderList(favoritesWrap, favoriteIds, 'Save a question to pin it here.', { allowUnsave: true });
 }
 
 function faqToAnchorId(faqId) {
   return `faq-${String(faqId).replaceAll(/[^a-zA-Z0-9_-]/g, '-')}`;
+}
+
+function openFaqById(faqId) {
+  const id = String(faqId || '').trim();
+  if (!id) return;
+
+  const faq = faqs.find((item) => String(item.id) === id);
+  const category = faq ? normalizeCategory(faq.category) : 'all';
+
+  // Ensure the FAQ is visible (avoid cases like Billing(0) which makes the list empty)
+  activeCategory = category;
+  renderCategories();
+  renderCategoryTabs();
+
+  // Clear search so the item is not filtered out
+  searchTerm = '';
+  if (searchInput) searchInput.value = '';
+  renderAutocomplete();
+
+  renderFaqs();
+
+  // Jump + expand
+  const anchorId = faqToAnchorId(id);
+  window.location.hash = `#${anchorId}`;
+
+  window.setTimeout(() => {
+    const accordionButton = qs(`[data-faq-open="${CSS.escape(id)}"]`);
+    if (accordionButton && accordionButton.classList.contains('collapsed')) {
+      accordionButton.click();
+    }
+
+    const target = qs(`#${CSS.escape(anchorId)}`);
+    if (target) {
+      target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  }, 0);
 }
 
 function renderFaqs() {
@@ -650,26 +693,62 @@ function initEvents() {
 
   if (recentWrap) {
     recentWrap.addEventListener('click', (event) => {
-      const button = event.target.closest('[data-jump-faq]');
-      if (!button) return;
-      const id = button.dataset.jumpFaq;
-      window.location.hash = `#${faqToAnchorId(id)}`;
-      const accordionButton = qs(`[data-faq-open="${CSS.escape(id)}"]`);
-      if (accordionButton && accordionButton.classList.contains('collapsed')) {
-        accordionButton.click();
+      const openButton = event.target.closest('[data-jump-faq]');
+      const copyButton = event.target.closest('[data-copy-faq]');
+      const removeButton = event.target.closest('[data-remove-recent]');
+
+      if (removeButton) {
+        const id = removeButton.dataset.removeRecent;
+        const current = getStored(STORAGE_KEYS.RECENT, []);
+        setStored(STORAGE_KEYS.RECENT, current.filter((item) => item !== id));
+        renderRecentAndFavorites();
+        return;
+      }
+
+      if (copyButton) {
+        const id = copyButton.dataset.copyFaq;
+        const url = `${window.location.origin}${window.location.pathname}#${faqToAnchorId(id)}`;
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(url);
+        } else {
+          window.prompt('Copy this link:', url);
+        }
+        return;
+      }
+
+      if (openButton) {
+        openFaqById(openButton.dataset.jumpFaq);
       }
     });
   }
 
   if (favoritesWrap) {
     favoritesWrap.addEventListener('click', (event) => {
-      const button = event.target.closest('[data-jump-faq]');
-      if (!button) return;
-      const id = button.dataset.jumpFaq;
-      window.location.hash = `#${faqToAnchorId(id)}`;
-      const accordionButton = qs(`[data-faq-open="${CSS.escape(id)}"]`);
-      if (accordionButton && accordionButton.classList.contains('collapsed')) {
-        accordionButton.click();
+      const openButton = event.target.closest('[data-jump-faq]');
+      const copyButton = event.target.closest('[data-copy-faq]');
+      const unsaveButton = event.target.closest('[data-unsave-faq]');
+
+      if (unsaveButton) {
+        const id = unsaveButton.dataset.unsaveFaq;
+        toggleFavorite(id);
+        renderRecentAndFavorites();
+        renderFaqs();
+        return;
+      }
+
+      if (copyButton) {
+        const id = copyButton.dataset.copyFaq;
+        const url = `${window.location.origin}${window.location.pathname}#${faqToAnchorId(id)}`;
+        if (navigator.clipboard?.writeText) {
+          navigator.clipboard.writeText(url);
+        } else {
+          window.prompt('Copy this link:', url);
+        }
+        return;
+      }
+
+      if (openButton) {
+        openFaqById(openButton.dataset.jumpFaq);
       }
     });
   }
