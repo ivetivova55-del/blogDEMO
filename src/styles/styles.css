@@ -1787,6 +1787,125 @@ body.dmq-dashboard-layout .dmq-section-title {
   border-color: var(--primary);
 }
 
+/* ========== FAQ Page ========== */
+
+.dmq-faq-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.dmq-faq-search {
+  position: relative;
+}
+
+.dmq-faq-autocomplete {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 20;
+  background: #ffffff;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.dmq-faq-suggest {
+  width: 100%;
+  text-align: left;
+  background: transparent;
+  border: 0;
+  padding: 10px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.dmq-faq-suggest:hover {
+  background: rgba(15, 23, 42, 0.04);
+}
+
+.dmq-faq-suggest-title {
+  font-weight: 700;
+  color: var(--ink);
+  font-size: 0.95rem;
+  line-height: 1.2;
+}
+
+.dmq-faq-suggest-meta {
+  color: var(--ink-tertiary);
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 700;
+}
+
+.dmq-faq-q {
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.dmq-faq-answer {
+  color: var(--ink-secondary);
+  font-size: 0.95rem;
+}
+
+.dmq-faq-helpful {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dmq-faq-chat {
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.75);
+  max-height: 280px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dmq-faq-chat-msg {
+  display: flex;
+}
+
+.dmq-faq-chat-msg.user {
+  justify-content: flex-end;
+}
+
+.dmq-faq-chat-bubble {
+  max-width: min(560px, 100%);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 10px 12px;
+  background: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.dmq-faq-chat-msg.user .dmq-faq-chat-bubble {
+  background: linear-gradient(135deg, rgba(59, 130, 246, 0.12), rgba(139, 92, 246, 0.08));
+}
+
+.dmq-faq-chat-text {
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+
+.dmq-faq-chat-links {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
 .calendar-task-action-btn.complete {
   background: #d1fae5;
   color: #065f46;
