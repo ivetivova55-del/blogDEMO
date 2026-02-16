@@ -12,6 +12,14 @@ const autocomplete = qs('#faq-autocomplete');
 const clearButton = qs('#faq-clear');
 const refreshButton = qs('#faq-refresh');
 const resultsCount = qs('#faq-results-count');
+const sortSelect = qs('#faq-sort');
+const filtersClearButton = qs('#faq-filters-clear');
+const tagsWrap = qs('#faq-tags');
+
+const expandAllButton = qs('#faq-expand-all');
+const collapseAllButton = qs('#faq-collapse-all');
+
+const statusText = qs('#faq-status-text');
 
 const categoriesList = qs('#faq-categories');
 const categoryTabs = qs('#faq-category-tabs');
@@ -29,6 +37,9 @@ const assistantClear = qs('#faq-assistant-clear');
 const STORAGE_KEYS = {
   RECENT: 'dmq_faq_recent',
   FAVORITES: 'dmq_faq_favorites',
+  TAGS: 'dmq_faq_tags',
+  SORT: 'dmq_faq_sort',
+  MULTI: 'dmq_faq_multi_open',
 };
 
 const DEFAULT_CATEGORIES = [
@@ -98,6 +109,10 @@ const FALLBACK_FAQS = [
 let faqs = [];
 let activeCategory = 'all';
 let searchTerm = '';
+let sortMode = 'relevance';
+let selectedTags = [];
+let multiOpenEnabled = false;
+let suppressViewIncrement = false;
 
 function getStored(key, fallback) {
   try {
@@ -124,6 +139,66 @@ function escapeHtml(value) {
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#39;');
+}
+
+function getSearchParts(term) {
+  return String(term || '')
+    .trim()
+    .toLowerCase()
+    .split(/\s+/)
+    .filter((part) => part && part.length >= 2)
+    .slice(0, 6);
+}
+
+function findHighlightRanges(text, parts) {
+  const source = String(text || '');
+  const lower = source.toLowerCase();
+  const ranges = [];
+
+  parts.forEach((part) => {
+    let startIndex = 0;
+    while (startIndex < lower.length) {
+      const matchIndex = lower.indexOf(part, startIndex);
+      if (matchIndex === -1) break;
+      ranges.push([matchIndex, matchIndex + part.length]);
+      startIndex = matchIndex + part.length;
+    }
+  });
+
+  if (!ranges.length) return [];
+  ranges.sort((a, b) => a[0] - b[0]);
+
+  const merged = [ranges[0]];
+  for (let i = 1; i < ranges.length; i += 1) {
+    const [start, end] = ranges[i];
+    const last = merged[merged.length - 1];
+    if (start <= last[1]) {
+      last[1] = Math.max(last[1], end);
+    } else {
+      merged.push([start, end]);
+    }
+  }
+
+  return merged;
+}
+
+function highlightText(text, term) {
+  const parts = getSearchParts(term);
+  if (!parts.length) return escapeHtml(text);
+
+  const source = String(text || '');
+  const ranges = findHighlightRanges(source, parts);
+  if (!ranges.length) return escapeHtml(source);
+
+  let html = '';
+  let cursor = 0;
+  ranges.forEach(([start, end]) => {
+    if (cursor < start) html += escapeHtml(source.slice(cursor, start));
+    html += `<mark class="dmq-faq-mark">${escapeHtml(source.slice(start, end))}</mark>`;
+    cursor = end;
+  });
+  if (cursor < source.length) html += escapeHtml(source.slice(cursor));
+  return html;
 }
 
 function scoreFaq(faq, term) {
@@ -159,13 +234,67 @@ function getViewFaqs() {
     ? faqs
     : faqs.filter((faq) => normalizeCategory(faq.category) === activeCategory);
 
-  if (!term) return filteredByCategory;
+  const filteredByTags = selectedTags.length
+    ? filteredByCategory.filter((faq) => {
+      const tags = Array.isArray(faq.tags) ? faq.tags : [];
+      const tagSet = new Set(tags.map((t) => String(t || '').trim().toLowerCase()).filter(Boolean));
+      return selectedTags.every((tag) => tagSet.has(tag));
+    })
+    : filteredByCategory;
 
-  return filteredByCategory
+  if (!term) {
+    return [...filteredByTags].sort(getSortComparator());
+  }
+
+  const matches = filteredByTags
     .map((faq) => ({ faq, score: scoreFaq(faq, term) }))
-    .filter((entry) => entry.score > 0)
-    .sort((a, b) => b.score - a.score)
-    .map((entry) => entry.faq);
+    .filter((entry) => entry.score > 0);
+
+  if (String(sortMode) === 'relevance') {
+    return matches
+      .sort((a, b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        return Number(b.faq.views || 0) - Number(a.faq.views || 0);
+      })
+      .map((entry) => entry.faq);
+  }
+
+  const comparator = getSortComparator();
+  return matches
+    .map((entry) => entry.faq)
+    .sort(comparator);
+}
+
+function getHelpfulScore(faq) {
+  const yes = Number(faq.helpful_yes || 0);
+  const no = Number(faq.helpful_no || 0);
+  return yes - no;
+}
+
+function getSortComparator() {
+  const mode = String(sortMode || 'relevance');
+  if (mode === 'az') {
+    return (a, b) => String(a.question || '').localeCompare(String(b.question || ''), undefined, { sensitivity: 'base' });
+  }
+
+  if (mode === 'newest') {
+    return (a, b) => {
+      const aTime = Date.parse(a.created_at || a.updated_at || '') || 0;
+      const bTime = Date.parse(b.created_at || b.updated_at || '') || 0;
+      return bTime - aTime;
+    };
+  }
+
+  if (mode === 'helpful') {
+    return (a, b) => {
+      const diff = getHelpfulScore(b) - getHelpfulScore(a);
+      if (diff !== 0) return diff;
+      return Number(b.views || 0) - Number(a.views || 0);
+    };
+  }
+
+  // popular (default when no search)
+  return (a, b) => Number(b.views || 0) - Number(a.views || 0);
 }
 
 function renderCategories() {
@@ -248,12 +377,81 @@ function renderAutocomplete() {
       const category = normalizeCategory(faq.category);
       return `
         <button type="button" class="dmq-faq-suggest" data-faq-id="${escapeHtml(faq.id)}" role="option">
-          <div class="dmq-faq-suggest-title">${escapeHtml(faq.question)}</div>
+          <div class="dmq-faq-suggest-title">${highlightText(faq.question, term)}</div>
           <div class="dmq-faq-suggest-meta">${escapeHtml(category)}</div>
         </button>
       `;
     })
     .join('');
+}
+
+function getAllTags() {
+  const map = new Map();
+  const scopeFaqs = activeCategory === 'all'
+    ? faqs
+    : faqs.filter((faq) => normalizeCategory(faq.category) === activeCategory);
+
+  scopeFaqs.forEach((faq) => {
+    const tags = Array.isArray(faq.tags) ? faq.tags : [];
+    tags.forEach((tag) => {
+      const key = String(tag || '').trim().toLowerCase();
+      if (!key) return;
+      map.set(key, (map.get(key) || 0) + 1);
+    });
+  });
+
+  return [...map.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 16)
+    .map(([tag]) => tag);
+}
+
+function renderTagFilters() {
+  if (!tagsWrap) return;
+  tagsWrap.innerHTML = '';
+
+  const tags = getAllTags();
+  if (!tags.length) {
+    tagsWrap.innerHTML = '<div class="small text-muted">No tags available.</div>';
+    return;
+  }
+
+  tags.forEach((tag) => {
+    const button = document.createElement('button');
+    button.type = 'button';
+    button.className = `dmq-faq-tag ${selectedTags.includes(tag) ? 'active' : ''}`;
+    button.dataset.tag = tag;
+    button.textContent = `#${tag}`;
+    tagsWrap.appendChild(button);
+  });
+}
+
+function setSelectedTags(next) {
+  selectedTags = (Array.isArray(next) ? next : [])
+    .map((t) => String(t || '').trim().toLowerCase())
+    .filter(Boolean)
+    .slice(0, 5);
+  setStored(STORAGE_KEYS.TAGS, selectedTags);
+}
+
+function toggleTag(tag) {
+  const key = String(tag || '').trim().toLowerCase();
+  if (!key) return;
+
+  const next = selectedTags.includes(key)
+    ? selectedTags.filter((t) => t !== key)
+    : [...selectedTags, key].slice(0, 5);
+  setSelectedTags(next);
+}
+
+function setSortMode(mode) {
+  sortMode = String(mode || 'relevance');
+  setStored(STORAGE_KEYS.SORT, sortMode);
+}
+
+function setMultiOpen(enabled) {
+  multiOpenEnabled = Boolean(enabled);
+  setStored(STORAGE_KEYS.MULTI, multiOpenEnabled);
 }
 
 function getFavorites() {
@@ -329,11 +527,22 @@ function openFaqById(faqId) {
 
   const faq = faqs.find((item) => String(item.id) === id);
   const category = faq ? normalizeCategory(faq.category) : 'all';
+  const faqTags = faq && Array.isArray(faq.tags)
+    ? new Set(faq.tags.map((t) => String(t || '').trim().toLowerCase()).filter(Boolean))
+    : new Set();
 
   // Ensure the FAQ is visible (avoid cases like Billing(0) which makes the list empty)
   activeCategory = category;
   renderCategories();
   renderCategoryTabs();
+
+  if (selectedTags.length) {
+    const isVisibleWithTags = selectedTags.every((tag) => faqTags.has(tag));
+    if (!isVisibleWithTags) {
+      setSelectedTags([]);
+      renderTagFilters();
+    }
+  }
 
   // Clear search so the item is not filtered out
   searchTerm = '';
@@ -368,11 +577,27 @@ function renderFaqs() {
   accordion.innerHTML = '';
 
   if (!viewFaqs.length) {
-    if (emptyState) emptyState.classList.remove('d-none');
+    if (emptyState) {
+      emptyState.classList.remove('d-none');
+      const categoryLabel = activeCategory === 'all' ? 'All' : (DEFAULT_CATEGORIES.find((c) => c.key === activeCategory)?.label || activeCategory);
+      const activeTags = selectedTags.length ? selectedTags.map((t) => `#${t}`).join(', ') : null;
+      emptyState.innerHTML = `
+        <div class="fw-semibold">No FAQs found</div>
+        <div class="small text-muted mt-1">Category: <strong>${escapeHtml(categoryLabel)}</strong>${activeTags ? ` · Tags: <strong>${escapeHtml(activeTags)}</strong>` : ''}${searchTerm ? ` · Search: <strong>${escapeHtml(searchTerm)}</strong>` : ''}</div>
+        <div class="dmq-faq-empty-actions mt-3">
+          <button class="btn btn-sm btn-outline-dark" type="button" data-empty-action="show-all">Show all</button>
+          <button class="btn btn-sm btn-outline-dark" type="button" data-empty-action="clear-search">Clear search</button>
+          <button class="btn btn-sm btn-outline-dark" type="button" data-empty-action="clear-filters">Clear filters</button>
+        </div>
+      `;
+    }
     return;
   }
 
-  if (emptyState) emptyState.classList.add('d-none');
+  if (emptyState) {
+    emptyState.classList.add('d-none');
+    emptyState.textContent = 'No FAQs found.';
+  }
 
   viewFaqs.forEach((faq, index) => {
     const itemId = faqToAnchorId(faq.id);
@@ -391,22 +616,27 @@ function renderFaqs() {
     item.className = 'accordion-item';
     item.id = itemId;
 
+    const showSingle = !multiOpenEnabled;
+    const parentAttr = showSingle ? 'data-bs-parent="#faq-accordion"' : '';
+    const favStar = isFavorite(faq.id) ? '★' : '';
+
     item.innerHTML = `
       <h2 class="accordion-header" id="${headerId}">
         <button class="accordion-button ${index === 0 ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#${collapseId}" aria-expanded="${index === 0 ? 'true' : 'false'}" aria-controls="${collapseId}" data-faq-open="${escapeHtml(faq.id)}">
-          <span class="dmq-faq-q">${escapeHtml(faq.question)}</span>
+          <span class="dmq-faq-q">${favStar ? `<span class="me-2">${favStar}</span>` : ''}${highlightText(faq.question, searchTerm)}</span>
           <span class="dmq-faq-pill badge text-bg-light border ms-2">${escapeHtml(category)}</span>
         </button>
       </h2>
-      <div id="${collapseId}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" aria-labelledby="${headerId}" data-bs-parent="#faq-accordion">
+      <div id="${collapseId}" class="accordion-collapse collapse ${index === 0 ? 'show' : ''}" aria-labelledby="${headerId}" ${parentAttr}>
         <div class="accordion-body">
-          <div class="dmq-faq-answer">${escapeHtml(faq.answer).replaceAll('\n', '<br/>')}</div>
+          <div class="dmq-faq-answer">${highlightText(String(faq.answer || ''), searchTerm).replaceAll('\n', '<br/>')}</div>
           ${tags.length ? `<div class="mt-3 small text-muted">Tags: ${tags.map((t) => `<span class=\"badge text-bg-light border me-1\">${escapeHtml(t)}</span>`).join('')}</div>` : ''}
 
           <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mt-3">
             <div class="small text-muted">Views: <strong>${views}</strong> · Helpful: <strong>${yes}</strong> / <strong>${no}</strong></div>
             <div class="d-flex gap-2 flex-wrap">
               <button class="btn btn-sm btn-outline-dark" type="button" data-faq-copy="${escapeHtml(faq.id)}">Copy link</button>
+              <button class="btn btn-sm btn-outline-dark" type="button" data-faq-copy-answer="${escapeHtml(faq.id)}">Copy answer</button>
               <button class="btn btn-sm btn-outline-dark" type="button" data-faq-fav="${escapeHtml(faq.id)}">${favLabel}</button>
             </div>
           </div>
@@ -465,7 +695,10 @@ function addChatMessage(role, text, options = {}) {
     ? `
       <div class="dmq-faq-chat-links">
         ${options.links
-          .map((l) => `<a href="${escapeHtml(l.href)}" class="btn btn-sm btn-outline-dark" data-chat-link>${escapeHtml(l.label)}</a>`)
+          .map((l) => {
+            const openFaqId = l.openFaqId ? `data-open-faq="${escapeHtml(l.openFaqId)}"` : '';
+            return `<a href="${escapeHtml(l.href)}" class="btn btn-sm btn-outline-dark" data-chat-link ${openFaqId}>${escapeHtml(l.label)}</a>`;
+          })
           .join('')}
       </div>
     `
@@ -506,7 +739,7 @@ function runAssistant(query) {
   addChatMessage('assistant', 'Here are the closest FAQ answers I found:');
   ranked.forEach((faq) => {
     addChatMessage('assistant', faq.question, {
-      links: [{ href: `#${faqToAnchorId(faq.id)}`, label: 'Open answer' }],
+      links: [{ href: `#${faqToAnchorId(faq.id)}`, label: 'Open answer', openFaqId: faq.id }],
     });
   });
 }
@@ -528,6 +761,7 @@ function setCategory(category) {
   activeCategory = String(category || 'all');
   renderCategories();
   renderCategoryTabs();
+  renderTagFilters();
   renderFaqs();
 }
 
@@ -537,8 +771,14 @@ async function loadFaqData() {
   const remote = await fetchFaqs();
   faqs = remote && remote.length ? remote : FALLBACK_FAQS;
 
+  if (statusText) {
+    if (remote === null) statusText.textContent = 'FAQ database not configured (using local FAQs)';
+    else statusText.textContent = 'Live FAQ loaded';
+  }
+
   renderCategories();
   renderCategoryTabs();
+  renderTagFilters();
   renderFaqs();
 }
 
@@ -565,10 +805,36 @@ async function initSuggestions() {
 }
 
 function initEvents() {
+  let autocompleteIndex = -1;
+
+  const closeAutocomplete = () => {
+    if (!autocomplete) return;
+    autocomplete.classList.add('d-none');
+    autocompleteIndex = -1;
+  };
+
+  const getAutocompleteButtons = () => (autocomplete ? qsa('.dmq-faq-suggest', autocomplete) : []);
+
+  const setAutocompleteActive = (nextIndex) => {
+    const buttons = getAutocompleteButtons();
+    if (!buttons.length) {
+      autocompleteIndex = -1;
+      return;
+    }
+
+    const index = Math.max(0, Math.min(buttons.length - 1, nextIndex));
+    autocompleteIndex = index;
+    buttons.forEach((btn, i) => {
+      if (i === index) btn.classList.add('active');
+      else btn.classList.remove('active');
+    });
+  };
+
   if (searchInput) {
     searchInput.addEventListener('input', () => {
       searchTerm = searchInput.value;
       renderAutocomplete();
+      autocompleteIndex = -1;
       renderFaqs();
     });
 
@@ -579,7 +845,37 @@ function initEvents() {
     document.addEventListener('click', (event) => {
       if (!autocomplete) return;
       if (autocomplete.contains(event.target) || searchInput.contains(event.target)) return;
-      autocomplete.classList.add('d-none');
+      closeAutocomplete();
+    });
+
+    searchInput.addEventListener('keydown', (event) => {
+      if (!autocomplete || autocomplete.classList.contains('d-none')) return;
+      const buttons = getAutocompleteButtons();
+      if (!buttons.length) return;
+
+      if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        setAutocompleteActive(autocompleteIndex + 1);
+      }
+
+      if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        setAutocompleteActive(Math.max(0, autocompleteIndex - 1));
+      }
+
+      if (event.key === 'Enter' && autocompleteIndex >= 0) {
+        event.preventDefault();
+        const btn = buttons[autocompleteIndex];
+        if (btn?.dataset?.faqId) {
+          closeAutocomplete();
+          openFaqById(btn.dataset.faqId);
+        }
+      }
+
+      if (event.key === 'Escape') {
+        event.preventDefault();
+        closeAutocomplete();
+      }
     });
   }
 
@@ -588,14 +884,8 @@ function initEvents() {
       const button = event.target.closest('[data-faq-id]');
       if (!button) return;
       const id = button.dataset.faqId;
-      autocomplete.classList.add('d-none');
-      window.location.hash = `#${faqToAnchorId(id)}`;
-
-      // open the accordion item if present
-      const accordionButton = qs(`[data-faq-open="${CSS.escape(id)}"]`);
-      if (accordionButton && accordionButton.classList.contains('collapsed')) {
-        accordionButton.click();
-      }
+      closeAutocomplete();
+      openFaqById(id);
     });
   }
 
@@ -604,6 +894,31 @@ function initEvents() {
       searchTerm = '';
       if (searchInput) searchInput.value = '';
       renderAutocomplete();
+      renderFaqs();
+    });
+  }
+
+  if (filtersClearButton) {
+    filtersClearButton.addEventListener('click', () => {
+      setSelectedTags([]);
+      renderTagFilters();
+      renderFaqs();
+    });
+  }
+
+  if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+      setSortMode(sortSelect.value);
+      renderFaqs();
+    });
+  }
+
+  if (tagsWrap) {
+    tagsWrap.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-tag]');
+      if (!button) return;
+      toggleTag(button.dataset.tag);
+      renderTagFilters();
       renderFaqs();
     });
   }
@@ -637,6 +952,7 @@ function initEvents() {
   if (accordion) {
     accordion.addEventListener('click', async (event) => {
       const copyButton = event.target.closest('[data-faq-copy]');
+      const copyAnswerButton = event.target.closest('[data-faq-copy-answer]');
       const favButton = event.target.closest('[data-faq-fav]');
       const helpfulButton = event.target.closest('[data-faq-helpful]');
       const openButton = event.target.closest('[data-faq-open]');
@@ -648,6 +964,20 @@ function initEvents() {
           await navigator.clipboard.writeText(url);
         } else {
           window.prompt('Copy this link:', url);
+        }
+        return;
+      }
+
+      if (copyAnswerButton) {
+        const id = copyAnswerButton.dataset.faqCopyAnswer;
+        const entry = faqs.find((faq) => String(faq.id) === String(id));
+        const answer = String(entry?.answer || '').trim();
+        if (!answer) return;
+
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(answer);
+        } else {
+          window.prompt('Copy this answer:', answer);
         }
         return;
       }
@@ -685,8 +1015,35 @@ function initEvents() {
         const isExpanded = openButton.getAttribute('aria-expanded') === 'true';
         if (!isExpanded) {
           // will expand; count view once per click
-          await handleFaqOpen(id);
+          if (!suppressViewIncrement) {
+            await handleFaqOpen(id);
+          }
         }
+      }
+    });
+  }
+
+  if (emptyState) {
+    emptyState.addEventListener('click', (event) => {
+      const button = event.target.closest('[data-empty-action]');
+      if (!button) return;
+      const action = button.dataset.emptyAction;
+
+      if (action === 'show-all') {
+        setCategory('all');
+      }
+
+      if (action === 'clear-search') {
+        searchTerm = '';
+        if (searchInput) searchInput.value = '';
+        renderAutocomplete();
+        renderFaqs();
+      }
+
+      if (action === 'clear-filters') {
+        setSelectedTags([]);
+        renderTagFilters();
+        renderFaqs();
       }
     });
   }
@@ -787,11 +1144,75 @@ function initEvents() {
       runAssistant(message);
     });
   }
+
+  if (assistantChat) {
+    assistantChat.addEventListener('click', (event) => {
+      const link = event.target.closest('[data-open-faq]');
+      if (!link) return;
+      event.preventDefault();
+      openFaqById(link.dataset.openFaq);
+    });
+  }
+
+  if (expandAllButton) {
+    expandAllButton.addEventListener('click', () => {
+      setMultiOpen(true);
+      renderFaqs();
+      suppressViewIncrement = true;
+      qsa('#faq-accordion [data-faq-open]').forEach((button) => {
+        if (button.getAttribute('aria-expanded') !== 'true') button.click();
+      });
+      window.setTimeout(() => {
+        suppressViewIncrement = false;
+      }, 0);
+    });
+  }
+
+  if (collapseAllButton) {
+    collapseAllButton.addEventListener('click', () => {
+      setMultiOpen(true);
+      renderFaqs();
+      qsa('#faq-accordion [data-faq-open]').forEach((button) => {
+        if (button.getAttribute('aria-expanded') === 'true') button.click();
+      });
+    });
+  }
+
+  document.addEventListener('keydown', (event) => {
+    const target = event.target;
+    const isTyping = target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.isContentEditable);
+
+    if ((event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k') {
+      event.preventDefault();
+      if (searchInput) searchInput.focus();
+      return;
+    }
+
+    if (!isTyping && event.key === '/') {
+      event.preventDefault();
+      if (searchInput) searchInput.focus();
+      return;
+    }
+
+    if (event.key === 'Escape') {
+      if (autocomplete && !autocomplete.classList.contains('d-none')) {
+        closeAutocomplete();
+        return;
+      }
+    }
+  });
 }
 
 async function init() {
   applyTimeTheme();
   addChatMessage('assistant', 'Hi! Ask me anything about tasks, calendar, projects, or account access.');
+
+  // Restore preferences
+  setSelectedTags(getStored(STORAGE_KEYS.TAGS, []));
+  setSortMode(getStored(STORAGE_KEYS.SORT, 'relevance'));
+  setMultiOpen(getStored(STORAGE_KEYS.MULTI, false));
+
+  if (sortSelect) sortSelect.value = sortMode;
 
   try {
     await loadFaqData();
@@ -806,10 +1227,15 @@ async function init() {
   await initSuggestions();
   initEvents();
 
-  // if there is a hash, scroll to it
+  // if there is a hash, try to open the matching FAQ
   if (window.location.hash) {
-    const target = qs(window.location.hash);
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const raw = window.location.hash.replace(/^#/, '');
+    const match = faqs.find((faq) => faqToAnchorId(faq.id) === raw);
+    if (match) openFaqById(match.id);
+    else {
+      const target = qs(window.location.hash);
+      if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
   }
 }
 
