@@ -398,15 +398,45 @@
       <section class="dashboard-section d-none" data-section="files" id="dashboard-files">
         <div class="section-header">
           <h2 class="section-title">My Files</h2>
+          <div class="section-controls">
+            <div class="input-group input-group-sm" style="min-width: 260px;">
+              <span class="input-group-text">Search</span>
+              <input class="form-control" type="search" id="files-search" placeholder="filename, .pdf, .png..." />
+            </div>
+            <select class="form-select form-select-sm" id="files-sort" style="min-width: 190px;">
+              <option value="created_desc" selected>Newest first</option>
+              <option value="created_asc">Oldest first</option>
+              <option value="name_asc">Name (A → Z)</option>
+              <option value="name_desc">Name (Z → A)</option>
+              <option value="size_desc">Size (largest)</option>
+              <option value="size_asc">Size (smallest)</option>
+            </select>
+            <button class="btn btn-outline-dark btn-sm" type="button" id="files-refresh">Refresh</button>
+          </div>
         </div>
         <div class="content-grid">
           <div class="widget widget-full">
-            <form id="user-file-form" class="dmq-form mb-4">
-              <div class="d-grid gap-2">
-                <input class="form-control" type="file" id="user-file-input" />
-                <button class="btn btn-dark" type="submit">Upload File</button>
+            <div class="dmq-card p-3 mb-3">
+              <div class="fw-semibold mb-2">Upload</div>
+              <form id="user-file-form" class="dmq-form">
+                <div class="row g-2 align-items-center">
+                  <div class="col-12 col-lg-8">
+                    <input class="form-control" type="file" id="user-file-input" />
+                    <div class="form-text">Max file size: 10MB. Stored securely in Supabase Storage.</div>
+                  </div>
+                  <div class="col-12 col-lg-4 d-grid">
+                    <button class="btn btn-dark" type="submit">Upload File</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+              <div class="small text-muted">
+                <span id="files-summary-count">0</span> files · <span id="files-summary-size">0 B</span>
               </div>
-            </form>
+            </div>
+
             <div id="user-files-list" class="files-list"></div>
           </div>
         </div>
@@ -417,10 +447,28 @@
         <div class="section-header">
           <h2 class="section-title">Projects</h2>
           <div class="section-controls">
+            <div class="input-group input-group-sm" style="min-width: 260px;">
+              <span class="input-group-text">Search</span>
+              <input class="form-control" type="search" id="projects-search" placeholder="name, description..." />
+            </div>
+            <select class="form-select form-select-sm" id="projects-sort" style="min-width: 190px;">
+              <option value="created_desc" selected>Newest first</option>
+              <option value="created_asc">Oldest first</option>
+              <option value="name_asc">Name (A → Z)</option>
+              <option value="name_desc">Name (Z → A)</option>
+              <option value="progress_desc">Progress (highest)</option>
+              <option value="progress_asc">Progress (lowest)</option>
+            </select>
+            <button class="btn btn-outline-dark btn-sm" type="button" id="projects-refresh">Refresh</button>
             <button class="btn btn-dark btn-sm" id="new-project-btn">+ New Project</button>
           </div>
         </div>
-        <div class="row g-3" id="projects-grid"></div>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+          <div class="small text-muted">
+            <span id="projects-summary-count">0</span> projects
+          </div>
+        </div>
+        <div id="projects-grid"></div>
         <div class="dmq-empty d-none" id="projects-empty">No projects yet. Create your first project.</div>
       </section>
 

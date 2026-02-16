@@ -70,3 +70,23 @@ export async function getUserFileDownloadUrl(filePath, expiresInSeconds = 3600) 
   if (error) throw error;
   return data.signedUrl;
 }
+
+export async function getUserFileViewUrl(filePath, expiresInSeconds = 3600) {
+  const { data, error } = await supabase
+    .storage
+    .from(BUCKET_NAME)
+    .createSignedUrl(filePath, expiresInSeconds);
+
+  if (error) throw error;
+  return data.signedUrl;
+}
+
+export async function deleteUserFile(filePath) {
+  const { error } = await supabase
+    .storage
+    .from(BUCKET_NAME)
+    .remove([filePath]);
+
+  if (error) throw error;
+  return true;
+}

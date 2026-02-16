@@ -1,7 +1,7 @@
 import { getCurrentUserProfile, logoutUser } from '../services/auth-service.js';
 import { fetchTasks, fetchAllTasks, createTask, updateTask, deleteTask } from '../services/tasks-service.js';
 import { fetchProjects } from '../services/projects-service.js';
-import { uploadUserFile, listUserFiles, getUserFileDownloadUrl } from '../services/user-files-service.js';
+import { uploadUserFile, listUserFiles, getUserFileDownloadUrl, getUserFileViewUrl, deleteUserFile } from '../services/user-files-service.js';
 import { fetchAllUsers } from '../services/admin-service.js';
 import { success, error, info } from '../services/notifications-service.js';
 import { formatDate, isOverdue } from '../utils/date-utils.js';
@@ -47,6 +47,11 @@ const allTasksBoardWrap = qs('#all-tasks-board-wrap');
 const userFileForm = qs('#user-file-form');
 const userFileInput = qs('#user-file-input');
 const userFilesList = qs('#user-files-list');
+const filesSearchInput = qs('#files-search');
+const filesSortSelect = qs('#files-sort');
+const filesRefreshButton = qs('#files-refresh');
+const filesSummaryCount = qs('#files-summary-count');
+const filesSummarySize = qs('#files-summary-size');
 const calendarDays = qs('#calendar-days');
 const calendarMonth = qs('#cal-month');
 const calendarPrev = qs('#cal-prev');
@@ -61,6 +66,10 @@ const calendarPriorityFilter = qs('#calendar-priority-filter');
 const projectsGrid = qs('#projects-grid');
 const projectsEmpty = qs('#projects-empty');
 const newProjectBtn = qs('#new-project-btn');
+const projectsSearchInput = qs('#projects-search');
+const projectsSortSelect = qs('#projects-sort');
+const projectsRefreshButton = qs('#projects-refresh');
+const projectsSummaryCount = qs('#projects-summary-count');
 const navTasksCount = qs('#nav-tasks-count');
 const navCalendarCount = qs('#nav-calendar-count');
 const navFilesCount = qs('#nav-files-count');
@@ -105,6 +114,13 @@ let calendarFilters = {
 let usersById = {};
 let activeSectionName = 'overview';
 
+let userFiles = [];
+let filesSearchTerm = '';
+let filesSortMode = 'created_desc';
+
+let projectsSearchTerm = '';
+let projectsSortMode = 'created_desc';
+
 function updateAllTasksBoardVisibility() {
   if (!allTasksBoardWrap) return;
   const shouldShow =
@@ -126,6 +142,139 @@ function formatFileSize(bytes) {
 
   const rounded = size >= 10 ? Math.round(size) : size.toFixed(1);
   return `${rounded} ${units[unitIndex]}`;
+}
+
+function getFileExtension(fileName) {
+  const normalized = String(fileName || '').trim();
+  const parts = normalized.split('.');
+  if (parts.length < 2) return '';
+  return parts[parts.length - 1].toLowerCase();
+}
+
+function escapeHtml(value) {
+  return String(value || '')
+    .replaceAll('&', '&amp;')
+    .replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;')
+    .replaceAll('"', '&quot;')
+    .replaceAll("'", '&#39;');
+}
+
+function getProjectProgress(projectId) {
+  const projectTasks = tasks.filter((task) => task.project_id === projectId);
+  const total = projectTasks.length;
+  const completed = projectTasks.filter((task) => task.status === 'done').length;
+  const percent = total > 0 ? Math.round((completed / total) * 100) : 0;
+  return { total, completed, percent };
+}
+
+function applyProjectsSearchSort(items) {
+  const term = String(projectsSearchTerm || '').trim().toLowerCase();
+  const filtered = term
+    ? (items || []).filter((project) => {
+        const name = String(project.name || '').toLowerCase();
+        const description = String(project.description || '').toLowerCase();
+        return name.includes(term) || description.includes(term);
+      })
+    : (items || []);
+
+  const sorted = [...filtered];
+  sorted.sort((a, b) => {
+    if (projectsSortMode === 'name_asc') return String(a.name || '').localeCompare(String(b.name || ''));
+    if (projectsSortMode === 'name_desc') return String(b.name || '').localeCompare(String(a.name || ''));
+    if (projectsSortMode === 'created_asc') return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+    if (projectsSortMode === 'progress_desc') return getProjectProgress(b.id).percent - getProjectProgress(a.id).percent;
+    if (projectsSortMode === 'progress_asc') return getProjectProgress(a.id).percent - getProjectProgress(b.id).percent;
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+  return sorted;
+}
+
+function applyFilesSearchSort(files) {
+  const term = String(filesSearchTerm || '').trim().toLowerCase();
+  const filtered = term
+    ? (files || []).filter((file) => String(file.name || '').toLowerCase().includes(term))
+    : (files || []);
+
+  const sorted = [...filtered];
+  sorted.sort((a, b) => {
+    if (filesSortMode === 'name_asc') return String(a.name || '').localeCompare(String(b.name || ''));
+    if (filesSortMode === 'name_desc') return String(b.name || '').localeCompare(String(a.name || ''));
+    if (filesSortMode === 'size_asc') return (a.size || 0) - (b.size || 0);
+    if (filesSortMode === 'size_desc') return (b.size || 0) - (a.size || 0);
+    if (filesSortMode === 'created_asc') return new Date(a.created_at || 0) - new Date(b.created_at || 0);
+    return new Date(b.created_at || 0) - new Date(a.created_at || 0);
+  });
+  return sorted;
+}
+
+function updateFilesSummary(files) {
+  if (filesSummaryCount) filesSummaryCount.textContent = String((files || []).length);
+  if (filesSummarySize) {
+    const totalBytes = (files || []).reduce((sum, file) => sum + (file.size || 0), 0);
+    filesSummarySize.textContent = formatFileSize(totalBytes);
+  }
+}
+
+function renderFilesList() {
+  if (!userFilesList) return;
+
+  const viewFiles = applyFilesSearchSort(userFiles);
+  updateFilesSummary(viewFiles);
+
+  if (!viewFiles.length) {
+    userFilesList.innerHTML = '<div class="dmq-empty">No files found.</div>';
+    return;
+  }
+
+  const rows = viewFiles.map((file) => {
+    const ext = getFileExtension(file.name);
+    const badge = ext ? `<span class="badge text-bg-light border">.${escapeHtml(ext)}</span>` : '';
+    const createdLabel = file.created_at ? formatDate(file.created_at) : '-';
+    const sizeLabel = formatFileSize(file.size || 0);
+    const safeName = escapeHtml(file.name);
+    const safePath = escapeHtml(file.path);
+
+    return `
+      <tr>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            ${badge}
+            <div class="text-truncate" style="max-width: 420px;">${safeName}</div>
+          </div>
+          <div class="small text-muted text-truncate" style="max-width: 520px;">${safePath}</div>
+        </td>
+        <td class="text-muted">${sizeLabel}</td>
+        <td class="text-muted">${createdLabel}</td>
+        <td class="text-end">
+          <div class="btn-group btn-group-sm" role="group">
+            <button class="btn btn-outline-dark" type="button" data-file-open="${safePath}" data-file-name="${safeName}">Open</button>
+            <button class="btn btn-outline-dark" type="button" data-file-download="${safePath}" data-file-name="${safeName}">Download</button>
+            <button class="btn btn-outline-secondary" type="button" data-file-copy="${safePath}">Copy link</button>
+            <button class="btn btn-outline-danger" type="button" data-file-delete="${safePath}">Delete</button>
+          </div>
+        </td>
+      </tr>
+    `;
+  }).join('');
+
+  userFilesList.innerHTML = `
+    <div class="table-responsive">
+      <table class="table dmq-table align-middle">
+        <thead>
+          <tr>
+            <th>File</th>
+            <th style="width: 120px;">Size</th>
+            <th style="width: 160px;">Uploaded</th>
+            <th style="width: 1%;" class="text-end">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
 }
 
 function updateNavCounts(filesCount = null) {
@@ -766,30 +915,9 @@ async function renderUserFiles() {
   if (!userFilesList || !currentUserId) return;
 
   const files = await listUserFiles(currentUserId);
-  userFilesList.innerHTML = '';
-
-  if (!files.length) {
-    userFilesList.innerHTML = '<div class="dmq-empty">No files uploaded yet.</div>';
-    updateNavCounts(0);
-    return;
-  }
-
+  userFiles = files;
   updateNavCounts(files.length);
-
-  files.forEach((file) => {
-    const item = document.createElement('div');
-    item.className = 'd-flex justify-content-between align-items-center border rounded-3 p-2 mb-2 gap-2';
-    item.innerHTML = `
-      <div class="text-truncate">
-        <div class="fw-semibold text-truncate">${file.name}</div>
-        <div class="small text-muted">${formatFileSize(file.size)} · ${formatDate(file.created_at)}</div>
-      </div>
-      <button class="btn btn-sm btn-outline-dark" data-file-download="${file.path}" data-file-name="${file.name}">
-        Download
-      </button>
-    `;
-    userFilesList.appendChild(item);
-  });
+  renderFilesList();
 }
 
 function applyFilterSort(items) {
@@ -1185,31 +1313,69 @@ function renderProjectsList() {
   if (!projects || projects.length === 0) {
     projectsGrid.innerHTML = '';
     projectsEmpty.classList.remove('d-none');
+    if (projectsSummaryCount) projectsSummaryCount.textContent = '0';
     updateNavCounts();
     return;
   }
 
   projectsEmpty.classList.add('d-none');
-  projectsGrid.innerHTML = projects.map((project) => {
-    const taskCount = tasks.filter(t => t.project_id === project.id).length;
-    const completedCount = tasks.filter(t => t.project_id === project.id && t.status === 'done').length;
-    const progressPercent = taskCount > 0 ? Math.round((completedCount / taskCount) * 100) : 0;
+  const viewProjects = applyProjectsSearchSort(projects);
+  if (projectsSummaryCount) projectsSummaryCount.textContent = String(viewProjects.length);
+
+  if (!viewProjects.length) {
+    projectsGrid.innerHTML = '<div class="dmq-empty">No projects match your search.</div>';
+    updateNavCounts();
+    return;
+  }
+
+  const rows = viewProjects.map((project) => {
+    const safeName = escapeHtml(project.name);
+    const safeDesc = escapeHtml(project.description || '');
+    const createdLabel = project.created_at ? formatDate(project.created_at) : '-';
+    const { total, completed, percent } = getProjectProgress(project.id);
 
     return `
-      <div class="col-md-6 col-lg-4">
-        <div class="dmq-card h-100 p-3" style="cursor: pointer; transition: transform 0.2s;" onclick="window.location.href='./projects.html?id=${project.id}'">
-          <h5 class="card-title">${project.name}</h5>
-          <p class="card-text text-muted small">${project.description || 'No description'}</p>
-          <div class="progress mb-2" style="height: 6px;">
-            <div class="progress-bar" style="width: ${progressPercent}%;"></div>
+      <tr>
+        <td>
+          <div class="fw-semibold">${safeName}</div>
+          <div class="small text-muted text-truncate" style="max-width: 620px;">${safeDesc || 'No description'}</div>
+        </td>
+        <td class="text-muted">${createdLabel}</td>
+        <td>
+          <div class="d-flex align-items-center gap-2">
+            <div class="progress" style="height: 6px; width: 120px;">
+              <div class="progress-bar" style="width: ${percent}%;"></div>
+            </div>
+            <span class="small text-muted">${percent}%</span>
           </div>
-          <small class="text-muted">
-            ${completedCount}/${taskCount} tasks complete
-          </small>
-        </div>
-      </div>
+        </td>
+        <td class="text-muted">${completed}/${total}</td>
+        <td class="text-end">
+          <button class="btn btn-sm btn-outline-dark" type="button" data-project-open="${project.id}">Open</button>
+        </td>
+      </tr>
     `;
   }).join('');
+
+  projectsGrid.innerHTML = `
+    <div class="table-responsive">
+      <table class="table dmq-table align-middle">
+        <thead>
+          <tr>
+            <th>Project</th>
+            <th style="width: 160px;">Created</th>
+            <th style="width: 220px;">Progress</th>
+            <th style="width: 120px;">Done</th>
+            <th style="width: 1%;" class="text-end">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          ${rows}
+        </tbody>
+      </table>
+    </div>
+  `;
+
   updateNavCounts();
 }
 
@@ -1522,25 +1688,86 @@ if (userFileForm && userFileInput && userFilesList) {
   });
 
   userFilesList.addEventListener('click', async (event) => {
-    const button = event.target.closest('[data-file-download]');
+    const downloadButton = event.target.closest('[data-file-download]');
+    const openButton = event.target.closest('[data-file-open]');
+    const copyButton = event.target.closest('[data-file-copy]');
+    const deleteButton = event.target.closest('[data-file-delete]');
+
+    const button = downloadButton || openButton || copyButton || deleteButton;
     if (!button) return;
 
-    const filePath = button.dataset.fileDownload;
+    const filePath = button.dataset.fileDownload || button.dataset.fileOpen || button.dataset.fileCopy || button.dataset.fileDelete;
     const fileName = button.dataset.fileName || 'download';
     if (!filePath) return;
 
+    if (deleteButton) {
+      const confirmed = window.confirm('Delete this file? This cannot be undone.');
+      if (!confirmed) return;
+    }
+
     button.disabled = true;
     try {
-      const url = await getUserFileDownloadUrl(filePath);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = fileName;
-      link.click();
-      info('File download started.');
+      if (downloadButton) {
+        const url = await getUserFileDownloadUrl(filePath);
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = fileName;
+        link.click();
+        info('File download started.');
+        return;
+      }
+
+      if (openButton) {
+        const url = await getUserFileViewUrl(filePath);
+        window.open(url, '_blank', 'noopener,noreferrer');
+        return;
+      }
+
+      if (copyButton) {
+        const url = await getUserFileViewUrl(filePath);
+        if (navigator.clipboard?.writeText) {
+          await navigator.clipboard.writeText(url);
+          success('Link copied to clipboard.');
+        } else {
+          window.prompt('Copy this link:', url);
+        }
+        return;
+      }
+
+      if (deleteButton) {
+        await deleteUserFile(filePath);
+        success('File deleted.');
+        await renderUserFiles();
+      }
     } catch (err) {
-      error(err.message || 'Unable to download file.');
+      error(err.message || 'File action failed.');
     } finally {
       button.disabled = false;
+    }
+  });
+}
+
+if (filesSearchInput) {
+  filesSearchInput.addEventListener('input', () => {
+    filesSearchTerm = filesSearchInput.value;
+    renderFilesList();
+  });
+}
+
+if (filesSortSelect) {
+  filesSortSelect.addEventListener('change', () => {
+    filesSortMode = filesSortSelect.value;
+    renderFilesList();
+  });
+}
+
+if (filesRefreshButton) {
+  filesRefreshButton.addEventListener('click', async () => {
+    try {
+      await renderUserFiles();
+      success('Files refreshed.');
+    } catch (err) {
+      error(err.message || 'Unable to refresh files.');
     }
   });
 }
@@ -1562,6 +1789,43 @@ if (sidebarOverlay) {
 if (newProjectBtn) {
   newProjectBtn.addEventListener('click', () => {
     window.location.href = './projects.html';
+  });
+}
+
+if (projectsGrid) {
+  projectsGrid.addEventListener('click', (event) => {
+    const button = event.target.closest('[data-project-open]');
+    if (!button) return;
+    const projectId = button.dataset.projectOpen;
+    if (!projectId) return;
+    window.location.href = `./projects.html?id=${projectId}`;
+  });
+}
+
+if (projectsSearchInput) {
+  projectsSearchInput.addEventListener('input', () => {
+    projectsSearchTerm = projectsSearchInput.value;
+    renderProjectsList();
+  });
+}
+
+if (projectsSortSelect) {
+  projectsSortSelect.addEventListener('change', () => {
+    projectsSortMode = projectsSortSelect.value;
+    renderProjectsList();
+  });
+}
+
+if (projectsRefreshButton) {
+  projectsRefreshButton.addEventListener('click', async () => {
+    try {
+      projects = await fetchProjects(currentUserId);
+      renderProjectsDrop();
+      renderProjectsList();
+      success('Projects refreshed.');
+    } catch (err) {
+      error(err.message || 'Unable to refresh projects.');
+    }
   });
 }
 
