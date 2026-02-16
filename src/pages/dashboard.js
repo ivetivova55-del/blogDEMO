@@ -54,6 +54,7 @@ const calendarNext = qs('#cal-next');
 const calendarMonthView = qs('#calendar-month-view');
 const calendarAgendaView = qs('#calendar-agenda-view');
 const calendarDayCreateForm = qs('#calendar-day-create-form');
+const addTaskTodayButton = qs('#add-task-today');
 const calendarViewButtons = qsa('[data-cal-view]');
 const calendarStatusFilter = qs('#calendar-status-filter');
 const calendarPriorityFilter = qs('#calendar-priority-filter');
@@ -1418,32 +1419,34 @@ if (calendarPriorityFilter) {
   });
 }
 
-taskForm.addEventListener('submit', async (event) => {
-  event.preventDefault();
-  clearAlert(alertBox);
-  const submitButton = taskForm.querySelector('button[type="submit"]');
-  setLoading(submitButton, true, 'Saving...');
+if (taskForm) {
+  taskForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    clearAlert(alertBox);
+    const submitButton = taskForm.querySelector('button[type="submit"]');
+    setLoading(submitButton, true, 'Saving...');
 
-  try {
-    const formData = new FormData(taskForm);
-    await createTask({
-      user_id: currentUserId,
-      project_id: formData.get('project') || null,
-      title: formData.get('title').trim(),
-      description: formData.get('description').trim(),
-      deadline: formData.get('deadline'),
-      status: formData.get('status'),
-      priority: formData.get('priority'),
-    });
-    taskForm.reset();
-    await refreshDashboard();
-    success('Task created successfully.');
-  } catch (err) {
-    error(err.message || 'Unable to create task.');
-  } finally {
-    setLoading(submitButton, false);
-  }
-});
+    try {
+      const formData = new FormData(taskForm);
+      await createTask({
+        user_id: currentUserId,
+        project_id: formData.get('project') || null,
+        title: formData.get('title').trim(),
+        description: formData.get('description').trim(),
+        deadline: formData.get('deadline'),
+        status: formData.get('status'),
+        priority: formData.get('priority'),
+      });
+      taskForm.reset();
+      await refreshDashboard();
+      success('Task created successfully.');
+    } catch (err) {
+      error(err.message || 'Unable to create task.');
+    } finally {
+      setLoading(submitButton, false);
+    }
+  });
+}
 
 if (tasksPanel) {
   tasksPanel.addEventListener('click', async (event) => {
@@ -1572,6 +1575,25 @@ qsa('[data-section]').forEach((element) => {
     });
   }
 });
+
+qsa('.js-switch-section').forEach((element) => {
+  element.addEventListener('click', (e) => {
+    e.preventDefault();
+    const section = element.dataset.section;
+    if (!section) return;
+    switchSection(section);
+  });
+});
+
+if (addTaskTodayButton) {
+  addTaskTodayButton.addEventListener('click', () => {
+    const today = new Date();
+    const dateStr = today.toISOString().split('T')[0];
+    switchSection('calendar');
+    setCalendarView('day');
+    showCalendarDayDetails(dateStr);
+  });
+}
 
 initDashboard();
 applyTimeTheme();
