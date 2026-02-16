@@ -34,7 +34,7 @@
       <nav class="sidebar-nav">
         <a href="#dashboard-overview" class="nav-link active" data-section="overview">
           <span class="icon">📊</span>
-          <span>Overview</span>
+          <span>Welcome</span>
         </a>
         <a href="#dashboard-tasks" class="nav-link" data-section="tasks">
           <span class="icon">✓</span>
@@ -130,53 +130,33 @@
       <!-- Overview Section -->
       <section class="dashboard-section" data-section="overview" id="dashboard-overview">
         <div class="section-header">
-          <h2 class="section-title">Overview</h2>
-          <p class="text-muted mb-0">DigitalMarketingQUILL Tasker helps you plan marketing work, track deadlines, and manage projects in one focused dashboard.</p>
+          <h2 class="section-title">Welcome to DigitalMarketingQUILL Tasker</h2>
+          <p class="text-muted mb-0">Plan campaigns, hit deadlines, and keep your team’s workflow calm and clear — all in one place.</p>
         </div>
         <div class="content-grid">
-          <!-- Quick Create Widget -->
-          <div class="widget widget-quick-create">
-            <h3 class="widget-title">Quick Create</h3>
-            <form id="task-form" class="dmq-form">
-              <div class="mb-2">
-                <input class="form-control form-control-sm" name="title" placeholder="Task title..." required />
-              </div>
-              <div class="mb-2">
-                <textarea class="form-control form-control-sm" name="description" placeholder="Description..." rows="2"></textarea>
-              </div>
-              <div class="row g-2 mb-2">
-                <div class="col-6">
-                  <input class="form-control form-control-sm" type="date" name="deadline" required />
-                </div>
-                <div class="col-6">
-                  <select class="form-select form-select-sm" name="priority">
-                    <option value="low">Low</option>
-                    <option value="medium" selected>Medium</option>
-                    <option value="high">High</option>
-                  </select>
-                </div>
-              </div>
-              <button class="btn btn-dark w-100 btn-sm" type="submit">Add Task</button>
-            </form>
+          <div class="widget widget-full">
+            <h3 class="widget-title">Start here</h3>
+            <p class="text-muted mb-3">Pick where you want to focus right now — tasks, deadlines, or projects.</p>
+            <div class="d-flex flex-wrap gap-2">
+              <button class="btn btn-dark btn-sm js-switch-section" type="button" data-section="tasks">Go to Tasks</button>
+              <button class="btn btn-outline-dark btn-sm js-switch-section" type="button" data-section="calendar">Open Calendar</button>
+              <button class="btn btn-outline-dark btn-sm js-switch-section" type="button" data-section="projects">View Projects</button>
+            </div>
           </div>
 
-          <!-- Calendar Mini Widget -->
-          <div class="widget widget-calendar-mini">
-            <h3 class="widget-title">Quick Calendar</h3>
-            <button class="btn btn-sm btn-outline-dark w-100" data-section="calendar">Open Calendar →</button>
-            <div id="mini-calendar" class="mt-3"></div>
+          <div class="widget widget-full">
+            <h3 class="widget-title">Quick action</h3>
+            <p class="text-muted mb-3">Add a task in seconds — we’ll set the deadline to today and you can adjust anytime.</p>
+            <button class="btn btn-dark btn-sm" type="button" id="add-task-today">Add task today</button>
           </div>
 
-          <!-- Files Widget -->
-          <div class="widget widget-files">
-            <h3 class="widget-title">My Files</h3>
-            <form id="user-file-form" class="dmq-form mb-2">
-              <div class="d-grid gap-2">
-                <input class="form-control form-control-sm" type="file" id="user-file-input" />
-                <button class="btn btn-outline-dark btn-sm" type="submit">Upload</button>
-              </div>
-            </form>
-            <div id="user-files-list" class="files-list"></div>
+          <div class="widget widget-full">
+            <h3 class="widget-title">Tips</h3>
+            <ul class="text-muted mb-0" style="padding-left: 1.1rem;">
+              <li>Use Calendar drag &amp; drop to reschedule quickly.</li>
+              <li>Move cards on the Kanban board to update status.</li>
+              <li>Keep priorities simple: High / Medium / Low.</li>
+            </ul>
           </div>
         </div>
       </section>
@@ -302,6 +282,7 @@
               <button class="btn btn-sm btn-outline-dark active" data-cal-view="month">Month</button>
               <button class="btn btn-sm btn-outline-dark" data-cal-view="week">Week</button>
               <button class="btn btn-sm btn-outline-dark" data-cal-view="day">Day</button>
+              <button class="btn btn-sm btn-outline-dark" data-cal-view="agenda">Agenda</button>
             </div>
             <div class="calendar-filters">
               <select class="form-select form-select-sm" id="calendar-status-filter">
@@ -379,6 +360,29 @@
               <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
+              <div class="dmq-card p-3 mb-3">
+                <div class="fw-semibold mb-2">Add task</div>
+                <form id="calendar-day-create-form" class="dmq-form">
+                  <div class="row g-2">
+                    <div class="col-12 col-lg-5">
+                      <input class="form-control form-control-sm" name="title" placeholder="Task title..." required />
+                    </div>
+                    <div class="col-12 col-lg-4">
+                      <input class="form-control form-control-sm" name="description" placeholder="Description (optional)..." />
+                    </div>
+                    <div class="col-12 col-lg-3">
+                      <select class="form-select form-select-sm" name="priority">
+                        <option value="low">Low</option>
+                        <option value="medium" selected>Medium</option>
+                        <option value="high">High</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="d-flex justify-content-end mt-2">
+                    <button class="btn btn-dark btn-sm" type="submit">Add</button>
+                  </div>
+                </form>
+              </div>
               <div id="calendarDayTasks" class="d-flex flex-column gap-3">
                 <div class="text-muted">Loading...</div>
               </div>

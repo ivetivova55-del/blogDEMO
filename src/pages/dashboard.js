@@ -53,6 +53,7 @@ const calendarPrev = qs('#cal-prev');
 const calendarNext = qs('#cal-next');
 const calendarMonthView = qs('#calendar-month-view');
 const calendarAgendaView = qs('#calendar-agenda-view');
+const calendarDayCreateForm = qs('#calendar-day-create-form');
 const calendarViewButtons = qsa('[data-cal-view]');
 const calendarStatusFilter = qs('#calendar-status-filter');
 const calendarPriorityFilter = qs('#calendar-priority-filter');
@@ -240,6 +241,13 @@ function applyCalendarFilters(items) {
   });
 }
 
+function getCalendarSourceTasks() {
+  if (currentUserRole === 'admin' && Array.isArray(allTasks) && allTasks.length) {
+    return allTasks;
+  }
+  return tasks;
+}
+
 function setCalendarView(view) {
   calendarView = view;
   calendarViewButtons.forEach((button) => {
@@ -314,14 +322,22 @@ function renderCalendarAgenda(viewTasks) {
   if (!calendarAgendaView) return;
 
   const isWeek = calendarView === 'week';
-  const startDate = isWeek ? getWeekStart(currentCalendarDate) : new Date(currentCalendarDate);
-  const dayCount = isWeek ? 7 : 1;
+  const isAgenda = calendarView === 'agenda';
+
+  const startDate = isWeek
+    ? getWeekStart(currentCalendarDate)
+    : new Date(currentCalendarDate);
+  startDate.setHours(0, 0, 0, 0);
+
+  const dayCount = isAgenda ? 14 : (isWeek ? 7 : 1);
   const endDate = new Date(startDate);
   endDate.setDate(startDate.getDate() + dayCount - 1);
 
-  calendarMonth.textContent = isWeek
-    ? `Week of ${formatShortDate(startDate)}`
-    : formatDate(startDate);
+  calendarMonth.textContent = isAgenda
+    ? `Agenda (${formatShortDate(startDate)} → ${formatShortDate(endDate)})`
+    : isWeek
+      ? `Week of ${formatShortDate(startDate)}`
+      : formatDate(startDate);
 
   calendarAgendaView.innerHTML = '';
 
@@ -381,6 +397,10 @@ function renderCalendarAgenda(viewTasks) {
     dayCard.appendChild(title);
     dayCard.appendChild(list);
 
+    title.addEventListener('click', () => {
+      showCalendarDayDetails(dateStr);
+    });
+
     dayCard.addEventListener('dragover', (event) => {
       event.preventDefault();
       event.dataTransfer.dropEffect = 'move';
@@ -405,7 +425,7 @@ function renderCalendarAgenda(viewTasks) {
 function renderCalendar() {
   if (!calendarDays || !calendarMonth) return;
 
-  const viewTasks = applyCalendarFilters(tasks);
+  const viewTasks = applyCalendarFilters(getCalendarSourceTasks());
 
   if (calendarView === 'month') {
     if (calendarMonthView) calendarMonthView.classList.remove('d-none');
@@ -504,9 +524,9 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
     day.appendChild(count);
   }
 
-  // Add click handler to show day details
-  if (!isOtherMonth && dayTasks.length > 0) {
-    day.addEventListener('click', () => showCalendarDayDetails(dateStr, dayNum, dayTasks));
+  // Add click handler to show day details (even if empty)
+  if (!isOtherMonth) {
+    day.addEventListener('click', () => showCalendarDayDetails(dateStr));
   }
 
   if (!isOtherMonth) {
@@ -531,8 +551,15 @@ function createCalendarDay(dayNum, isOtherMonth, dayTasks) {
   return day;
 }
 
-function showCalendarDayDetails(dateStr, dayNum, dayTasks) {
+function getTasksForCalendarDate(dateStr) {
+  const viewTasks = applyCalendarFilters(getCalendarSourceTasks());
+  return viewTasks.filter((task) => task.deadline === dateStr);
+}
+
+function showCalendarDayDetails(dateStr) {
   selectedCalendarDay = dateStr;
+  const dayTasks = getTasksForCalendarDate(dateStr);
+  const dayNum = Number(String(dateStr).split('-')[2]);
   
   // Update modal title
   const dateObj = new Date(dateStr);
@@ -553,6 +580,13 @@ function showCalendarDayDetails(dateStr, dayNum, dayTasks) {
   `;
   tasksContainer.appendChild(summary);
 
+  if (!dayTasks.length) {
+    const empty = document.createElement('div');
+    empty.className = 'text-muted small';
+    empty.textContent = 'No tasks yet. Add one above.';
+    tasksContainer.appendChild(empty);
+  }
+
   dayTasks.forEach((task) => {
     const card = document.createElement('div');
     const priorityClass = `${task.priority || 'medium'}-priority`;
@@ -561,6 +595,10 @@ function showCalendarDayDetails(dateStr, dayNum, dayTasks) {
     const statusLabel = STATUS_LABELS[task.status] || task.status;
     const isCompleted = task.status === 'done';
     const taskDeadline = formatDate(task.deadline);
+
+    const assigneeLabel = currentUserRole === 'admin'
+      ? getUserLabel(task.user_id)
+      : (currentUserName || 'You');
 
     card.innerHTML = `
       <div class="calendar-task-title">${task.title}</div>
@@ -571,6 +609,10 @@ function showCalendarDayDetails(dateStr, dayNum, dayTasks) {
         <span class="calendar-task-meta-item">
           <span>Priority:</span>
           <strong>${task.priority ? task.priority.charAt(0).toUpperCase() + task.priority.slice(1) : 'Medium'}</strong>
+        </span>
+        <span class="calendar-task-meta-item">
+          <span>Assignee:</span>
+          <strong>${assigneeLabel}</strong>
         </span>
         <span class="calendar-task-meta-item">
           📅 ${taskDeadline}
@@ -584,12 +626,47 @@ function showCalendarDayDetails(dateStr, dayNum, dayTasks) {
         <button class="calendar-task-action-btn ${isCompleted ? 'complete' : ''}" data-action="quick-toggle" data-id="${task.id}">
           ${isCompleted ? '✓ Completed' : 'Mark Complete'}
         </button>
+        <button class="calendar-task-action-btn" data-action="edit" data-id="${task.id}">Edit</button>
+        <button class="calendar-task-action-btn" data-action="delete" data-id="${task.id}">Delete</button>
+      </div>
+      <div class="d-none" data-edit-wrap="${task.id}">
+        <div class="row g-2 mt-2">
+          <div class="col-12 col-lg-5">
+            <input class="form-control form-control-sm" name="title" value="${task.title.replace(/"/g, '&quot;')}" />
+          </div>
+          <div class="col-12 col-lg-4">
+            <input class="form-control form-control-sm" name="description" value="${(task.description || '').replace(/"/g, '&quot;')}" placeholder="Description" />
+          </div>
+          <div class="col-6 col-lg-3">
+            <select class="form-select form-select-sm" name="priority">
+              <option value="low" ${task.priority === 'low' ? 'selected' : ''}>Low</option>
+              <option value="medium" ${!task.priority || task.priority === 'medium' ? 'selected' : ''}>Medium</option>
+              <option value="high" ${task.priority === 'high' ? 'selected' : ''}>High</option>
+            </select>
+          </div>
+          <div class="col-6 col-lg-3">
+            <select class="form-select form-select-sm" name="status">
+              <option value="not_started" ${task.status === 'not_started' ? 'selected' : ''}>To Do</option>
+              <option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>In Progress</option>
+              <option value="done" ${task.status === 'done' ? 'selected' : ''}>Complete</option>
+            </select>
+          </div>
+          <div class="col-6 col-lg-3">
+            <input class="form-control form-control-sm" type="date" name="deadline" value="${task.deadline}" />
+          </div>
+        </div>
+        <div class="d-flex justify-content-end gap-2 mt-2">
+          <button class="btn btn-outline-secondary btn-sm" type="button" data-action="edit-cancel" data-id="${task.id}">Cancel</button>
+          <button class="btn btn-dark btn-sm" type="button" data-action="edit-save" data-id="${task.id}">Save</button>
+        </div>
       </div>
     `;
 
     // Add event listeners
     const viewBtn = card.querySelector('[data-action="view"]');
     const toggleBtn = card.querySelector('[data-action="quick-toggle"]');
+    const editBtn = card.querySelector('[data-action="edit"]');
+    const deleteBtn = card.querySelector('[data-action="delete"]');
 
     viewBtn.addEventListener('click', () => {
       const modal = bootstrap.Modal.getInstance(document.getElementById('calendarDayModal'));
@@ -602,13 +679,77 @@ function showCalendarDayDetails(dateStr, dayNum, dayTasks) {
       try {
         await updateTask(task.id, { status: newStatus });
         success(`Task ${newStatus === 'done' ? 'completed' : 'reopened'}.`);
-        const modal = bootstrap.Modal.getInstance(document.getElementById('calendarDayModal'));
-        if (modal) modal.hide();
         await refreshDashboard();
+        showCalendarDayDetails(dateStr);
       } catch (err) {
         error(err.message || 'Failed to update task.');
       }
     });
+
+    editBtn.addEventListener('click', () => {
+      const wrap = card.querySelector(`[data-edit-wrap="${task.id}"]`);
+      if (!wrap) return;
+      wrap.classList.toggle('d-none');
+    });
+
+    deleteBtn.addEventListener('click', async () => {
+      const confirmed = window.confirm('Delete this task?');
+      if (!confirmed) return;
+
+      try {
+        await deleteTask(task.id);
+        success('Task deleted.');
+        await refreshDashboard();
+        showCalendarDayDetails(dateStr);
+      } catch (err) {
+        error(err.message || 'Failed to delete task.');
+      }
+    });
+
+    const saveBtn = card.querySelector('[data-action="edit-save"]');
+    const cancelBtn = card.querySelector('[data-action="edit-cancel"]');
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener('click', () => {
+        const wrap = card.querySelector(`[data-edit-wrap="${task.id}"]`);
+        if (wrap) wrap.classList.add('d-none');
+      });
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener('click', async () => {
+        const wrap = card.querySelector(`[data-edit-wrap="${task.id}"]`);
+        if (!wrap) return;
+
+        const titleInput = wrap.querySelector('input[name="title"]');
+        const descInput = wrap.querySelector('input[name="description"]');
+        const prioritySelect = wrap.querySelector('select[name="priority"]');
+        const statusSelect = wrap.querySelector('select[name="status"]');
+        const deadlineInput = wrap.querySelector('input[name="deadline"]');
+
+        const payload = {
+          title: String(titleInput?.value || '').trim(),
+          description: String(descInput?.value || '').trim(),
+          priority: String(prioritySelect?.value || 'medium'),
+          status: String(statusSelect?.value || 'not_started'),
+          deadline: String(deadlineInput?.value || dateStr),
+        };
+
+        if (!payload.title) {
+          error('Title is required.');
+          return;
+        }
+
+        try {
+          await updateTask(task.id, payload);
+          success('Task updated.');
+          await refreshDashboard();
+          showCalendarDayDetails(payload.deadline);
+        } catch (err) {
+          error(err.message || 'Failed to update task.');
+        }
+      });
+    }
 
     tasksContainer.appendChild(card);
   });
@@ -674,7 +815,7 @@ function switchSection(sectionName) {
   });
 
   // Show selected section
-  const selectedSection = qs(`[data-section="${sectionName}"]`);
+  const selectedSection = qs(`.dashboard-section[data-section="${sectionName}"]`);
   if (selectedSection) {
     selectedSection.classList.remove('d-none');
   }
@@ -686,7 +827,7 @@ function switchSection(sectionName) {
 
   // Update title
   const sectionTitles = {
-    overview: 'Dashboard Overview',
+    overview: 'Dashboard',
     tasks: 'All Tasks',
     calendar: 'Deadline Calendar',
     files: 'My Files',
@@ -757,7 +898,7 @@ function getToggledStatus(status) {
 function renderKanbanBoard(boardElement, viewTasks, options = {}) {
   if (!boardElement) return;
 
-  const { getAssigneeLabel } = options;
+  const { getAssigneeLabel, getExtraMetaLines } = options;
 
   const columns = qsa('[data-board-list]', boardElement);
   columns.forEach((column) => {
@@ -808,11 +949,20 @@ function renderKanbanBoard(boardElement, viewTasks, options = {}) {
             ? getAssigneeLabel(task)
             : (currentUserName || 'You');
 
+          const extraMetaLines = typeof getExtraMetaLines === 'function'
+            ? getExtraMetaLines(task)
+            : [];
+          const extraMetaHtml = (Array.isArray(extraMetaLines) ? extraMetaLines : [extraMetaLines])
+            .filter(Boolean)
+            .map((line) => `<div class="task-meta">${line}</div>`)
+            .join('');
+
           card.innerHTML = `
             <div class="task-title">${task.title}</div>
             <div class="task-meta">Deadline: ${formatDate(task.deadline)}</div>
             <div class="task-meta">Priority: ${priority}</div>
             <div class="task-meta">Assignee: ${assigneeLabel}</div>
+            ${extraMetaHtml}
             <div><span class="status-badge ${statusBadgeClass(task.status)}">${STATUS_LABELS[statusKey]}</span></div>
           `;
 
@@ -833,6 +983,14 @@ function renderAllTasksKanban(viewTasks) {
     getAssigneeLabel: (task) => {
       const user = usersById[task.user_id];
       return user?.full_name || user?.email || task.user_id || 'Unknown user';
+    },
+    getExtraMetaLines: (task) => {
+      const user = usersById[task.user_id];
+      if (!user) return [];
+
+      const emailLine = user.email ? `Email: ${user.email}` : '';
+      const roleLine = user.role ? `Role: ${user.role}` : '';
+      return [emailLine, roleLine];
     },
   });
 }
@@ -1172,6 +1330,8 @@ if (calendarPrev) {
       currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
     } else if (calendarView === 'week') {
       currentCalendarDate.setDate(currentCalendarDate.getDate() - 7);
+    } else if (calendarView === 'agenda') {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() - 14);
     } else {
       currentCalendarDate.setDate(currentCalendarDate.getDate() - 1);
     }
@@ -1185,10 +1345,56 @@ if (calendarNext) {
       currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
     } else if (calendarView === 'week') {
       currentCalendarDate.setDate(currentCalendarDate.getDate() + 7);
+    } else if (calendarView === 'agenda') {
+      currentCalendarDate.setDate(currentCalendarDate.getDate() + 14);
     } else {
       currentCalendarDate.setDate(currentCalendarDate.getDate() + 1);
     }
     renderCalendar();
+  });
+}
+
+if (calendarDayCreateForm) {
+  calendarDayCreateForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    if (!currentUserId) return;
+
+    const formData = new FormData(calendarDayCreateForm);
+    const title = String(formData.get('title') || '').trim();
+    const description = String(formData.get('description') || '').trim();
+    const priority = String(formData.get('priority') || 'medium');
+    const deadline = selectedCalendarDay;
+
+    if (!deadline) {
+      error('Select a day first.');
+      return;
+    }
+
+    if (!title) {
+      error('Title is required.');
+      return;
+    }
+
+    try {
+      await createTask({
+        user_id: currentUserId,
+        title,
+        description,
+        deadline,
+        priority,
+        status: 'not_started',
+      });
+
+      calendarDayCreateForm.reset();
+      const prioritySelect = calendarDayCreateForm.querySelector('select[name="priority"]');
+      if (prioritySelect) prioritySelect.value = 'medium';
+
+      success('Task created.');
+      await refreshDashboard();
+      showCalendarDayDetails(deadline);
+    } catch (err) {
+      error(err.message || 'Unable to create task.');
+    }
   });
 }
 
