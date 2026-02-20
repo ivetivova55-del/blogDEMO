@@ -103,10 +103,10 @@ body.dmq-body {
 .dmq-brand {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
+  gap: clamp(6px, 1.2vw, 10px);
   font-weight: 900;
   letter-spacing: -0.02em;
-  font-size: 1.35rem;
+  font-size: clamp(1.05rem, 1.6vw, 1.35rem);
   text-transform: uppercase;
   color: #ffffff !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
@@ -131,6 +131,88 @@ body.dmq-body {
   max-width: 1200px;
   margin: 0 auto;
   padding: 48px 20px 80px;
+}
+
+/* Bottom Header (Footer) */
+.dmq-bottom-header {
+  margin-top: 64px;
+  padding: 56px 0;
+  background: linear-gradient(90deg, var(--nav-start) 0%, var(--nav-mid) 50%, var(--nav-end) 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: var(--shadow-lg);
+}
+
+.dmq-bottom-header-inner {
+  text-align: center;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.dmq-bottom-title {
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  font-size: clamp(1.2rem, 2.4vw, 1.65rem);
+  color: #ffffff;
+}
+
+.dmq-bottom-subtitle {
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.86);
+  margin-top: 6px;
+}
+
+.dmq-bottom-links {
+  display: flex;
+  justify-content: center;
+  gap: clamp(14px, 3vw, 28px);
+  flex-wrap: wrap;
+  margin-top: 18px;
+}
+
+.dmq-bottom-links a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-weight: 800;
+}
+
+.dmq-bottom-links a:hover {
+  text-decoration: underline;
+}
+
+.dmq-bottom-divider {
+  max-width: 720px;
+  margin: 28px auto;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  opacity: 1;
+}
+
+.dmq-bottom-copy {
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 700;
+}
+
+.dmq-bottom-status {
+  margin-top: 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.dmq-bottom-status-label {
+  color: rgba(255, 255, 255, 0.82);
+  font-weight: 800;
+}
+
+.dmq-bottom-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  color: var(--mint);
+  font-weight: 900;
 }
 
 /* ========== Home Page ========== */
