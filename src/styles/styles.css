@@ -100,10 +100,16 @@ body.dmq-body {
   z-index: 1030;
 }
 
+.dmq-navbar .container,
+.dmq-navbar .container-fluid {
+  align-items: center;
+}
+
 .dmq-brand {
   display: inline-flex;
   align-items: center;
   gap: clamp(6px, 1.2vw, 10px);
+  padding: 0 10px;
   font-weight: 900;
   letter-spacing: -0.02em;
   font-size: clamp(1.05rem, 1.6vw, 1.35rem);
@@ -114,7 +120,7 @@ body.dmq-body {
 }
 
 .dmq-logo {
-  height: clamp(20px, 2vw, 28px);
+  height: 40px;
   width: auto;
   display: block;
   flex: 0 0 auto;
