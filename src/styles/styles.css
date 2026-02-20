@@ -101,12 +101,29 @@ body.dmq-body {
 }
 
 .dmq-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   font-weight: 900;
   letter-spacing: -0.02em;
   font-size: 1.35rem;
   text-transform: uppercase;
   color: #ffffff !important;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  text-decoration: none;
+}
+
+.dmq-logo {
+  height: clamp(22px, 2.2vw, 32px);
+  width: auto;
+  display: block;
+  flex: 0 0 auto;
+  object-fit: contain;
+}
+
+.dmq-brand-text {
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .dmq-page {
@@ -399,7 +416,7 @@ body.dmq-body {
 .task-card {
   border: 1px solid var(--border);
   border-radius: 16px;
-  padding: 18px;
+  gap: 8px;
   background: white;
   transition: all 0.3s ease;
   box-shadow: var(--shadow-sm);
