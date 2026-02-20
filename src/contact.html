@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Contact</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./styles/styles.css" />
+  </head>
+  <body class="dmq-body">
+    <nav class="navbar navbar-expand-lg dmq-navbar">
+      <div class="container">
+        <a class="navbar-brand dmq-brand" href="./index.html">DigitalMarketingQUILL</a>
+        <div class="ms-auto d-flex gap-2">
+          <a class="btn btn-outline-light btn-sm" href="./dashboard.html">Dashboard</a>
+          <a class="btn btn-outline-light btn-sm" href="./projects.html">Projects</a>
+          <a class="btn btn-outline-light btn-sm" href="./faq.html">FAQ</a>
+          <a class="btn btn-outline-light btn-sm" href="./contact.html">Contact</a>
+          <a class="btn btn-outline-light btn-sm d-none" href="./admin.html" id="contact-admin-link">Admin</a>
+          <button class="btn btn-light btn-sm d-none" id="contact-logout-button" type="button">Logout</button>
+        </div>
+      </div>
+    </nav>
+
+    <main class="dmq-page">
+      <section class="dmq-card p-4 p-lg-5">
+        <div class="d-flex flex-column flex-lg-row align-items-start align-items-lg-center justify-content-between gap-3 mb-3">
+          <div>
+            <h1 class="h4 mb-1">Contact</h1>
+            <p class="text-muted mb-0">Have a question or an idea? Send a message and we’ll get back to you.</p>
+          </div>
+          <a class="btn btn-sm btn-outline-dark" href="./dashboard.html">Back to dashboard</a>
+        </div>
+
+        <div id="contact-alert" class="alert d-none" role="alert"></div>
+
+        <div class="row g-4">
+          <div class="col-lg-5">
+            <div class="dmq-card p-4 h-100">
+              <div class="fw-semibold mb-2">Let’s talk</div>
+              <p class="text-muted mb-4">Use the form to send a message. For quick support, use email.</p>
+
+              <div class="d-flex flex-column gap-3">
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge text-bg-light border">Email</span>
+                  <a class="text-decoration-none" href="mailto:support@digiquill.com">support@digiquill.com</a>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge text-bg-light border">FAQ</span>
+                  <a class="text-decoration-none" href="./faq.html">Browse common questions</a>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                  <span class="badge text-bg-light border">Projects</span>
+                  <a class="text-decoration-none" href="./projects.html">Review your project list</a>
+                </div>
+              </div>
+
+              <div class="mt-4 small text-muted" style="opacity: 0.8;">design by amarantdigitalQUILL © 2026</div>
+            </div>
+          </div>
+
+          <div class="col-lg-7">
+            <div class="dmq-card p-4 h-100">
+              <div class="fw-semibold mb-2">Send a message</div>
+              <p class="small text-muted mb-3">This form is Netlify-ready (no database changes needed).</p>
+
+              <form class="dmq-form" name="contact" method="POST" data-netlify="true" action="/contact.html?sent=1">
+                <input type="hidden" name="form-name" value="contact" />
+
+                <div class="row g-2">
+                  <div class="col-12 col-lg-6">
+                    <label class="form-label">Your name</label>
+                    <input class="form-control" type="text" name="name" placeholder="Your name" required />
+                  </div>
+                  <div class="col-12 col-lg-6">
+                    <label class="form-label">Email</label>
+                    <input class="form-control" type="email" name="email" placeholder="you@example.com" required />
+                  </div>
+                  <div class="col-12">
+                    <label class="form-label">Message</label>
+                    <textarea class="form-control" name="message" rows="6" placeholder="How can we help?" required></textarea>
+                  </div>
+                </div>
+
+                <div class="d-flex justify-content-end mt-3">
+                  <button class="btn btn-dark" type="submit">Send</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script type="module" src="./pages/contact.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  </body>
+</html>

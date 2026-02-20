@@ -1645,6 +1645,13 @@ body.dmq-dashboard-layout .dmq-section-title {
   color: var(--ink-secondary) !important;
 }
 
+.dmq-dashboard-credit {
+  opacity: 0.75;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-weight: 700;
+}
+
 .widget-quick-create {
   grid-column: 1 / 2;
 }

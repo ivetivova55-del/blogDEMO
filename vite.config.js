@@ -15,6 +15,7 @@ export default defineConfig({
         admin: resolve(__dirname, 'src/admin.html'),
         taskDetails: resolve(__dirname, 'src/task-details.html'),
         faq: resolve(__dirname, 'src/faq.html'),
+        contact: resolve(__dirname, 'src/contact.html'),
       },
     },
   },
