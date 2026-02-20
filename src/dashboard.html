@@ -137,6 +137,37 @@
           </div>
         </div>
         <div class="content-grid">
+          <div class="widget widget-full" id="welcome-focus-widget">
+            <div class="d-flex justify-content-between align-items-start flex-wrap gap-2">
+              <div>
+                <h3 class="widget-title">Today focus</h3>
+                <p class="text-muted mb-0">Quick actions based on your real task deadlines.</p>
+              </div>
+              <div class="d-flex flex-wrap gap-2">
+                <button class="btn btn-sm btn-outline-dark" type="button" data-welcome-action="open-kanban">Open Kanban</button>
+                <button class="btn btn-sm btn-outline-dark" type="button" data-welcome-action="open-agenda">Open Agenda</button>
+                <button class="btn btn-sm btn-dark" type="button" data-welcome-action="go-tasks">Go to Tasks</button>
+              </div>
+            </div>
+
+            <div class="row g-3 mt-2">
+              <div class="col-lg-6">
+                <div class="dmq-card p-3 h-100">
+                  <div class="fw-semibold mb-2">Overdue</div>
+                  <div class="small text-muted mb-2">Tasks past their deadline.</div>
+                  <div class="quick-stats" id="welcome-overdue-list"></div>
+                </div>
+              </div>
+              <div class="col-lg-6">
+                <div class="dmq-card p-3 h-100">
+                  <div class="fw-semibold mb-2">Next up</div>
+                  <div class="small text-muted mb-2">Due in the next 7 days.</div>
+                  <div class="quick-stats" id="welcome-next-list"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <div class="widget">
             <h3 class="widget-title">Start here</h3>
             <p class="text-muted mb-3">Choose where to focus next — tasks, deadlines, or projects.</p>

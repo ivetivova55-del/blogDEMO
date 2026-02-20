@@ -75,6 +75,11 @@ const navCalendarCount = qs('#nav-calendar-count');
 const navFilesCount = qs('#nav-files-count');
 const navProjectsCount = qs('#nav-projects-count');
 
+// Welcome widgets
+const welcomeOverdueList = qs('#welcome-overdue-list');
+const welcomeNextList = qs('#welcome-next-list');
+const dashboardOverview = qs('#dashboard-overview');
+
 // Sidebar and navigation
 const sidebarToggle = qs('#sidebar-toggle');
 const sidebar = qs('.dmq-sidebar');
@@ -1010,6 +1015,66 @@ function renderSummary() {
   if (tasksSummaryOverdue) tasksSummaryOverdue.textContent = overdue;
 }
 
+function isDueWithinDays(task, days) {
+  if (!task?.deadline) return false;
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const deadline = new Date(task.deadline);
+  deadline.setHours(0, 0, 0, 0);
+  const diffDays = Math.round((deadline - today) / (1000 * 60 * 60 * 24));
+  return diffDays >= 0 && diffDays <= days;
+}
+
+function renderWelcomeLists() {
+  if (!welcomeOverdueList || !welcomeNextList) return;
+
+  const incomplete = (tasks || []).filter((task) => task.status !== 'done');
+  const overdue = incomplete
+    .filter((task) => isOverdue(task))
+    .sort((a, b) => new Date(a.deadline || 0) - new Date(b.deadline || 0))
+    .slice(0, 4);
+
+  const nextUp = incomplete
+    .filter((task) => !isOverdue(task) && isDueWithinDays(task, 7))
+    .sort((a, b) => new Date(a.deadline || 0) - new Date(b.deadline || 0))
+    .slice(0, 4);
+
+  const renderList = (wrap, items, emptyLabel) => {
+    wrap.innerHTML = '';
+
+    if (!items.length) {
+      wrap.innerHTML = `
+        <div class="quick-stat-item">
+          <span class="stat-icon">✅</span>
+          <span>${escapeHtml(emptyLabel)}</span>
+        </div>
+      `;
+      return;
+    }
+
+    items.forEach((task) => {
+      const line = document.createElement('div');
+      line.className = 'quick-stat-item';
+      line.innerHTML = `
+        <span class="stat-icon">📝</span>
+        <div style="flex: 1; min-width: 200px;">
+          <div class="fw-semibold" style="color: var(--ink);">${escapeHtml(task.title || 'Untitled')}</div>
+          <div class="small text-muted">Due: ${escapeHtml(formatDate(task.deadline))} · Priority: ${escapeHtml(task.priority || 'medium')}</div>
+        </div>
+        <div class="d-flex gap-2 flex-wrap justify-content-end">
+          <button class="btn btn-sm btn-outline-dark" type="button" data-welcome-action="open" data-id="${escapeHtml(task.id)}">Open</button>
+          <button class="btn btn-sm btn-outline-dark" type="button" data-welcome-action="reschedule" data-deadline="${escapeHtml(task.deadline || '')}" data-id="${escapeHtml(task.id)}">Reschedule</button>
+          <button class="btn btn-sm btn-dark" type="button" data-welcome-action="complete" data-id="${escapeHtml(task.id)}">Complete</button>
+        </div>
+      `;
+      wrap.appendChild(line);
+    });
+  };
+
+  renderList(welcomeOverdueList, overdue, 'No overdue tasks.');
+  renderList(welcomeNextList, nextUp, 'No upcoming deadlines.');
+}
+
 function statusBadgeClass(status) {
   if (status === 'done') return 'status-completed';
   if (status === 'in_progress') return 'status-open';
@@ -1393,6 +1458,7 @@ async function refreshDashboard() {
     renderAllTasks();
   }
   renderSummary();
+  renderWelcomeLists();
   renderTasks();
   renderCalendar();
   renderProjectsList();
@@ -1856,6 +1922,59 @@ if (addTaskTodayButton) {
     switchSection('calendar');
     setCalendarView('day');
     showCalendarDayDetails(dateStr);
+  });
+}
+
+if (dashboardOverview) {
+  dashboardOverview.addEventListener('click', async (event) => {
+    const button = event.target.closest('[data-welcome-action]');
+    if (!button) return;
+
+    const action = button.dataset.welcomeAction;
+    const taskId = button.dataset.id;
+
+    if (action === 'go-tasks') {
+      switchSection('tasks');
+      return;
+    }
+
+    if (action === 'open-kanban') {
+      switchSection('tasks');
+      setDisplayView('board');
+      return;
+    }
+
+    if (action === 'open-agenda') {
+      switchSection('calendar');
+      setCalendarView('agenda');
+      return;
+    }
+
+    if (!taskId) return;
+
+    if (action === 'open') {
+      window.location.href = `./task-details.html?id=${taskId}`;
+      return;
+    }
+
+    if (action === 'reschedule') {
+      const deadline = String(button.dataset.deadline || '').trim();
+      if (!deadline) return;
+      switchSection('calendar');
+      setCalendarView('day');
+      showCalendarDayDetails(deadline);
+      return;
+    }
+
+    if (action === 'complete') {
+      try {
+        await updateTask(taskId, { status: 'done' });
+        await refreshDashboard();
+        success('Task completed.');
+      } catch (err) {
+        error(err.message || 'Unable to complete task.');
+      }
+    }
   });
 }
 
