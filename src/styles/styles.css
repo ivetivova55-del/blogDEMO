@@ -2108,3 +2108,188 @@ body.dmq-dashboard-layout .dmq-section-title {
   color: var(--ink);
   font-weight: 700;
 }
+
+/* ========== Professional Polish (Overrides) ========== */
+
+:root {
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 20px;
+  --surface: rgba(255, 255, 255, 0.96);
+  --surface-2: rgba(248, 250, 252, 0.85);
+  --ring: 0 0 0 3px rgba(59, 130, 246, 0.16);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+body.dmq-body {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Navbar */
+.dmq-navbar {
+  border-bottom: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: var(--shadow-lg);
+}
+
+.dmq-brand {
+  letter-spacing: -0.01em;
+}
+
+/* Cards */
+.dmq-card {
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  border: 1px solid rgba(15, 23, 42, 0.07);
+}
+
+.dmq-card:hover {
+  transform: translateY(-1px);
+}
+
+.dmq-hero {
+  border-radius: 28px;
+}
+
+/* Buttons */
+.btn {
+  border-radius: var(--radius-md);
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.btn:focus-visible,
+.form-control:focus-visible,
+.form-select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
+}
+
+.btn-dark {
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  border: none;
+}
+
+.btn-dark:hover {
+  filter: brightness(0.98);
+}
+
+.btn-outline-dark {
+  border-color: rgba(15, 23, 42, 0.12);
+}
+
+.btn-outline-dark:hover {
+  border-color: rgba(59, 130, 246, 0.45);
+}
+
+/* Forms */
+.dmq-form .form-control,
+.dmq-form .form-select,
+.dmq-form textarea {
+  background: var(--surface-2);
+  border-radius: var(--radius-md);
+  border-color: rgba(15, 23, 42, 0.10);
+}
+
+.dmq-form .form-control:focus,
+.dmq-form .form-select:focus,
+.dmq-form textarea:focus {
+  box-shadow: var(--ring);
+}
+
+/* Tables */
+.dmq-table {
+  border-color: rgba(15, 23, 42, 0.08);
+}
+
+.dmq-table thead th {
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  color: var(--ink-tertiary);
+}
+
+.dmq-table tbody tr:hover {
+  background: rgba(59, 130, 246, 0.04);
+}
+
+/* Sidebar */
+.dmq-sidebar {
+  border-right-color: rgba(15, 23, 42, 0.08);
+  background: linear-gradient(180deg, rgba(248, 250, 252, 0.98) 0%, rgba(241, 245, 249, 0.92) 100%);
+}
+
+.sidebar-nav .nav-link {
+  border-radius: 12px;
+  margin: 4px 10px;
+  border-left: none;
+}
+
+.sidebar-nav .nav-link.active {
+  background: rgba(59, 130, 246, 0.10);
+  box-shadow: 0 1px 0 rgba(15, 23, 42, 0.04);
+}
+
+/* Dashboard header stats */
+.stat-card {
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+}
+
+.stat-card:hover {
+  transform: translateY(-1px);
+}
+
+/* Kanban */
+.kanban-column {
+  background: rgba(248, 250, 252, 0.55);
+  border-radius: var(--radius-lg);
+  border: 1px dashed rgba(15, 23, 42, 0.12);
+}
+
+.kanban-task-card {
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.96);
+}
+
+.kanban-task-card .task-title {
+  letter-spacing: -0.01em;
+}
+
+/* Calendar */
+.dmq-calendar-section {
+  border-radius: var(--radius-lg);
+}
+
+.calendar-day {
+  border-radius: 14px;
+  border-color: rgba(15, 23, 42, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+}
+
+.calendar-day:hover {
+  border-color: rgba(59, 130, 246, 0.28);
+}
+
+.calendar-task-item {
+  border-radius: 999px;
+}
+
+/* FAQ */
+.dmq-faq-autocomplete {
+  border-radius: var(--radius-md);
+}
+
+.dmq-faq-chat {
+  background: rgba(248, 250, 252, 0.75);
+  border-radius: var(--radius-md);
+}
