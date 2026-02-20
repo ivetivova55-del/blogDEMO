@@ -1,4 +1,4 @@
-import { getCurrentUserProfile } from '../services/auth-service.js';
+import { getCurrentUserProfile, logoutUser } from '../services/auth-service.js';
 import { fetchTasks } from '../services/tasks-service.js';
 import { fetchProjects } from '../services/projects-service.js';
 import { isOverdue } from '../utils/date-utils.js';
@@ -33,6 +33,9 @@ const suggestionsWrap = qs('#faq-suggestions');
 const assistantChat = qs('#faq-chat');
 const assistantForm = qs('#faq-assistant-form');
 const assistantClear = qs('#faq-assistant-clear');
+
+const adminLink = qs('#faq-admin-link');
+const logoutButton = qs('#faq-logout-button');
 
 const STORAGE_KEYS = {
   RECENT: 'dmq_faq_recent',
@@ -804,6 +807,35 @@ async function initSuggestions() {
   }
 }
 
+async function initAuthUi() {
+  if (!adminLink && !logoutButton) return;
+
+  try {
+    const user = await getCurrentUserProfile();
+
+    if (adminLink) {
+      adminLink.classList.toggle('d-none', user?.role !== 'admin');
+    }
+
+    if (logoutButton) {
+      logoutButton.classList.toggle('d-none', !user);
+    }
+  } catch {
+    if (adminLink) adminLink.classList.add('d-none');
+    if (logoutButton) logoutButton.classList.add('d-none');
+  }
+
+  if (logoutButton) {
+    logoutButton.addEventListener('click', async () => {
+      try {
+        await logoutUser();
+      } finally {
+        window.location.href = './index.html';
+      }
+    });
+  }
+}
+
 function initEvents() {
   let autocompleteIndex = -1;
 
@@ -1225,6 +1257,7 @@ async function init() {
   }
 
   await initSuggestions();
+  await initAuthUi();
   initEvents();
 
   // if there is a hash, try to open the matching FAQ

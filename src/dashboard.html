@@ -170,6 +170,58 @@
           <h2 class="section-title">Tasks</h2>
         </div>
         <div id="tasks-panel">
+          <div class="dmq-card p-3 mb-3">
+            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-2">
+              <div>
+                <div class="fw-semibold">Create task</div>
+                <div class="small text-muted">Add a task with priority, deadline, and status.</div>
+              </div>
+            </div>
+
+            <form id="task-form" class="dmq-form">
+              <div class="row g-2">
+                <div class="col-12 col-lg-4">
+                  <label class="form-label">Title</label>
+                  <input class="form-control" type="text" name="title" placeholder="Task title..." required />
+                </div>
+                <div class="col-12 col-lg-4">
+                  <label class="form-label">Project</label>
+                  <select class="form-select" id="task-project" name="project">
+                    <option value="">No project</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-4">
+                  <label class="form-label">Deadline</label>
+                  <input class="form-control" type="date" name="deadline" required />
+                </div>
+                <div class="col-12 col-lg-6">
+                  <label class="form-label">Description</label>
+                  <input class="form-control" type="text" name="description" placeholder="Short description (optional)..." />
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label class="form-label">Status</label>
+                  <select class="form-select" name="status">
+                    <option value="not_started" selected>To Do</option>
+                    <option value="in_progress">In Progress</option>
+                    <option value="done">Complete</option>
+                  </select>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <label class="form-label">Priority</label>
+                  <select class="form-select" name="priority">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="d-flex justify-content-end mt-3">
+                <button class="btn btn-dark" type="submit">Save task</button>
+              </div>
+            </form>
+          </div>
+
           <div class="tasks-toolbar">
             <div class="tasks-toolbar-left">
               <div class="btn-group" role="group" id="task-view-toggle">
