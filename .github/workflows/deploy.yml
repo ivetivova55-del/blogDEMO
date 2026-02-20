@@ -29,24 +29,31 @@ jobs:
         VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
         VITE_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.VITE_SUPABASE_PUBLISHABLE_KEY }}
 
-    - name: Validate Netlify secrets
+    - name: Check Netlify secrets
+      id: netlify_secrets
       if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       run: |
-        if [ -z "$NETLIFY_AUTH_TOKEN" ]; then
-          echo "Missing NETLIFY_AUTH_TOKEN secret"
-          exit 1
+        can_deploy=true
+        if [ -z "${{ secrets.NETLIFY_AUTH_TOKEN }}" ]; then
+          echo "::warning::Missing NETLIFY_AUTH_TOKEN secret (Netlify deploy will be skipped)."
+          can_deploy=false
         fi
-        if [ -z "$NETLIFY_SITE_ID" ]; then
-          echo "Missing NETLIFY_SITE_ID secret"
-          exit 1
+        if [ -z "${{ secrets.NETLIFY_SITE_ID }}" ]; then
+          echo "::warning::Missing NETLIFY_SITE_ID secret (Netlify deploy will be skipped)."
+          can_deploy=false
         fi
-      env:
-        NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
-        NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
+
+        if [ "$can_deploy" != "true" ]; then
+          echo "::notice::Add GitHub secrets in repo Settings → Secrets and variables → Actions: NETLIFY_AUTH_TOKEN, NETLIFY_SITE_ID."
+          echo "::notice::NETLIFY_AUTH_TOKEN: https://app.netlify.com/user/applications (New access token)."
+          echo "::notice::NETLIFY_SITE_ID: Netlify site → Site settings → Site details → Site information."
+        fi
+
+        echo "can_deploy=$can_deploy" >> "$GITHUB_OUTPUT"
 
     - name: Deploy to Netlify
       uses: nwtgck/actions-netlify@v3.0
-      if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
+      if: steps.netlify_secrets.outputs.can_deploy == 'true' && github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master')
       with:
         publish-dir: './dist'
         production-deploy: true
