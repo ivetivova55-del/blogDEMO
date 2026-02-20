@@ -25,9 +25,31 @@ git push -u origin main
    - Go to Site settings → Environment
    - Add secrets:
      - `VITE_SUPABASE_URL`
-     - `VITE_SUPABASE_ANON_KEY`
+     - `VITE_SUPABASE_PUBLISHABLE_KEY`
 
-5. **Redeploy**
+5. **Configure GitHub Secrets (for GitHub Actions)**
+   - Go to repository Settings → Secrets and variables → Actions
+   - Add the following secrets:
+     - `VITE_SUPABASE_URL` - Your Supabase project URL
+     - `VITE_SUPABASE_PUBLISHABLE_KEY` - Your Supabase publishable key
+     - `NETLIFY_AUTH_TOKEN` - Personal access token from Netlify (see below)
+     - `NETLIFY_SITE_ID` - Site ID from Netlify (see below)
+   
+   **Getting Netlify Credentials:**
+   
+   For `NETLIFY_AUTH_TOKEN`:
+   - Visit https://app.netlify.com/user/applications
+   - Click "New access token"
+   - Give it a name (e.g., "GitHub Actions")
+   - Copy the generated token
+   
+   For `NETLIFY_SITE_ID`:
+   - Go to your site in Netlify
+   - Click Site settings
+   - Under "Site details" → "Site information"
+   - Copy the "Site ID" (format: `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`)
+
+6. **Redeploy**
    - Go to Deploys and trigger redeploy
    - Live site is now active!
 
@@ -53,7 +75,7 @@ npm run build
 
 3. **Add Environment Variables**
    - Add `VITE_SUPABASE_URL`
-   - Add `VITE_SUPABASE_ANON_KEY`
+   - Add `VITE_SUPABASE_PUBLISHABLE_KEY`
 
 4. **Deploy**
    - Click Deploy
@@ -103,9 +125,10 @@ npm run build
 - Check Supabase connection limits
 
 **Environment variables not working**
-- Verify naming matches vite.config.js
+- Verify naming matches vite.config.js (must start with `VITE_`)
 - Redeploy after adding variables
 - Check that values don't have extra spaces
+- For GitHub Actions, ensure secrets are set in repository settings
 
 ## Scaling Considerations
 

@@ -42,10 +42,45 @@ DigitalMarketingQUILL Tasker предоставя личен dashboard, в ко�
 
 ## Tech Stack
 
-- Frontend: HTML5, CSS3, Vanilla JavaScript (ES6+)
+- Frontend: HTML5, CSS3, Vanilla JavaScript (ES6+), Bootstrap 5
 - Build Tool: Vite
-- Data (demo mode): LocalStorage
-- Optional backend expansion: Supabase
+- Backend: Supabase (PostgreSQL + Auth + Storage)
+- Deployment: Netlify (via GitHub Actions)
+
+## Quick Start
+
+### Local Development
+
+```bash
+# Install dependencies
+npm install
+
+# Create .env file (copy from .env.example)
+cp .env.example .env
+
+# Add your Supabase credentials to .env
+# VITE_SUPABASE_URL=https://your-project.supabase.co
+# VITE_SUPABASE_PUBLISHABLE_KEY=your-publishable-key
+
+# Run dev server
+npm run dev
+```
+
+### Deploy to Netlify
+
+**Quick deployment (5 minutes):**
+
+1. See [NETLIFY_DEPLOY.md](./NETLIFY_DEPLOY.md) for step-by-step guide
+2. Use [PRE_DEPLOY_CHECKLIST.md](./PRE_DEPLOY_CHECKLIST.md) to verify setup
+
+**The fix:** GitHub Actions workflow now uses `nwtgck/actions-netlify@v3.0` (v2.0.11 doesn't exist)
+
+## Demo Credentials
+
+- Email: `admin@digiquill.com`
+- Password: `pass123`
+
+Other demo users: `svi@gmail.com`, `maria@gmail.com`, `peter@gmail.com` (same password)
 
 ## Project Structure
 
