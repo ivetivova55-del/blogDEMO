@@ -74,6 +74,7 @@ const navTasksCount = qs('#nav-tasks-count');
 const navCalendarCount = qs('#nav-calendar-count');
 const navFilesCount = qs('#nav-files-count');
 const navProjectsCount = qs('#nav-projects-count');
+const overviewSubtitle = qs('#overview-subtitle');
 
 // Welcome widgets
 const welcomeOverdueList = qs('#welcome-overdue-list');
@@ -1478,6 +1479,11 @@ async function initDashboard() {
   if (currentUserRole === 'admin') {
     greeting.textContent += ' (Admin)';
   }
+
+  if (overviewSubtitle) {
+    overviewSubtitle.classList.toggle('d-none', currentUserRole === 'admin');
+  }
+
   if (adminLink) {
     adminLink.classList.toggle('d-none', currentUserRole !== 'admin');
   }
